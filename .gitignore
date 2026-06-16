@@ -1,0 +1,49 @@
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# Testing
+/coverage
+/.nyc_output
+
+# Production / Build
+/.next/
+/out/
+/build
+/dist
+
+# Python Virtual Environments & Packages
+venv/
+.venv/
+ENV/
+env/
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.mypy_cache/
+
+# Databases
+*.db
+*.sqlite
+
+# Large Datasets and media
+dataset/
+backend/app/uploads/*
+!backend/app/uploads/.gitkeep
+backend/app/keyframes/*
+!backend/app/keyframes/.gitkeep
+backend/app/reports/*
+!backend/app/reports/.gitkeep
+
+# Environment Variables
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# System Files
+.DS_Store
+Thumbs.db

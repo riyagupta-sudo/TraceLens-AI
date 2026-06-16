@@ -1,0 +1,93 @@
+@import "tailwindcss";
+
+:root {
+  --background: #0A0A0A;
+  --foreground: #E5E5E5;
+  --primary: #00E5FF; /* Neon Cyan */
+  --secondary: #00FF9D; /* Neon Green */
+  --accent: #7C3AED; /* Deep Violet */
+  --card-bg: rgba(18, 18, 18, 0.7);
+  --border-color: rgba(255, 255, 255, 0.08);
+}
+
+body {
+  background-color: var(--background);
+  color: var(--foreground);
+  font-family: 'Inter', system-ui, sans-serif;
+  overflow-x: hidden;
+}
+
+/* Glassmorphism custom styling */
+.cyber-card {
+  background: var(--card-bg);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
+  transition: all 0.3s ease;
+}
+
+.cyber-card:hover {
+  border-color: rgba(0, 229, 255, 0.3);
+  box-shadow: 0 0 15px rgba(0, 229, 255, 0.1);
+}
+
+/* Cyber Glow Buttons */
+.cyber-button {
+  background: linear-gradient(135deg, #7C3AED 0%, #00E5FF 100%);
+  color: #fff;
+  border-radius: 6px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  transition: all 0.3s ease;
+  box-shadow: 0 0 10px rgba(124, 58, 237, 0.3);
+}
+
+.cyber-button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 0 20px rgba(0, 229, 255, 0.6);
+}
+
+/* Glowing text effects */
+.glow-text-cyan {
+  text-shadow: 0 0 8px rgba(0, 229, 255, 0.6);
+}
+
+.glow-text-green {
+  text-shadow: 0 0 8px rgba(0, 255, 157, 0.6);
+}
+
+/* Animation utilities */
+@keyframes pulseGlow {
+  0%, 100% {
+    opacity: 0.6;
+    box-shadow: 0 0 5px rgba(0, 229, 255, 0.2);
+  }
+  50% {
+    opacity: 1;
+    box-shadow: 0 0 15px rgba(0, 229, 255, 0.6);
+  }
+}
+
+.pulse-glow {
+  animation: pulseGlow 2s infinite ease-in-out;
+}
+
+/* Horizontal scrollbar styling */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #0A0A0A;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #1F1F1F;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #00E5FF;
+}
