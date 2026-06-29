@@ -1,9 +1,13 @@
-import requests
 import os
 import sys
+from fastapi.testclient import TestClient
+
+# Add backend to path
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+from app.main import app
 
 def main():
-    backend_url = "http://localhost:8000"
+    client = TestClient(app)
     base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
     dataset_dir = os.path.join(base_dir, "dataset", "case_intel_leak")
     
@@ -18,11 +22,11 @@ def main():
     print("Uploading small WhatsApp image (simulating variant first)...")
     with open(file_small_path, "rb") as f:
         files = {"file": ("whatsapp_small.jpg", f, "image/jpeg")}
-        data = {"case_id": 1}
-        res1 = requests.post(f"{backend_url}/api/upload", files=files, data=data)
+        data = {"case_id": "1"}
+        res1 = client.post("/api/upload", files=files, data=data)
         
     if res1.status_code != 200:
-        print(f"Failed to upload small image: {res1.text}")
+        print(f"Failed to upload small image: {res1.status_code} | {res1.text}")
         sys.exit(1)
         
     data1 = res1.json()
@@ -33,11 +37,11 @@ def main():
     print("\nUploading large WhatsApp image (the original)...")
     with open(file_large_path, "rb") as f:
         files = {"file": ("whatsapp_large.jpg", f, "image/jpeg")}
-        data = {"case_id": 1}
-        res2 = requests.post(f"{backend_url}/api/upload", files=files, data=data)
+        data = {"case_id": "1"}
+        res2 = client.post("/api/upload", files=files, data=data)
         
     if res2.status_code != 200:
-        print(f"Failed to upload large image: {res2.text}")
+        print(f"Failed to upload large image: {res2.status_code} | {res2.text}")
         sys.exit(1)
         
     data2 = res2.json()
@@ -46,7 +50,7 @@ def main():
     
     # Retrieve details of the first upload to verify it was re-evaluated and corrected!
     print("\nFetching details of the small image after the original was uploaded...")
-    res1_updated = requests.get(f"{backend_url}/api/media/{id1}")
+    res1_updated = client.get(f"/api/media/{id1}")
     if res1_updated.status_code == 200:
         data1_updated = res1_updated.json()
         print(f"Small Image (ID: {id1}):")
@@ -60,7 +64,7 @@ def main():
         
     # Retrieve details of the second upload to verify it is selected as the origin and clean!
     print("\nFetching details of the large image...")
-    res2_updated = requests.get(f"{backend_url}/api/media/{id2}")
+    res2_updated = client.get(f"/api/media/{id2}")
     if res2_updated.status_code == 200:
         data2_updated = res2_updated.json()
         print(f"Large Image (ID: {id2}):")
@@ -74,3 +78,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+

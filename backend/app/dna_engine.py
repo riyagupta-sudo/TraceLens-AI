@@ -1,11 +1,22 @@
 import sys
 import os
+import datetime
 app_dir = os.path.dirname(os.path.abspath(__file__))
 backend_dir = os.path.dirname(app_dir)
 if backend_dir not in sys.path:
     sys.path.insert(0, backend_dir)
 
 import logging
+# Pre-import and pre-load Random Forest model for performance
+try:
+    from ml.predict import get_model, MODEL_PATH as RF_MODEL_PATH, predict_from_features
+    _rf_model = get_model()
+    _rf_loaded = (_rf_model is not None)
+except Exception as e:
+    _rf_model = None
+    _rf_loaded = False
+    RF_MODEL_PATH = None
+    logging.error(f"Random Forest startup pre-load failed: {e}")
 import torch
 import timm
 from torchvision import transforms
@@ -15,6 +26,8 @@ import json
 import numpy as np
 import imagehash
 from typing import Dict, Any, List, Tuple, Optional
+from concurrent.futures import ThreadPoolExecutor
+from .ai_editing_engine import detect_ai_editing
 
 # AI Generation Model
 AI_MODEL = None
@@ -47,6 +60,28 @@ AI_TRANSFORM = transforms.Compose([
         std=[0.229, 0.224, 0.225]
     )
 ])
+
+_cached_ai_temp = None
+
+def load_calibrated_temperature() -> float:
+    global _cached_ai_temp
+    if _cached_ai_temp is not None:
+        return _cached_ai_temp
+    try:
+        config_path = os.path.join(
+            os.path.dirname(os.path.dirname(__file__)),
+            "config",
+            "model_calibration.json"
+        )
+        if os.path.exists(config_path):
+            with open(config_path, "r") as f:
+                config = json.load(f)
+                _cached_ai_temp = float(config.get("ai_temperature", 1.0))
+                return _cached_ai_temp
+    except Exception as e:
+        logging.error(f"Error loading calibrated temperature: {e}")
+    return 1.0
+
 
 # CASIA Tampering Model
 CASIA_MODEL = None
@@ -86,7 +121,7 @@ CASIA_TRANSFORM = transforms.Compose([
 # Print Startup verification logs
 def print_model_startup_details(model_name, loaded, path, model):
     print(f"{model_name} loaded: {'YES' if loaded else 'NO'}")
-    if loaded and model is not None and path is not None:
+    if loaded and path is not None:
         print(f"  model file path: {path}")
         import datetime
         import hashlib
@@ -99,17 +134,65 @@ def print_model_startup_details(model_name, loaded, path, model):
         mtime = os.path.getmtime(path)
         mod_time = datetime.datetime.fromtimestamp(mtime).isoformat()
         print(f"  Modification timestamp: {mod_time}")
-        param_count = sum(p.numel() for p in model.parameters())
-        print(f"  parameter count: {param_count}")
+        if model is not None and hasattr(model, "parameters"):
+            param_count = sum(p.numel() for p in model.parameters())
+            print(f"  parameter count: {param_count}")
 
 print_model_startup_details("AI detector", AI_MODEL_LOADED, MODEL_PATH, AI_MODEL)
 print_model_startup_details("CASIA detector", CASIA_MODEL_LOADED, CASIA_MODEL_PATH, CASIA_MODEL)
+if RF_MODEL_PATH:
+    print_model_startup_details("Random Forest model", _rf_loaded, RF_MODEL_PATH, _rf_model)
+    if _rf_loaded and hasattr(_rf_model, "n_estimators"):
+        print(f"  estimator count: {_rf_model.n_estimators}")
+
+# Print AI detector calibration startup info
+try:
+    config_path = os.path.join(
+        os.path.dirname(os.path.dirname(__file__)),
+        "config",
+        "model_calibration.json"
+    )
+    loaded = "NO"
+    temp_val = 1.0
+    if os.path.exists(config_path):
+        with open(config_path, "r") as f:
+            data = json.load(f)
+            if "ai_temperature" in data:
+                temp_val = float(data["ai_temperature"])
+                loaded = "YES"
+    print("AI detector calibration:")
+    print(f"Temperature: {temp_val:.1f}")
+    print(f"Calibration file loaded: {loaded}")
+except Exception as e:
+    print("AI detector calibration:")
+    print("Temperature: 1.0")
+    print("Calibration file loaded: NO")
 
 # Optional CLIP settings
 ENABLE_CLIP = os.getenv("ENABLE_CLIP", "false").lower() in ("true", "1", "yes")
 
 _clip_model = None
 _clip_processor = None
+clip_load_time_ms = 0.0
+
+print(f"ENABLE_CLIP = {'true' if ENABLE_CLIP else 'false'}")
+
+if ENABLE_CLIP:
+    import time
+    try:
+        t0 = time.perf_counter()
+        from transformers import CLIPProcessor, CLIPModel
+        model_id = "openai/clip-vit-base-patch32"
+        _clip_processor = CLIPProcessor.from_pretrained(model_id)
+        _clip_model = CLIPModel.from_pretrained(model_id)
+        _clip_model.eval()
+        clip_load_time_ms = (time.perf_counter() - t0) * 1000
+        print(f"CLIP Load Time: {clip_load_time_ms:.2f} ms")
+    except Exception as e:
+        print(f"Failed to load CLIP model on startup: {e}")
+        clip_load_time_ms = 0.0
+else:
+    print("CLIP Load Time: 0 ms (skipped)")
 
 def compute_sha256(filepath: str) -> str:
     """Computes SHA256 hash of a file."""
@@ -137,27 +220,7 @@ def get_clip_embedding(filepath: str) -> List[float]:
     """Extracts semantic embeddings using a tiny CLIP model, with a lightweight color-signature placeholder fallback."""
     global _clip_model, _clip_processor
     if not ENABLE_CLIP:
-        # Placeholder module: Extract normalized visual features to mock semantic similarity without weights
-        try:
-            with Image.open(filepath) as img:
-                # Downsample to a small grid to compute instant mock-vector
-                small = img.convert("RGB").resize((16, 16))
-                pixels = np.array(small, dtype=float)
-                # Flat features has length 16 * 16 * 3 = 768. We slice to 512.
-                flat_features = pixels.flatten()[:512]
-                if len(flat_features) < 512:
-                    flat_features = np.pad(flat_features, (0, 512 - len(flat_features)))
-                # Mean-center the features to allow negative values and realistic cosine similarities
-                mean_val = np.mean(flat_features)
-                flat_features = flat_features - mean_val
-                # Normalize vector to unit length
-                norm = np.linalg.norm(flat_features)
-                if norm > 0:
-                    flat_features = flat_features / norm
-                return flat_features.tolist()
-        except Exception as e:
-            print(f"Error computing placeholder semantic signature: {e}")
-            return [0.0] * 512
+        return []
         
     try:
         # Lazy imports to save startup RAM and allow optional CPU fallback
@@ -272,7 +335,7 @@ STD_LUMINANCE_TABLE = [
 
 
 def extract_jpeg_quantization_tables(filepath: str) -> Dict[int, List[int]]:
-    """Extracts Define Quantization Table (DQT) lists from a JPEG file."""
+    """Extracts Define Quantization Table (DQT) lists from a JPEG file, ignoring DQTs in trailing metadata or thumbnails."""
     tables = {}
     if not os.path.exists(filepath):
         return tables
@@ -280,9 +343,15 @@ def extract_jpeg_quantization_tables(filepath: str) -> Dict[int, List[int]]:
         with open(filepath, "rb") as f:
             data = f.read()
         
+        # Limit DQT marker search to before the Start of Scan (\xff\xda) marker
+        limit = len(data)
+        sos_idx = data.find(b"\xff\xda")
+        if sos_idx != -1:
+            limit = sos_idx
+            
         idx = 0
         while True:
-            idx = data.find(b"\xff\xdb", idx)
+            idx = data.find(b"\xff\xdb", idx, limit)
             if idx == -1:
                 break
             
@@ -335,18 +404,27 @@ def estimate_jpeg_quality(table: List[int]) -> Optional[int]:
         return None
 
 
-def estimate_compression_artifacts(filepath: str) -> float:
+_blockiness_cache = {}
+
+def estimate_compression_artifacts(filepath: str, img_l: Optional[Image.Image] = None) -> float:
     """
     Estimates JPEG compression blocking artifacts.
     Returns the blockiness score (ratio of boundary diff to internal diff).
     """
+    cache_key = (filepath, id(img_l) if img_l is not None else None)
+    if cache_key in _blockiness_cache:
+        return _blockiness_cache[cache_key]
+        
     try:
-        with Image.open(filepath) as img:
-            gray = np.array(img.convert("L"), dtype=float)
-            h, w = gray.shape
-            if h < 16 or w < 16:
-                return 1.0
-            
+        if img_l is not None:
+            gray = np.array(img_l, dtype=float)
+        else:
+            with Image.open(filepath) as img:
+                gray = np.array(img.convert("L"), dtype=float)
+        h, w = gray.shape
+        if h < 16 or w < 16:
+            res = 1.0
+        else:
             diff_h = np.abs(gray[:, :-1] - gray[:, 1:])
             diff_v = np.abs(gray[:-1, :] - gray[1:, :])
             
@@ -367,8 +445,10 @@ def estimate_compression_artifacts(filepath: str) -> float:
             blockiness_h = mean_bound_h / max(0.1, mean_int_h)
             blockiness_v = mean_bound_v / max(0.1, mean_int_v)
             
-            blockiness = (blockiness_h + blockiness_v) / 2.0
-            return blockiness
+            res = float((blockiness_h + blockiness_v) / 2.0)
+            
+        _blockiness_cache[cache_key] = res
+        return res
     except Exception:
         return 1.0
 
@@ -376,7 +456,9 @@ def estimate_compression_artifacts(filepath: str) -> float:
 def detect_screenshot_properties(
     filepath: str, 
     metadata: Dict[str, Any], 
-    is_derived: bool = False
+    is_derived: bool = False,
+    img_rgb: Optional[Image.Image] = None,
+    metadata_stripped_possible: bool = False
 ) -> Tuple[str, int, str, Dict[str, Any]]:
     """
     Evaluates screenshot indicators using a weighted scoring model.
@@ -394,11 +476,14 @@ def detect_screenshot_properties(
         score += 15
         evidence.append("PNG format (+15)")
         
-    # 2. No camera EXIF = +20
+    # 2. No camera EXIF = +20 (conditional)
     has_camera = bool(exif.get("Make") or exif.get("Model") or exif.get("LensModel") or exif.get("DateTimeOriginal"))
     if not has_camera:
-        score += 20
-        evidence.append("No camera EXIF (+20)")
+        if not metadata_stripped_possible:
+            score += 20
+            evidence.append("No camera EXIF (+20)")
+        else:
+            evidence.append("No camera EXIF (skipped due to metadata stripped possible)")
         
     # 3. Screen-sized dimensions = +15
     common_screen_sizes = [
@@ -425,11 +510,22 @@ def detect_screenshot_properties(
     # 5. Black borders = +15
     has_black_borders = False
     cleaned_filepath = filepath.replace("file:///", "").replace("/", "\\")
-    if os.path.exists(cleaned_filepath):
+    if img_rgb is not None:
+        try:
+            img_np = np.array(img_rgb)
+            top_avg = np.mean(img_np[:8, :, :])
+            bottom_avg = np.mean(img_np[-8:, :, :])
+            left_avg = np.mean(img_np[:, :8, :])
+            right_avg = np.mean(img_np[:, -8:, :])
+            if top_avg < 15 or bottom_avg < 15 or left_avg < 15 or right_avg < 15:
+                has_black_borders = True
+        except Exception:
+            pass
+    elif os.path.exists(cleaned_filepath):
         try:
             with Image.open(cleaned_filepath) as img:
-                img_rgb = img.convert("RGB")
-                img_np = np.array(img_rgb)
+                img_rgb_local = img.convert("RGB")
+                img_np = np.array(img_rgb_local)
                 top_avg = np.mean(img_np[:8, :, :])
                 bottom_avg = np.mean(img_np[-8:, :, :])
                 left_avg = np.mean(img_np[:, :8, :])
@@ -449,12 +545,13 @@ def detect_screenshot_properties(
         
     # 6. OCR text = +15
     ocr_text = ""
-    try:
-        from .osint_intelligence import perform_ocr
-        if os.path.exists(cleaned_filepath):
-            ocr_text = perform_ocr(cleaned_filepath)
-    except Exception:
-        pass
+    if not has_camera:
+        try:
+            from .osint_intelligence import perform_ocr
+            if os.path.exists(cleaned_filepath):
+                ocr_text = perform_ocr(cleaned_filepath)
+        except Exception:
+            pass
     if "pahalgam1" in fn or "pahalgam2" in fn:
         ocr_text = "Screenshot Valley Capture"
         
@@ -1196,7 +1293,7 @@ def build_investigation_report(
         narrative = f"This media asset is classified as a {asset_class} derived from the estimated origin. Identified modifications include {var_str}. Evidence suggests redistribution through online platforms due to metadata removal and compression factors. Investigation Confidence: {overall_conf_level} ({overall_conf_score}%)."
         
     ocr_text = forensics.get("screenshot_indicators", {}).get("evidence_matrix", {}).get("ocr_text", "")
-    stego_res = analyze_steganography_and_forensics(filepath)
+    stego_res = forensics.get("forensic_investigation") or analyze_steganography_and_forensics(filepath, metadata=metadata)
     ai_res = forensics.get("ai_detection") or detect_ai_generation(filepath, metadata, metadata.get("embedding"))
     blind_clues_res = generate_blind_investigation_clues(filepath, metadata.get("filename", ""), ocr_text)
 
@@ -1247,10 +1344,15 @@ def build_investigation_report(
     })
     
     # 3. AI Generation Probability
+    ai_formula = (
+        "z = 0.0145 * (logit / 20.00) - 1.4883 * I_exif + 0.0000 * I_noise - 0.6455 * I_fft - 0.4134 * I_block + 1.5589; Probability = 1 / (1 + e^-z)"
+        if ENABLE_AI_V1_IMPROVED else
+        "Score = AI Software Tag (+80) + Laplacian Smoothing (+20) + 2D FFT Spikes (+35) + No Camera EXIF (+15) [Capped at 2-98]"
+    )
     explanations.append({
         "metric": "AI Generation Probability",
         "score": ai_res.get("probability", 0),
-        "formula": "Score = AI Software Tag (+80) + Laplacian Smoothing (+20) + 2D FFT Spikes (+35) + No Camera EXIF (+15) [Capped at 2-98]",
+        "formula": ai_formula,
         "supporting_evidence": ai_res.get("supporting_evidence", []),
         "contradicting_evidence": ai_res.get("contradicting_evidence", []),
         "confidence": ai_res.get("confidence", 50),
@@ -1383,6 +1485,7 @@ def build_investigation_report(
             "manipulation_risk": risk_score,
             "screenshot_probability": forensics.get("screenshot_indicators", {}).get("confidence", 0),
             "ai_generation_probability": ai_res.get("probability", 0),
+            "raw_model_probability": ai_res.get("raw_model_probability", 0),
             "steganography_suspicion": stego_res.get("suspicion_score", 0),
             "metadata_status": "EXIF Tags Present" if exif else "Metadata Stripped",
             "reverse_search_status": "Completed" if parent_metadata else "Pending OSINT Scrapes",
@@ -1434,7 +1537,7 @@ def calculate_byte_entropy(data: bytes) -> float:
     return entropy
 
 
-def analyze_steganography_and_forensics(filepath: str) -> Dict[str, Any]:
+def analyze_steganography_and_forensics(filepath: str, metadata: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
     default_res = {
         "suspicion_score": 0,
         "stego_detected": False,
@@ -1492,23 +1595,128 @@ def analyze_steganography_and_forensics(filepath: str) -> Dict[str, Any]:
                 overlay_size = file_size - idx - 8
                 supporting.append(f"Overlay payload: {overlay_size} bytes detected past PNG IEND boundary.")
                 
+        # Calculate metadata trust and camera status for whitelist logic
+        exif = metadata.get("exif", {}) if metadata else {}
+        camera_make = exif.get("Make", "")
+        camera_model = exif.get("Model", "")
+        has_camera = bool(camera_make or camera_model)
+        
+        meta_trust = 15
+        if exif:
+            meta_trust = 100
+            camera_info_present = has_camera
+            timestamp_present = bool(exif.get("DateTimeOriginal") or exif.get("DateTime"))
+            software = exif.get("Software", "").lower()
+            editing_software = any(s in software for s in ["photoshop", "gimp", "canva", "pillow", "paint.net"])
+            gps_info_present = bool(exif.get("GPSInfo"))
+            
+            if not camera_info_present:
+                meta_trust -= 30
+            if not timestamp_present:
+                meta_trust -= 30
+            if editing_software:
+                meta_trust -= 30
+            if not gps_info_present:
+                meta_trust -= 10
+            meta_trust = max(10, meta_trust)
+            
+        is_trusted_camera = has_camera and meta_trust >= 90
+        
+        # Calculate Legacy / Before Fix Score
+        legacy_score = 0
         if overlay_size > 0:
-            suspicion_score += 40
-            # Look for magic bytes of common file types in the overlay
+            legacy_score += 40
+            overlay_data_legacy = data[file_size - overlay_size:]
+            if b"PK\x03\x04" in overlay_data_legacy:
+                legacy_score += 25
+            if b"JFIF" in overlay_data_legacy or b"\xff\xd8" in overlay_data_legacy:
+                legacy_score += 20
+            if b"PNG" in overlay_data_legacy:
+                legacy_score += 20
+        if avg_entropy > 7.92:
+            legacy_score += 30
+        elif avg_entropy > 7.5:
+            legacy_score += 10
+        stego_before_fix = min(99, legacy_score)
+        
+        # New Capping / Whitelist Logic
+        apply_overlay_penalty = True
+        if is_trusted_camera and overlay_size < 100 * 1024:
+            apply_overlay_penalty = False
+            
+        if overlay_size > 0:
+            if apply_overlay_penalty:
+                suspicion_score += 40
+            else:
+                supporting.append("Overlay payload whitelisted due to trusted camera EXIF metadata and small size.")
+                
             overlay_data = data[file_size - overlay_size:]
-            if b"PK\x03\x04" in overlay_data:
+            
+            # Detect signatures
+            zip_detected = b"PK\x03\x04" in overlay_data
+            png_detected = b"PNG" in overlay_data
+            exe_detected = b"MZ" in overlay_data or b"\x7fELF" in overlay_data
+            jpeg_detected = b"\xff\xd8" in overlay_data or b"JFIF" in overlay_data
+            
+            # Identify if it is a JPEG thumbnail
+            thumbnail_detected = False
+            if jpeg_detected and is_trusted_camera and overlay_size < 100 * 1024:
+                thumbnail_detected = True
+                
+            # Determine signature type for diagnostic logging
+            embedded_signature_type = "None"
+            if zip_detected:
+                embedded_signature_type = "ZIP/Archive"
+            elif exe_detected:
+                embedded_signature_type = "Executable"
+            elif png_detected:
+                embedded_signature_type = "PNG Image"
+            elif jpeg_detected:
+                embedded_signature_type = "JPEG Image (Thumbnail)" if thumbnail_detected else "JPEG Image"
+                
+            # Determine if multiple types are present
+            types_found = []
+            if zip_detected: types_found.append("ZIP/Archive")
+            if png_detected: types_found.append("PNG Image")
+            if exe_detected: types_found.append("Executable")
+            if jpeg_detected and not thumbnail_detected: types_found.append("JPEG Image")
+            
+            multiple_types = len(types_found) >= 2
+            is_abnormal_overlay = overlay_size >= 100 * 1024
+            
+            # Apply signatures penalties
+            if zip_detected:
                 resources.append("ZIP/Archive")
                 supporting.append("Embedded archive signature (PK) found in overlay.")
                 suspicion_score += 25
-            if b"JFIF" in overlay_data or b"\xff\xd8" in overlay_data:
-                resources.append("JPEG Image")
-                supporting.append("Embedded JPEG image signature found in overlay.")
-                suspicion_score += 20
-            if b"PNG" in overlay_data:
-                resources.append("PNG Image")
-                supporting.append("Embedded PNG image signature found in overlay.")
-                suspicion_score += 20
                 
+            if exe_detected:
+                resources.append("Executable")
+                supporting.append("Embedded executable signature (MZ/ELF) found in overlay.")
+                suspicion_score += 25
+                
+            if jpeg_detected:
+                if thumbnail_detected:
+                    supporting.append("Embedded JPEG thumbnail detected in trusted camera overlay (ignored).")
+                else:
+                    if is_abnormal_overlay or multiple_types:
+                        resources.append("JPEG Image")
+                        supporting.append("Embedded JPEG image signature found in overlay.")
+                        suspicion_score += 20
+                    else:
+                        supporting.append("Embedded JPEG signature found in overlay but skipped (below abnormal/multi-type threshold).")
+                        
+            if png_detected:
+                if is_abnormal_overlay or multiple_types:
+                    resources.append("PNG Image")
+                    supporting.append("Embedded PNG image signature found in overlay.")
+                    suspicion_score += 20
+                else:
+                    supporting.append("Embedded PNG signature found in overlay but skipped (below abnormal/multi-type threshold).")
+        else:
+            thumbnail_detected = False
+            embedded_signature_type = "None"
+            
         # 3. High Entropy indicators
         if avg_entropy > 7.92:
             suspicion_score += 30
@@ -1539,6 +1747,15 @@ def analyze_steganography_and_forensics(filepath: str) -> Dict[str, Any]:
         suspicion_score = min(99, suspicion_score)
         stego_detected = suspicion_score >= 50
         
+        # Diagnostic logging
+        print(f"[Stego Fix Diagnostic] File: {os.path.basename(filepath)}")
+        print(f"  overlay_size: {overlay_size} bytes")
+        print(f"  overlay_type: {ext.upper().replace('.', '') if ext else 'UNKNOWN'}")
+        print(f"  embedded_signature_type: {embedded_signature_type}")
+        print(f"  thumbnail_detected: {thumbnail_detected}")
+        print(f"  stego_before_fix: {stego_before_fix}%")
+        print(f"  stego_after_fix: {suspicion_score}%")
+        
         if not supporting:
             contradicting.append("No hidden headers or trailing payloads detected.")
             alt.append("Normal camera file storage or platform compression.")
@@ -1559,13 +1776,16 @@ def analyze_steganography_and_forensics(filepath: str) -> Dict[str, Any]:
         print(f"Error in steganography analysis: {e}")
         return default_res
 
-def predict_casia_tampering(filepath: str) -> Tuple[int, str]:
+def predict_casia_tampering(filepath: str, img_rgb: Optional[Image.Image] = None) -> Tuple[int, str]:
     try:
         if CASIA_MODEL is None:
             logging.warning("CASIA_MODEL is None during predict_casia_tampering call.")
             return 0, "AUTHENTIC"
 
-        img = Image.open(filepath).convert("RGB")
+        if img_rgb is None:
+            img = Image.open(filepath).convert("RGB")
+        else:
+            img = img_rgb
         tensor = CASIA_TRANSFORM(img).unsqueeze(0)
 
         with torch.no_grad():
@@ -1581,21 +1801,258 @@ def predict_casia_tampering(filepath: str) -> Tuple[int, str]:
         logging.error(f"CASIA prediction error for {filepath}: {e}", exc_info=True)
         return 0, "AUTHENTIC"
 
-def predict_ai_probability(filepath: str) -> int:
+# Improved V1 Pipeline parameters and fusion weights (fit on validation pack)
+ENABLE_AI_V1_IMPROVED = os.getenv("ENABLE_AI_V1_IMPROVED", "true").lower() == "true"
+V1_TEMP = 20.0
+V1_THRESHOLD = 0.4200
+W_LOGIT = 0.014536
+W_EXIF = -1.488286
+W_NOISE = 0.0
+W_FFT = -0.645450
+W_BLOCK = -0.413436
+LR_INTERCEPT = 1.558882
+
+_logit_cache = {}
+
+def get_cached_logit(filepath: str, img_rgb: Optional[Image.Image] = None) -> float:
+    cache_key = filepath
+    if cache_key in _logit_cache:
+        return _logit_cache[cache_key]
+        
+    from PIL import ImageOps
+    if img_rgb is None:
+        img = Image.open(filepath)
+        img = ImageOps.exif_transpose(img)
+        img_rgb_loaded = img.convert("RGB")
+    else:
+        img_rgb_loaded = img_rgb
+        
+    tensor = AI_TRANSFORM(img_rgb_loaded).unsqueeze(0)
+    device = next(AI_MODEL.parameters()).device
+    with torch.no_grad():
+        logit = AI_MODEL(tensor.to(device)).item()
+        
+    _logit_cache[cache_key] = logit
+    return logit
+
+def predict_ai_probability_improved(filepath: str, img_rgb: Optional[Image.Image] = None) -> int:
     try:
+        from PIL import ImageOps
+        if AI_MODEL is None:
+            logging.warning("AI_MODEL is None during predict_ai_probability_improved call.")
+            return 0
+
+        if img_rgb is None:
+            img = Image.open(filepath)
+            img = ImageOps.exif_transpose(img)
+            img = img.convert("RGB")
+        else:
+            img = img_rgb
+            
+        logit = get_cached_logit(filepath, img)
+        prob = torch.sigmoid(torch.tensor(logit / V1_TEMP)).item()
+        ai_prob = 1.0 - prob
+        return int(ai_prob * 100)
+    except Exception as e:
+        logging.error(f"Improved AI prediction error: {e}", exc_info=True)
+        return 0
+
+def detect_ai_generation_improved(
+    filepath: str, 
+    metadata: Dict[str, Any], 
+    embedding: Optional[List[float]] = None,
+    img_rgb: Optional[Image.Image] = None,
+    img_l: Optional[Image.Image] = None
+) -> Dict[str, Any]:
+    default_res = {
+        "probability": 0,
+        "raw_model_probability": 0,
+        "confidence": 50,
+        "supporting_evidence": [],
+        "contradicting_evidence": ["Standard noise consistency. No frequency grid or metadata anomalies found."],
+        "alternative_explanations": ["Naturally captured photography with standard lens noise."]
+    }
+    if not os.path.exists(filepath):
+        return default_res
+        
+    try:
+        import time
+        from PIL import ImageOps
+        import cv2
+        
+        evidence_supp = []
+        evidence_contra = []
+        alt = []
+        
+        ai_model_start = time.perf_counter()
+        if img_rgb is None:
+            img = Image.open(filepath)
+            img_transposed = ImageOps.exif_transpose(img)
+            img_rgb_loaded = img_transposed.convert("RGB")
+        else:
+            img_transposed = img_rgb
+            img_rgb_loaded = img_rgb
+            
+        logit = get_cached_logit(filepath, img_rgb_loaded)
+        prob_real = torch.sigmoid(torch.tensor(logit / V1_TEMP)).item()
+        raw_ai_prob = 1.0 - prob_real
+        ai_model_time = (time.perf_counter() - ai_model_start) * 1000
+        
+        exif = metadata.get("exif", {})
+        software = exif.get("Software", "").lower() if exif else ""
+        make = exif.get("Make", "").lower() if exif else ""
+        model = exif.get("Model", "").lower() if exif else ""
+        
+        has_camera = bool(make or model)
+        ai_software_tags = ["midjourney", "stable diffusion", "dall-e", "firefly", "craiyon", "wombo", "artbreeder", "bing image", "adobe firefly", "generative fill"]
+        software_detected = any(t in software for t in ai_software_tags)
+        
+        exif_warning = 1.0 if (not has_camera or software_detected) else 0.0
+        
+        if img_l is not None:
+            img_gray = np.array(img_l)
+        else:
+            img_gray = np.array(img_transposed.convert("L"))
+            
+        h, w = img_gray.shape
+        if h > 500 or w > 500:
+            img_gray_lap = cv2.resize(img_gray, (500, 500))
+        else:
+            img_gray_lap = img_gray
+            
+        laplacian = cv2.Laplacian(img_gray_lap, cv2.CV_64F)
+        lap_var = float(np.var(laplacian))
+        noise_warning = 1.0 if lap_var < 5.0 else 0.0
+        
+        fft_start = time.perf_counter()
+        resized_fft = cv2.resize(img_gray, (256, 256))
+        dft = np.fft.fft2(resized_fft)
+        dft_shift = np.fft.fftshift(dft)
+        magnitude_spectrum = 20 * np.log(np.abs(dft_shift) + 1e-8)
+        center = 128
+        r_min, r_max = 64, 120
+        y, x = np.ogrid[-center:256-center, -center:256-center]
+        mask = (x**2 + y**2 >= r_min**2) & (x**2 + y**2 <= r_max**2)
+        outer_ring = magnitude_spectrum[mask]
+        mean_val = np.mean(outer_ring)
+        std_val = np.std(outer_ring)
+        peak_threshold = mean_val + 3.5 * std_val
+        peaks = outer_ring[outer_ring > peak_threshold]
+        num_peaks = len(peaks)
+        fft_warning = 1.0 if num_peaks > 15 else 0.0
+        fft_time = (time.perf_counter() - fft_start) * 1000
+        
+        blockiness = estimate_compression_artifacts(filepath, img_l)
+        blockiness_warning = 1.0 if blockiness < 0.9 else 0.0
+        
+        z = (W_LOGIT * (logit / V1_TEMP) + 
+             W_EXIF * exif_warning + 
+             W_NOISE * noise_warning + 
+             W_FFT * fft_warning + 
+             W_BLOCK * blockiness_warning + 
+             LR_INTERCEPT)
+             
+        fused_prob = 1.0 / (1.0 + np.exp(-z))
+        is_tampered_pred = (fused_prob >= V1_THRESHOLD)
+        
+        prob_display = int(fused_prob * 100)
+        prob_display = max(2, min(98, prob_display))
+        
+        if fft_warning > 0:
+            evidence_supp.append(f"Periodic frequency-domain spikes detected (FFT peak anomaly count: {num_peaks}), indicating generative deconvolution grid artifacts.")
+        else:
+            evidence_contra.append("Clean frequency-domain spectrum (no periodic deconvolution spikes).")
+            
+        if noise_warning > 0:
+            evidence_supp.append(f"Extremely low high-frequency texture variance ({lap_var:.2f}), suggesting unnatural artificial smoothing.")
+        else:
+            evidence_contra.append(f"Standard high-frequency visual grain detected (variance: {lap_var:.2f}).")
+            
+        if software_detected:
+            evidence_supp.append(f"AI Generator software header found: '{software}'.")
+        elif software:
+            evidence_contra.append(f"Camera/editor software tag present: '{software}'.")
+            
+        if not has_camera and not software_detected:
+            evidence_supp.append("Absence of camera manufacturer or hardware model EXIF tags.")
+        elif has_camera:
+            evidence_contra.append(f"Camera manufacturer/model tags verified: {make} {model}")
+            
+        if blockiness_warning > 0:
+            evidence_supp.append(f"JPEG grid disruption detected (blockiness ratio: {blockiness:.4f}).")
+        else:
+            evidence_contra.append(f"Standard JPEG grid blockiness consistency (blockiness ratio: {blockiness:.4f}).")
+            
+        if is_tampered_pred:
+            explanation = (
+                f"The image shows suspicious tampering or generative characteristics (probability: {prob_display}%). "
+                f"Contributing factors: " + ", ".join(evidence_supp)
+            )
+            evidence_supp.append(f"Neural AI Detector identified anomalous patterns (logit: {logit:.4f}).")
+        else:
+            explanation = (
+                f"The image is classified as authentic with high confidence (probability: {prob_display}%). "
+                f"Verified factors: " + ", ".join(evidence_contra)
+            )
+            evidence_contra.append(f"Neural AI Detector verified standard sensor noise footprint (logit: {logit:.4f}).")
+            
+        if not evidence_supp:
+            alt.append("High quality camera captures with optical lenses.")
+        else:
+            alt.append("Manual editor compression artifacts, screen filter captures, or professional noise reduction tools.")
+            
+        conf = int(85 if (exif or len(evidence_supp) > 1) else 65)
+        
+        logging.info(
+            f"[Improved V1 Prediction Log]:\n"
+            f"  - Raw Model Logit: {logit:.6f}\n"
+            f"  - Temp-Scaled Prob: {raw_ai_prob*100:.2f}% (T={V1_TEMP})\n"
+            f"  - Decision Threshold: {V1_THRESHOLD:.4f}\n"
+            f"  - Forensic Signal Contributions:\n"
+            f"    * Logit: {W_LOGIT * (logit / V1_TEMP):.6f}\n"
+            f"    * EXIF: {W_EXIF * exif_warning:.6f} (warning={exif_warning})\n"
+            f"    * Noise: {W_NOISE * noise_warning:.6f} (warning={noise_warning})\n"
+            f"    * FFT: {W_FFT * fft_warning:.6f} (warning={fft_warning})\n"
+            f"    * JPEG Block: {W_BLOCK * blockiness_warning:.6f} (warning={blockiness_warning})\n"
+            f"  - LR Intercept: {LR_INTERCEPT:.6f}\n"
+            f"  - Final Fused Value (z): {z:.6f}\n"
+            f"  - Final Fused Probability: {fused_prob*100:.2f}%\n"
+            f"  - Explanation: {explanation}"
+        )
+        
+        return {
+            "probability": int(prob_display),
+            "raw_model_probability": int(raw_ai_prob * 100),
+            "confidence": int(conf),
+            "supporting_evidence": evidence_supp,
+            "contradicting_evidence": evidence_contra,
+            "alternative_explanations": alt,
+            "ai_model_time_ms": ai_model_time,
+            "fft_time_ms": fft_time
+        }
+    except Exception as e:
+        logging.error(f"Error in improved AI detection: {e}", exc_info=True)
+        return default_res
+
+def predict_ai_probability(filepath: str, img_rgb: Optional[Image.Image] = None) -> int:
+    if ENABLE_AI_V1_IMPROVED:
+        return predict_ai_probability_improved(filepath, img_rgb)
+    try:
+        from PIL import ImageOps
         if AI_MODEL is None:
             logging.warning("AI_MODEL is None during predict_ai_probability call.")
             return 0
 
-        img = Image.open(filepath).convert("RGB")
-        tensor = AI_TRANSFORM(img).unsqueeze(0)
-
-        logging.info(f"AI Detector - input image path: {filepath}")
-        logging.info(f"AI Detector - input tensor shape: {tensor.shape}")
-
-        with torch.no_grad():
-            output = AI_MODEL(tensor)
-            prob = torch.sigmoid(output).item()
+        if img_rgb is None:
+            img = Image.open(filepath)
+            img = ImageOps.exif_transpose(img)
+            img = img.convert("RGB")
+        else:
+            img = img_rgb
+            
+        logit = get_cached_logit(filepath, img)
+        temperature = load_calibrated_temperature()
+        prob = torch.sigmoid(torch.tensor(logit / temperature)).item()
 
         # Since the model was trained with FAKE = 0 and REAL = 1,
         # 'prob' is the probability of the image being REAL.
@@ -1609,7 +2066,16 @@ def predict_ai_probability(filepath: str) -> int:
         return 0
 
 
-def detect_ai_generation(filepath: str, metadata: Dict[str, Any], embedding: Optional[List[float]] = None) -> Dict[str, Any]:
+def detect_ai_generation(
+    filepath: str, 
+    metadata: Dict[str, Any], 
+    embedding: Optional[List[float]] = None,
+    img_rgb: Optional[Image.Image] = None,
+    img_l: Optional[Image.Image] = None
+) -> Dict[str, Any]:
+    if ENABLE_AI_V1_IMPROVED:
+        return detect_ai_generation_improved(filepath, metadata, embedding, img_rgb, img_l)
+
     default_res = {
         "probability": 0,
         "raw_model_probability": 0,
@@ -1622,12 +2088,15 @@ def detect_ai_generation(filepath: str, metadata: Dict[str, Any], embedding: Opt
         return default_res
         
     try:
+        import time
         evidence_supp = []
         evidence_contra = []
         alt = []
 
         # AI Detector model prediction
-        ai_model_prob = predict_ai_probability(filepath)
+        ai_model_start = time.perf_counter()
+        ai_model_prob = predict_ai_probability(filepath, img_rgb)
+        ai_model_time = (time.perf_counter() - ai_model_start) * 1000
         model_loaded = (AI_MODEL is not None)
         
         # 1. EXIF Metadata Check
@@ -1646,18 +2115,31 @@ def detect_ai_generation(filepath: str, metadata: Dict[str, Any], embedding: Opt
         elif software:
             evidence_contra.append(f"Camera/editor software tag present: '{software}'.")
             
+        # Load grayscale numpy image from img_l if available to avoid repeated disk reads
+        img_gray = None
+        try:
+            if img_l is not None:
+                img_gray = np.array(img_l)
+            else:
+                from PIL import Image
+                with Image.open(filepath) as im:
+                    img_gray = np.array(im.convert("L"))
+        except Exception as e:
+            logging.warning(f"Failed to read image as grayscale: {e}")
+
         # 2. Laplacian Noise Pattern Checks
         lap_var = None
         laplacian_triggered = False
         try:
             import cv2
-            img = cv2.imread(filepath, cv2.IMREAD_GRAYSCALE)
-            if img is not None:
-                h, w = img.shape
+            if img_gray is not None:
+                h, w = img_gray.shape
                 if h > 500 or w > 500:
-                    img = cv2.resize(img, (500, 500))
+                    img_gray_lap = cv2.resize(img_gray, (500, 500))
+                else:
+                    img_gray_lap = img_gray
                 
-                laplacian = cv2.Laplacian(img, cv2.CV_64F)
+                laplacian = cv2.Laplacian(img_gray_lap, cv2.CV_64F)
                 lap_var = float(np.var(laplacian))
                 
                 if lap_var < 5.0:
@@ -1671,11 +2153,11 @@ def detect_ai_generation(filepath: str, metadata: Dict[str, Any], embedding: Opt
         # 3. 2D FFT Frequency Analysis
         num_peaks = 0
         fft_triggered = False
+        fft_start = time.perf_counter()
         try:
             import cv2
-            img = cv2.imread(filepath, cv2.IMREAD_GRAYSCALE)
-            if img is not None:
-                resized = cv2.resize(img, (256, 256))
+            if img_gray is not None:
+                resized = cv2.resize(img_gray, (256, 256))
                 dft = np.fft.fft2(resized)
                 dft_shift = np.fft.fftshift(dft)
                 magnitude_spectrum = 20 * np.log(np.abs(dft_shift) + 1e-8)
@@ -1700,6 +2182,7 @@ def detect_ai_generation(filepath: str, metadata: Dict[str, Any], embedding: Opt
                     evidence_contra.append(f"Clean frequency-domain spectrum (no periodic deconvolution spikes).")
         except Exception as e:
             logging.warning(f"FFT calculation failed: {e}")
+        fft_time = (time.perf_counter() - fft_start) * 1000
 
         # Metadata checklist for evidence accumulation
         if not has_camera and not software_detected:
@@ -1794,7 +2277,9 @@ def detect_ai_generation(filepath: str, metadata: Dict[str, Any], embedding: Opt
             "confidence": int(conf),
             "supporting_evidence": evidence_supp,
             "contradicting_evidence": evidence_contra,
-            "alternative_explanations": alt
+            "alternative_explanations": alt,
+            "ai_model_time_ms": ai_model_time,
+            "fft_time_ms": fft_time
         }
     except Exception as e:
         logging.error(f"Error in AI detection: {e}", exc_info=True)
@@ -1892,14 +2377,134 @@ def generate_blind_investigation_clues(filepath: str, filename: str, ocr_text: s
         return default_res
 
 
+def resolve_forensic_consensus(
+    ai_score: int,
+    rf_prob: int,
+    metadata_trust: int,
+    screenshot_prob: int,
+    stego_susp: int,
+    casia_prob: int,
+    metadata_stripped_possible: bool = False
+) -> Dict[str, Any]:
+    """
+    Evaluates the forensic consensus state based on the hardened sequential rule hierarchy.
+    """
+    # 1. HIGH_CONFIDENCE_AI_GENERATED
+    if ai_score >= 90 and rf_prob >= 70 and metadata_trust <= 30:
+        state = "HIGH_CONFIDENCE_AI_GENERATED"
+        explanation = "Multiple forensic systems strongly agree that the media is likely AI generated or manipulated."
+        confidence = "VERY HIGH"
+        selected_rule = "AI >= 90 AND RF >= 70 AND Metadata Trust <= 30"
+
+    # 1.5 Metadata-Aware Consensus Route (MIXED_SIGNALS)
+    elif (
+        ai_score >= 80
+        and metadata_stripped_possible
+        and rf_prob < 40
+        and screenshot_prob < 25
+        and stego_susp < 20
+    ):
+        state = "MIXED_SIGNALS"
+        explanation = (
+            "Neural detector reports elevated AI indicators, "
+            "however metadata appears stripped while supporting "
+            "forensic signals remain clean. Additional validation recommended."
+        )
+        confidence = "MEDIUM"
+        selected_rule = "Metadata Stripped Possible (AI >= 80, RF < 40, Screenshot < 25, Stego < 20)"
+
+    # 2. LIKELY_AI_GENERATED
+    elif ai_score >= 80 and (
+        rf_prob >= 40 or
+        screenshot_prob >= 25 or
+        stego_susp >= 25 or
+        (metadata_trust <= 50 and rf_prob >= 25)
+    ):
+        state = "LIKELY_AI_GENERATED"
+        explanation = "Strong AI generation indicators supported by additional forensic anomalies."
+        confidence = "HIGH"
+        selected_rule = "AI >= 80 AND (RF >= 40 OR Screenshot >= 25 OR Stego >= 25 OR (Metadata Trust <= 50 AND RF >= 25))"
+
+    # 3. MIXED_SIGNALS
+    elif ai_score >= 80 and metadata_trust >= 80 and rf_prob < 40 and screenshot_prob < 25 and stego_susp < 20:
+        state = "MIXED_SIGNALS"
+        explanation = (
+            "The neural detector reports elevated AI-generation indicators, however supporting "
+            "forensic evidence is insufficient to reach a high-confidence conclusion. "
+            "This result does NOT indicate authenticity. Additional analyst review is recommended."
+        )
+        confidence = "MEDIUM"
+        selected_rule = "AI >= 80 AND Metadata Trust >= 80 AND RF < 40 AND Screenshot < 25 AND Stego < 20"
+
+    # 4. VERIFIED_AUTHENTIC
+    elif ai_score < 30 and rf_prob < 20 and metadata_trust >= 90 and stego_susp < 15 and screenshot_prob < 15:
+        state = "VERIFIED_AUTHENTIC"
+        explanation = "All forensic engines indicate authentic characteristics and a trusted metadata chain."
+        confidence = "HIGH"
+        selected_rule = "AI < 30 AND RF < 20 AND Metadata Trust >= 90 AND Stego < 15 AND Screenshot < 15"
+
+    # 5. LIKELY_AUTHENTIC
+    elif ai_score < 50 and rf_prob < 30 and metadata_trust >= 80:
+        state = "LIKELY_AUTHENTIC"
+        explanation = "Evidence supports authenticity with no meaningful forensic anomalies detected."
+        confidence = "HIGH"
+        selected_rule = "AI < 50 AND RF < 30 AND Metadata Trust >= 80"
+
+    # 6. INVESTIGATE_FURTHER (Fallback)
+    else:
+        state = "INVESTIGATE_FURTHER"
+        explanation = "Evidence is inconclusive and requires additional analyst review."
+        confidence = "MEDIUM"
+        selected_rule = "Fallback (No other rules matched)"
+
+    # Print [CONSENSUS AUDIT] block
+    print("[CONSENSUS AUDIT]")
+    print(f"AI Score: {ai_score}")
+    print(f"RF Probability: {rf_prob}")
+    print(f"Metadata Trust: {metadata_trust}")
+    print(f"Screenshot Probability: {screenshot_prob}")
+    print(f"Stego Suspicion: {stego_susp}")
+    print(f"CASIA Probability: {casia_prob}")
+    print(f"Metadata Stripped Possible: {metadata_stripped_possible}")
+    print(f"Selected State: {state}")
+
+    res = {
+        "state": state,
+        "explanation": explanation,
+        "confidence": confidence,
+        "selected_rule": selected_rule,
+        "signal_breakdown": {
+            "ai_score": int(ai_score),
+            "rf_prob": int(rf_prob),
+            "metadata_trust": int(metadata_trust),
+            "screenshot_prob": int(screenshot_prob),
+            "stego_susp": int(stego_susp),
+            "casia_prob": int(casia_prob)
+        }
+    }
+
+    if casia_prob >= 50:
+        res["casia_advisory"] = (
+            "CASIA detected manipulation indicators. "
+            "This signal is advisory only due to known false-positive behavior."
+        )
+
+    return res
+
+
 def calculate_integrity_and_risk(
     filepath: str, 
     metadata: Dict[str, Any], 
     mime_type: str,
     phash: str,
-    parent_metadata: Optional[Dict[str, Any]] = None
+    parent_metadata: Optional[Dict[str, Any]] = None,
+    metadata_time_ms: float = 0.0,
+    start_total_time: float = 0.0
 ) -> Tuple[int, int, Dict[str, Any]]:
     """Calculates DNA Integrity Score (0-100) and Risk Score (0-100) along with forensics details using content only."""
+    import time
+    
+    start_analysis = time.perf_counter()
     w = metadata.get("width", 800)
     h = metadata.get("height", 600)
     
@@ -1929,8 +2534,93 @@ def calculate_integrity_and_risk(
     metadata_stripped = not bool(exif)
     forensics["metadata_stripped"] = metadata_stripped
     
-    # 1. Run screenshot indicators check first
-    ss_status, ss_score, ss_lvl, ss_matrix = detect_screenshot_properties(filepath, metadata, is_derived=is_derived)
+    # Open PIL Image once and convert to RGB and L for reuse
+    img_pil = None
+    img_rgb = None
+    img_l = None
+    try:
+        if os.path.exists(filepath):
+            img_pil = Image.open(filepath)
+            img_rgb = img_pil.convert("RGB")
+            img_l = img_pil.convert("L")
+    except Exception as e:
+        logging.error(f"Failed to pre-load PIL Image from {filepath}: {e}")
+    # Run pipeline tasks concurrently
+    def _run_ai():
+        return detect_ai_generation(filepath, metadata, metadata.get("embedding"), img_rgb, img_l)
+        
+    def _run_casia():
+        return predict_casia_tampering(filepath, img_rgb)
+        
+    def _run_stego():
+        return analyze_steganography_and_forensics(filepath, metadata=metadata)
+        
+    def _run_blockiness():
+        return estimate_compression_artifacts(filepath, img_l)
+        
+    def _run_screenshot():
+        return detect_screenshot_properties(filepath, metadata, is_derived=is_derived, img_rgb=img_rgb)
+        
+    def _run_editing():
+        return detect_ai_editing(filepath)
+        
+    def time_task(func):
+        t0 = time.perf_counter()
+        res = func()
+        duration = (time.perf_counter() - t0) * 1000
+        return res, duration
+
+    try:
+        with ThreadPoolExecutor(max_workers=6) as executor:
+            future_ai = executor.submit(time_task, _run_ai)
+            future_casia = executor.submit(time_task, _run_casia)
+            future_stego = executor.submit(time_task, _run_stego)
+            future_blockiness = executor.submit(time_task, _run_blockiness)
+            future_screenshot = executor.submit(time_task, _run_screenshot)
+            future_editing = executor.submit(time_task, _run_editing)
+            
+            # Collect results and timings
+            ai_res_time = future_ai.result()
+            casia_res_time = future_casia.result()
+            stego_res_time = future_stego.result()
+            blockiness_res_time = future_blockiness.result()
+            screenshot_res_time = future_screenshot.result()
+            editing_res_time = future_editing.result()
+    finally:
+        _blockiness_cache.clear()
+        _logit_cache.clear()
+        
+    ai_res, ai_time = ai_res_time
+    (casia_prob, casia_class), casia_time = casia_res_time
+    stego_res, stego_time = stego_res_time
+    blockiness, blockiness_time = blockiness_res_time
+    (ss_status, ss_score, ss_lvl, ss_matrix), screenshot_time = screenshot_res_time
+    editing_res, editing_time = editing_res_time
+
+    # Save to forensics
+    forensics["ai_editing_detection"] = editing_res
+    forensics["ai_generation_probability"] = int(ai_res.get("probability", 0))
+    forensics["ai_edited_probability"] = int(editing_res.get("editing_probability", 2))
+    forensics["ai_edit_analysis_version"] = "1.0"
+    forensics["ai_edit_analysis_timestamp"] = datetime.datetime.utcnow().isoformat()
+    forensics["ai_edit_analysis_json"] = editing_res
+    ai_prob = ai_res.get("probability", 0)
+    ai_model_time = ai_res.get("ai_model_time_ms", 0.0)
+    fft_time = ai_res.get("fft_time_ms", 0.0)
+    ela_time = blockiness_time
+    
+    forensics["ai_detection"] = ai_res
+    
+    casia_res = {
+        "probability": casia_prob,
+        "class": casia_class
+    }
+    forensics["casia_detection"] = casia_res
+    
+    # Store steganography results precomputed concurrently
+    forensics["forensic_investigation"] = stego_res
+
+    # Screenshot indicators stored in forensics
     forensics["screenshot_indicators"] = {
         "status": ss_status,
         "confidence": ss_score,
@@ -1938,11 +2628,9 @@ def calculate_integrity_and_risk(
         "evidence_matrix": ss_matrix
     }
 
-    # 2. Check JPEG quantization tables and blockiness
+    # Extract JPEG quantization tables (very fast in main thread)
     tables = extract_jpeg_quantization_tables(filepath) if os.path.exists(filepath) else {}
     jpeg_quality = estimate_jpeg_quality(tables.get(0))
-    blockiness = estimate_compression_artifacts(filepath) if os.path.exists(filepath) else 1.0
-
     if jpeg_quality is not None:
         metadata["jpeg_quality"] = jpeg_quality
     metadata["blockiness"] = blockiness
@@ -1989,7 +2677,8 @@ def calculate_integrity_and_risk(
             "file_size": parent_metadata.get("file_size", 0),
             "mime_type": parent_metadata.get("mime_type"),
             "sha256": parent_metadata.get("sha256"),
-            "filepath": parent_metadata.get("filepath")
+            "filepath": parent_metadata.get("filepath"),
+            "filename": parent_metadata.get("filename")
         }
         
         target_dna = {
@@ -2003,24 +2692,33 @@ def calculate_integrity_and_risk(
             "mime_type": mime_type,
             "sha256": metadata.get("sha256"),
             "filepath": filepath,
+            "filename": metadata.get("filename"),
             "screenshot_indicators": forensics["screenshot_indicators"]
         }
         
         _, _, match_details = analyze_matches(source_dna, target_dna)
         rel_type = match_details.get("relationship_type", "Modified Variant")
         
-        if rel_type == "Cropped Variant":
+        mapped_rel_type = "Modified Variant"
+        if rel_type in ("Crop", "Cropped Variant"):
+            mapped_rel_type = "Cropped Variant"
             forensics["cropping_detected"] = True
-        elif rel_type == "Resized Variant":
+        elif rel_type in ("Screenshot", "Screenshot-Derived Variant"):
+            mapped_rel_type = "Screenshot-Derived Variant"
+            forensics["cropping_detected"] = True
+        elif rel_type in ("Resize", "WhatsApp Variant", "Social Media Variant", "Email Variant", "Resized Variant"):
+            mapped_rel_type = "Resized Variant"
             forensics["resizing_detected"] = True
-        elif rel_type == "Watermarked Variant":
+        elif rel_type in ("Watermarked Variant", "Watermark"):
+            mapped_rel_type = "Watermarked Variant"
             forensics["watermark_detected"] = True
-        elif rel_type == "Compressed Variant":
+        elif rel_type in ("Recompressed", "Compressed Variant"):
+            mapped_rel_type = "Compressed Variant"
             forensics["heavy_compression"] = True
-        elif rel_type == "Screenshot-Derived Variant":
-            forensics["cropping_detected"] = True
+        elif rel_type == "Duplicate":
+            mapped_rel_type = "Duplicate"
             
-        forensics["asset_classification"] = rel_type
+        forensics["asset_classification"] = mapped_rel_type
     else:
         has_camera_metadata = bool(exif.get("Make") or exif.get("Model") or exif.get("DateTimeOriginal") or exif.get("GPSInfo"))
         if has_camera_metadata:
@@ -2030,20 +2728,7 @@ def calculate_integrity_and_risk(
         else:
             forensics["asset_classification"] = "Not Evaluated"
 
-    # Calculate AI generation probability early
-    ai_res = detect_ai_generation(filepath, metadata, metadata.get("embedding"))
-    ai_prob = ai_res.get("probability", 0)
-    forensics["ai_detection"] = ai_res
-
-    # Calculate CASIA tampering probability early
-    casia_prob, casia_class = predict_casia_tampering(filepath)
-    casia_res = {
-        "probability": casia_prob,
-        "class": casia_class
-    }
-    forensics["casia_detection"] = casia_res
-    
-    # Calculate Metadata Trust Score early
+    # Calculate Metadata Trust Score
     metadata_present = bool(exif)
     camera_information = bool(exif.get("Make") or exif.get("Model")) if exif else False
     capture_timestamp = bool(exif.get("DateTimeOriginal") or exif.get("DateTime")) if exif else False
@@ -2064,12 +2749,7 @@ def calculate_integrity_and_risk(
             meta_trust -= 10
         meta_trust = max(10, meta_trust)
 
-    # 4. Integrity Scoring Cumulative Rules:
-    # Original: 100 base.
-    # Penalties: Crop (-15), Resize (-10), Watermark (-15), Heavy compression (-20), Screenshot-derived (-25)
-    # AI Deductions: ai_prob > 90 (-40), > 70 (-25), > 50 (-15), > 30 (-5)
-    # Metadata Deductions: meta_trust < 30 (-20), < 60 (-10), < 90 (-5)
-    # Integrity must never increase after modification.
+    # 4. Integrity Scoring Cumulative Rules (AI deductions completely removed):
     integrity = 100
     
     is_crop = forensics.get("cropping_detected") or rel_type == "Cropped Variant"
@@ -2089,16 +2769,6 @@ def calculate_integrity_and_risk(
     if is_screenshot:
         integrity -= 25
         
-    # AI generation probability deductions
-    if ai_prob > 90:
-        integrity -= 40
-    elif ai_prob > 70:
-        integrity -= 25
-    elif ai_prob > 50:
-        integrity -= 15
-    elif ai_prob > 30:
-        integrity -= 5
-        
     # Metadata trust score deductions
     if meta_trust < 30:
         integrity -= 20
@@ -2106,10 +2776,6 @@ def calculate_integrity_and_risk(
         integrity -= 10
     elif meta_trust < 90:
         integrity -= 5
-        
-    # Strict Capping Rule: Integrity must never be 100% when AI Artifact Score exceeds 90%
-    if ai_prob > 90:
-        integrity = min(integrity, 95)
         
     # Bounds checking
     integrity = max(10, min(100, integrity))
@@ -2124,11 +2790,7 @@ def calculate_integrity_and_risk(
             
     forensics["scoring_anomaly"] = scoring_anomaly
 
-    # 5. Risk Assessment Cumulative Rules:
-    # Original: Risk 0 base.
-    # Risk factors: Crop (+15), Resize (+10), Watermark (+20), Compression (+25), Screenshot (+15), Metadata removed (+10)
-    # AI Additions: ai_prob > 90 (+40), > 70 (+25), > 50 (+15), > 30 (+5)
-    # Metadata Additions: meta_trust < 30 (+20), < 60 (+10), < 90 (+5)
+    # 5. Risk Assessment Cumulative Rules (AI additions completely removed):
     risk = 0
     if is_crop:
         risk += 15
@@ -2142,16 +2804,6 @@ def calculate_integrity_and_risk(
         risk += 15
     if metadata_stripped:
         risk += 10
-        
-    # AI generation probability additions
-    if ai_prob > 90:
-        risk += 40
-    elif ai_prob > 70:
-        risk += 25
-    elif ai_prob > 50:
-        risk += 15
-    elif ai_prob > 30:
-        risk += 5
         
     # Metadata trust score additions
     if meta_trust < 30:
@@ -2175,7 +2827,6 @@ def calculate_integrity_and_risk(
     
     # ML Assisted Forensics Inference Integration
     try:
-        from ml.predict import predict_from_features
         screenshot_prob = forensics.get("screenshot_indicators", {}).get("confidence", 0)
         meta_intel = report.get("metadata_intelligence", {})
         meta_trust = meta_intel.get("metadata_trust_score", 100)
@@ -2189,7 +2840,7 @@ def calculate_integrity_and_risk(
             "screenshot_probability": screenshot_prob,
             "metadata_trust_score": meta_trust,
             "blockiness": blockiness,
-            "ai_generation_probability": ai_prob,
+            "ai_generation_probability": 0, # Decoupled to freeze AI Detector V1 influence
             "stego_suspicion": stego_susp,
             "compression_status": comp_status
         }
@@ -2212,15 +2863,266 @@ def calculate_integrity_and_risk(
         if "investigation_summary" in report:
             report["investigation_summary"]["ml_tampering_probability"] = 0.0
             report["investigation_summary"]["ml_classification"] = "NOT EVALUATED"
+
+    # Check if metadata removal could be from normal social media workflow
+    meta_intel = report.get("metadata_intelligence", {})
+    meta_trust = meta_intel.get("metadata_trust_score", 100)
+    rf_prob_pct = forensics.get("ml_tampering_probability", 0.0) * 100
+    stego_susp = stego_res.get("suspicion_score", 0)
+    
+    metadata_stripped_possible = (
+        meta_trust <= 20
+        and rf_prob_pct < 40
+        and stego_susp < 20
+        and casia_prob < 20
+    )
+    
+    # If metadata_stripped_possible is True, re-run screenshot properties to subtract the EXIF missing penalty
+    if metadata_stripped_possible:
+        # Re-run screenshot detector with the metadata_stripped_possible flag set to True
+        ss_status, ss_score, ss_lvl, ss_matrix = detect_screenshot_properties(
+            filepath, metadata, is_derived=is_derived, img_rgb=img_rgb,
+            metadata_stripped_possible=True
+        )
+        
+        ss_status_orig = forensics.get("screenshot_indicators", {}).get("status")
+        is_screenshot_orig = (ss_status_orig in ["Likely Screenshot", "Possible Screenshot"]) or rel_type == "Screenshot-Derived Variant"
+        is_screenshot = (ss_status in ["Likely Screenshot", "Possible Screenshot"]) or rel_type == "Screenshot-Derived Variant"
+        
+        # Update forensics with final screenshot indicators
+        forensics["screenshot_indicators"] = {
+            "status": ss_status,
+            "confidence": ss_score,
+            "level": ss_lvl,
+            "evidence_matrix": ss_matrix
+        }
+        
+        # Dynamically adjust integrity and risk
+        if is_screenshot_orig and not is_screenshot:
+            integrity += 25
+            risk -= 15
+            integrity = max(10, min(100, integrity))
+            risk = max(0, min(95, risk))
+            if "investigation_summary" in report:
+                report["investigation_summary"]["manipulation_risk"] = risk
+                report["investigation_summary"]["screenshot_probability"] = ss_score
+                
+        # Update report executive summary/insights if they contain the old screenshot status
+        if "investigation_summary" in report:
+            report["investigation_summary"]["screenshot_probability"] = ss_score
             
+        for exp in report.get("forensic_score_explanations", []):
+            if exp.get("metric") == "Screenshot Probability":
+                exp["score"] = ss_score
+                exp["supporting_evidence"] = ss_matrix.get("evidence_list", [])
+            elif exp.get("metric") == "Manipulation Risk":
+                exp["score"] = risk
+                
+    forensics["metadata_stripped_possible"] = metadata_stripped_possible
+    if "investigation_summary" in report:
+        report["investigation_summary"]["metadata_stripped_possible"] = metadata_stripped_possible
+
+    # Forensic Scoring Pipeline Repair: Integrate RF, CASIA, and Stego into Integrity & Risk
+    rf_prob_pct = forensics.get("ml_tampering_probability", 0.0) * 100
+    stego_susp = stego_res.get("suspicion_score", 0)
+    
+    rf_deduction = 0
+    rf_addition = 0
+    if rf_prob_pct >= 75:
+        rf_deduction = 30
+        rf_addition = 30
+    elif rf_prob_pct >= 50:
+        rf_deduction = 20
+        rf_addition = 20
+    elif rf_prob_pct >= 30:
+        rf_deduction = 10
+        rf_addition = 10
+
+    casia_deduction = 0
+    casia_addition = 0
+    if casia_prob >= 90 and rf_prob_pct >= 30:
+        casia_deduction = 15
+        casia_addition = 15
+    elif casia_prob >= 75 and rf_prob_pct >= 30:
+        casia_deduction = 10
+        casia_addition = 10
+    elif casia_prob >= 50 and rf_prob_pct >= 50:
+        casia_deduction = 5
+        casia_addition = 5
+
+    stego_deduction = 0
+    stego_addition = 0
+    if stego_susp >= 50:
+        stego_deduction = 15
+        stego_addition = 15
+    elif stego_susp >= 30:
+        stego_deduction = 10
+        stego_addition = 10
+
+    # Apply deductions and additions
+    integrity -= (rf_deduction + casia_deduction + stego_deduction)
+    risk += (rf_addition + casia_addition + stego_addition)
+
+    # Bounds checking
+    integrity = max(10, min(100, integrity))
+    risk = max(0, min(95, risk))
+
+    # Update report structures with final scores
+    if "investigation_summary" in report:
+        report["investigation_summary"]["manipulation_risk"] = risk
+    if "manipulation_analysis" in report:
+        report["manipulation_analysis"]["manipulation_risk_score"] = risk
+
+    # Update explanation structures for audit logging & front-end rendering
+    for exp in report.get("forensic_score_explanations", []):
+        if exp.get("metric") == "Manipulation Risk":
+            exp["score"] = risk
+            # Dynamically format the risk formula
+            formula_parts = ["Crop (+15)", "Resize (+10)", "Watermark (+20)", "Heavy Compression (+25)", "Screenshot (+15)", "Metadata Stripped (+10)"]
+            if rf_addition > 0:
+                formula_parts.append(f"RF (+{rf_addition})")
+            if casia_addition > 0:
+                formula_parts.append(f"CASIA (+{casia_addition})")
+            if stego_addition > 0:
+                formula_parts.append(f"Stego (+{stego_addition})")
+            exp["formula"] = f"Risk = {' + '.join(formula_parts)} [Capped 0-95]"
+            
+            exp["supporting_evidence"].extend([
+                f"Random Forest probability: {rf_prob_pct:.1f}% (+{rf_addition})",
+                f"CASIA probability: {casia_prob}% (+{casia_addition})",
+                f"Stego suspicion: {stego_susp}% (+{stego_addition})"
+            ])
+
+    # Multi-Signal Forensic Consensus Gate
+    adjusted_ai_artifact_score = ai_res.get("probability", 0)
+    ai_artifact_confidence = "MEDIUM"
+    try:
+        ml_tampering_prob_pct = forensics.get("ml_tampering_probability", 0.0) * 100
+        screenshot_prob = forensics.get("screenshot_indicators", {}).get("confidence", 0)
+        stego_susp = stego_res.get("suspicion_score", 0)
+        raw_ai_score = ai_res.get("probability", 0)
+
+        # Resolve Forensic Consensus State
+        consensus_res = resolve_forensic_consensus(
+            ai_score=raw_ai_score,
+            rf_prob=int(ml_tampering_prob_pct),
+            metadata_trust=meta_trust,
+            screenshot_prob=screenshot_prob,
+            stego_susp=stego_susp,
+            casia_prob=casia_prob,
+            metadata_stripped_possible=metadata_stripped_possible
+        )
+
+        adjusted_ai_artifact_score = raw_ai_score
+        ai_artifact_confidence = consensus_res["confidence"]
+
+        # Print consensus logs
+        print(f"[Consensus Resolver] File: {os.path.basename(filepath)}")
+        print(f"  AI Score: {raw_ai_score}%")
+        print(f"  Consensus State: {consensus_res['state']}")
+        print(f"  Confidence: {ai_artifact_confidence}")
+
+        # Update structures
+        ai_res["adjusted_ai_artifact_score"] = adjusted_ai_artifact_score
+        ai_res["ai_artifact_confidence"] = ai_artifact_confidence
+        ai_res["raw_model_probability"] = ai_res.get("raw_model_probability", 0)
+        ai_res["probability"] = adjusted_ai_artifact_score
+        ai_res["consensus"] = consensus_res
+
+        if "investigation_summary" in report:
+            report["investigation_summary"]["ai_generation_probability"] = adjusted_ai_artifact_score
+            report["investigation_summary"]["adjusted_ai_artifact_score"] = adjusted_ai_artifact_score
+            report["investigation_summary"]["ai_artifact_confidence"] = ai_artifact_confidence
+            report["investigation_summary"]["raw_model_probability"] = ai_res.get("raw_model_probability", 0)
+            report["investigation_summary"]["consensus"] = consensus_res
+
+        # Update explanations
+        for exp in report.get("forensic_score_explanations", []):
+            if exp.get("metric") == "AI Generation Probability":
+                exp["score"] = adjusted_ai_artifact_score
+
+        # Add consensus to forensics
+        forensics["consensus"] = consensus_res
+
+        # Add AI detector provenance
+        ai_provenance = {
+            "detector_name": "AI Detector V1",
+            "detector_status": "Experimental",
+            "confidence_level": "Research Only",
+            "training_domain": "Low-resolution benchmark imagery",
+            "known_limitations": [
+                "Modern smartphone photos may generate false positives",
+                "High-resolution DSLR photos may generate false positives",
+                "Out-of-distribution imagery can inflate AI scores"
+            ]
+        }
+        report["ai_provenance"] = ai_provenance
+        forensics["ai_provenance"] = ai_provenance
+        ai_res["provenance"] = ai_provenance
+
+        # Check condition for automatic audit note
+        meta_intel = report.get("metadata_intelligence", {})
+        meta_trust_val = meta_intel.get("metadata_trust_score", 100)
+        screenshot_prob_val = forensics.get("screenshot_indicators", {}).get("confidence", 0)
+        stego_susp_val = stego_res.get("suspicion_score", 0)
+        rf_prob_pct_val = forensics.get("ml_tampering_probability", 0.0) * 100
+        ai_prob_val = adjusted_ai_artifact_score
+
+        if (meta_trust_val >= 90 and
+            rf_prob_pct_val < 30 and
+            stego_susp_val < 20 and
+            screenshot_prob_val < 25 and
+            ai_prob_val > 70):
+            
+            audit_note_msg = "AI Detector V1 produced a high AI signal, however supporting forensic evidence remains clean. This result should be treated as an experimental neural signal and not as independent proof of AI generation."
+            
+            # Store full signal breakdown
+            signal_breakdown = {
+                "ai_detector": f"{ai_prob_val}%",
+                "rf_probability": f"{rf_prob_pct_val:.1f}%",
+                "metadata_trust": f"{meta_trust_val}%",
+                "screenshot_probability": f"{screenshot_prob_val}%",
+                "stego_suspicion": f"{stego_susp_val}%",
+                "consensus_state": consensus_res.get("state", "UNKNOWN")
+            }
+            
+            report["ai_audit_note"] = {
+                "triggered": True,
+                "message": audit_note_msg,
+                "signal_breakdown": signal_breakdown
+            }
+        else:
+            report["ai_audit_note"] = {
+                "triggered": False,
+                "message": None,
+                "signal_breakdown": None
+            }
+        forensics["ai_audit_note"] = report["ai_audit_note"]
+
+    except Exception as e:
+        logging.error(f"Error applying forensic consensus gate: {e}", exc_info=True)
+
     # Print unified 4-score inference logs
     print(f"\n[INFERENCE SCORES] File: {os.path.basename(filepath)}")
-    print(f"  AI model probability: {ai_res.get('raw_model_probability', 0)}%")
+    print(f"  AI model probability (Raw): {ai_res.get('raw_model_probability', 0)}%")
+    print(f"  AI Artifact score (Adjusted): {adjusted_ai_artifact_score}%")
+    print(f"  AI Artifact confidence: {ai_artifact_confidence}")
+    print(f"  Consensus state: {forensics.get('consensus', {}).get('state', 'UNKNOWN')}")
     print(f"  CASIA tampering probability: {casia_prob}%")
     print(f"  Random Forest probability: {int(forensics.get('ml_tampering_probability', 0.0) * 100)}%")
     print(f"  Final risk score: {risk}%")
     print("========================================\n")
             
     forensics.update(report)
+    
+    # Timing and logging output in requested format
+    total_time = (time.perf_counter() - (start_total_time if start_total_time > 0.0 else start_analysis)) * 1000
+    print(f"[Timing] Metadata: {int(round(metadata_time_ms))} ms")
+    print(f"[Timing] CASIA: {int(round(casia_time))} ms")
+    print(f"[Timing] AI Detector: {int(round(ai_model_time))} ms")
+    print(f"[Timing] ELA: {int(round(ela_time))} ms")
+    print(f"[Timing] FFT: {int(round(fft_time))} ms")
+    print(f"[Timing] AI Editing: {int(round(editing_time))} ms")
+    print(f"[Timing] Total Analysis: {int(round(total_time))} ms")
         
     return integrity, risk, forensics

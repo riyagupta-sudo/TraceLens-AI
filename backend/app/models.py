@@ -50,6 +50,11 @@ class MediaItem(Base):
     integrity_score = Column(Integer, default=100)  # 0 - 100
     modification_report = Column(JSON, nullable=True) # Details on compression, cropping, watermark etc.
     
+    # Localized AI Editing Forensics Columns
+    ai_edit_analysis_version = Column(String, nullable=True)
+    ai_edit_analysis_timestamp = Column(DateTime, nullable=True)
+    ai_edit_analysis_json = Column(JSON, nullable=True)
+    
     created_at = Column(DateTime, default=datetime.datetime.utcnow)
 
     # Relationships

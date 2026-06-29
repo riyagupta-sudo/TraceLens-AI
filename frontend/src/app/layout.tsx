@@ -63,6 +63,18 @@ export default function RootLayout({
                 >
                   PLAYGROUND
                 </Link>
+                <Link 
+                  href="/evaluation" 
+                  className="font-mono text-xs font-semibold tracking-wider text-gray-400 transition-colors hover:text-[#00E5FF]"
+                >
+                  EVALUATION
+                </Link>
+                <Link 
+                  href="/demo" 
+                  className="font-mono text-xs font-semibold tracking-wider text-gray-400 transition-colors hover:text-[#00E5FF]"
+                >
+                  DEMO MODE
+                </Link>
               </nav>
 
               {/* Connection Status badge */}

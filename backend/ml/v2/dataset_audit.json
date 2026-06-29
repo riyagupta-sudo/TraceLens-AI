@@ -1,0 +1,209 @@
+{
+    "total_images": 9798,
+    "real_count": 5398,
+    "fake_count": 4400,
+    "average_file_size_kb": 18.23,
+    "average_resolution": "256x256",
+    "resolution_distribution": {
+        "low_res_lt_256": 0,
+        "mid_res_256_1024": 9798,
+        "high_res_gt_1024": 0
+    },
+    "exif_availability_rate": 0.5163,
+    "camera_makes": {
+        "Unknown": 4283,
+        "FUJIFILM": 321,
+        "NIKON CORPORATION": 165,
+        "Canon": 260,
+        "SONY": 30
+    },
+    "camera_models": {
+        "Unknown": 4283,
+        "FinePix F100fd": 229,
+        "NIKON D700": 64,
+        "FinePix F60fd": 61,
+        "Canon PowerShot S3 IS": 115,
+        "FinePix S3Pro": 31,
+        "NIKON D80": 50,
+        "NIKON D70": 14,
+        "Canon EOS 30D": 31,
+        "Canon EOS 20D": 45,
+        "Canon PowerShot A590 IS": 2,
+        "DSC-T100": 6,
+        "NIKON D200": 29,
+        "DSC-H5": 24,
+        "Canon PowerShot A520": 25,
+        "Canon EOS 5D": 28,
+        "NIKON D2X": 2,
+        "NIKON D70s": 4,
+        "NIKON D90": 2,
+        "Canon EOS 400D DIGITAL": 2,
+        "Canon EOS 450D": 4,
+        "Canon EOS 300D DIGITAL": 2,
+        "Canon EOS 350D DIGITAL": 4,
+        "Canon EOS 40D": 2
+    },
+    "duplicate_detection": {
+        "duplicate_count": 0,
+        "duplicate_contamination_rate": 0.0
+    },
+    "leakage_detection": {
+        "leakage_count": 0,
+        "leakage_rate": 0.0
+    },
+    "category_counts": {
+        "iphone": 1049,
+        "android": 1049,
+        "dslr": 1100,
+        "screenshot": 1100,
+        "whatsapp": 1100,
+        "instagram": 0,
+        "midjourney": 1100,
+        "flux": 1100,
+        "chatgpt": 1100,
+        "sdxl": 1100
+    },
+    "top_20_largest_sources": [
+        {
+            "filename": "Tp_S_CNN_M_N_txt10107_txt10107_10813_src_FLUX_crop_16_755.jpg",
+            "dataset": "ai_detection_v2",
+            "source": "FLUX",
+            "file_size_bytes": 68498,
+            "resolution": "256x256"
+        },
+        {
+            "filename": "Au_ani_20039_src_DSLR_crop_0_664.jpg",
+            "dataset": "ai_detection_v2",
+            "source": "DSLR",
+            "file_size_bytes": 60510,
+            "resolution": "256x256"
+        },
+        {
+            "filename": "Tp_S_CNN_M_N_txt10107_txt10107_10813_src_FLUX_crop_15_754.jpg",
+            "dataset": "ai_detection_v2",
+            "source": "FLUX",
+            "file_size_bytes": 60041,
+            "resolution": "256x256"
+        },
+        {
+            "filename": "Tp_S_CNN_M_N_txt10107_txt10107_10813_src_FLUX_crop_17_756.jpg",
+            "dataset": "ai_detection_v2",
+            "source": "FLUX",
+            "file_size_bytes": 60024,
+            "resolution": "256x256"
+        },
+        {
+            "filename": "Tp_S_CNN_M_N_txt10107_txt10107_10813_src_FLUX_crop_13_752.jpg",
+            "dataset": "ai_detection_v2",
+            "source": "FLUX",
+            "file_size_bytes": 59921,
+            "resolution": "256x256"
+        },
+        {
+            "filename": "Tp_D_NNN_S_N_txt00042_txt00041_10827_src_MIDJOURNEY_crop_9_968.jpg",
+            "dataset": "ai_detection_v2",
+            "source": "MIDJOURNEY",
+            "file_size_bytes": 58146,
+            "resolution": "256x256"
+        },
+        {
+            "filename": "Tp_S_CNN_M_N_txt10107_txt10107_10813_src_FLUX_crop_8_747.jpg",
+            "dataset": "ai_detection_v2",
+            "source": "FLUX",
+            "file_size_bytes": 57070,
+            "resolution": "256x256"
+        },
+        {
+            "filename": "Au_ani_20039_src_DSLR_crop_1_665.jpg",
+            "dataset": "ai_detection_v2",
+            "source": "DSLR",
+            "file_size_bytes": 53012,
+            "resolution": "256x256"
+        },
+        {
+            "filename": "Tp_D_NNN_S_N_txt00042_txt00041_10827_src_MIDJOURNEY_crop_12_971.jpg",
+            "dataset": "ai_detection_v2",
+            "source": "MIDJOURNEY",
+            "file_size_bytes": 52997,
+            "resolution": "256x256"
+        },
+        {
+            "filename": "Tp_S_CNN_M_N_txt10107_txt10107_10813_src_FLUX_crop_0_739.jpg",
+            "dataset": "ai_detection_v2",
+            "source": "FLUX",
+            "file_size_bytes": 52252,
+            "resolution": "256x256"
+        },
+        {
+            "filename": "Tp_S_CNN_M_N_txt10107_txt10107_10813_src_FLUX_crop_11_750.jpg",
+            "dataset": "ai_detection_v2",
+            "source": "FLUX",
+            "file_size_bytes": 52128,
+            "resolution": "256x256"
+        },
+        {
+            "filename": "Tp_S_CNN_M_N_txt10107_txt10107_10813_src_FLUX_crop_2_741.jpg",
+            "dataset": "ai_detection_v2",
+            "source": "FLUX",
+            "file_size_bytes": 51879,
+            "resolution": "256x256"
+        },
+        {
+            "filename": "Tp_S_CRN_S_N_cha10207_cha10207_12347_src_FLUX_crop_10_489.jpg",
+            "dataset": "ai_detection_v2",
+            "source": "FLUX",
+            "file_size_bytes": 51052,
+            "resolution": "256x256"
+        },
+        {
+            "filename": "Tp_S_CNN_M_N_txt00027_txt00027_10843_src_SDXL_crop_2_231.jpg",
+            "dataset": "ai_detection_v2",
+            "source": "SDXL",
+            "file_size_bytes": 50957,
+            "resolution": "256x256"
+        },
+        {
+            "filename": "Tp_D_CRN_S_N_cha00071_art00014_11819_src_SDXL_crop_16_751.jpg",
+            "dataset": "ai_detection_v2",
+            "source": "SDXL",
+            "file_size_bytes": 50723,
+            "resolution": "256x256"
+        },
+        {
+            "filename": "Tp_S_CNN_M_N_txt00027_txt00027_10843_src_SDXL_crop_15_244.jpg",
+            "dataset": "ai_detection_v2",
+            "source": "SDXL",
+            "file_size_bytes": 50581,
+            "resolution": "256x256"
+        },
+        {
+            "filename": "Au_txt_30016_src_SCREENSHOT_crop_0_34.jpg",
+            "dataset": "ai_detection_v2",
+            "source": "SCREENSHOT",
+            "file_size_bytes": 50567,
+            "resolution": "256x256"
+        },
+        {
+            "filename": "Au_ani_30107_src_ANDROID_crop_1_416.jpg",
+            "dataset": "ai_detection_v2",
+            "source": "ANDROID",
+            "file_size_bytes": 50494,
+            "resolution": "256x256"
+        },
+        {
+            "filename": "Tp_D_CRN_S_N_cha00071_art00014_11819_src_SDXL_crop_19_754.jpg",
+            "dataset": "ai_detection_v2",
+            "source": "SDXL",
+            "file_size_bytes": 50461,
+            "resolution": "256x256"
+        },
+        {
+            "filename": "Tp_S_CNN_M_N_txt00027_txt00027_10843_src_SDXL_crop_1_230.jpg",
+            "dataset": "ai_detection_v2",
+            "source": "SDXL",
+            "file_size_bytes": 50422,
+            "resolution": "256x256"
+        }
+    ],
+    "extremely_small_images_count": 0
+}

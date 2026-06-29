@@ -76,34 +76,31 @@ export default function DashboardPage() {
 
   const fetchDashboardData = async () => {
     try {
-      const statsRes = await fetch(`${backendUrl}/api/dashboard`);
-      const casesRes = await fetch(`${backendUrl}/api/cases`);
-      const familiesRes = await fetch(`${backendUrl}/api/families`);
+      const [statsRes, casesRes, familiesRes] = await Promise.all([
+        fetch(`${backendUrl}/api/dashboard`).catch(() => null),
+        fetch(`${backendUrl}/api/cases`).catch(() => null),
+        fetch(`${backendUrl}/api/families`).catch(() => null),
+      ]);
       
-      if (statsRes.ok) {
+      if (statsRes && statsRes.ok) {
         const statsData = await statsRes.json();
         setStats(statsData);
       }
-      if (casesRes.ok) {
+      if (casesRes && casesRes.ok) {
         const casesData = await casesRes.json();
         setCases(casesData);
         
-        // Fetch merges for all cases and combine
-        let allMerges: MergeRecommendation[] = [];
-        for (const c of casesData) {
-          try {
-            const mergesRes = await fetch(`${backendUrl}/api/cases/${c.id}/merges`);
-            if (mergesRes.ok) {
-              const mergesData = await mergesRes.json();
-              allMerges = [...allMerges, ...mergesData];
-            }
-          } catch (err) {
-            console.error("Error fetching merges for case:", c.id, err);
-          }
+        if (casesData.length > 0) {
+          const mergePromises = casesData.map((c: Case) =>
+            fetch(`${backendUrl}/api/cases/${c.id}/merges`)
+              .then((r) => (r.ok ? r.json() : []))
+              .catch(() => [])
+          );
+          const mergeResults = await Promise.all(mergePromises);
+          setMerges(mergeResults.flat());
         }
-        setMerges(allMerges);
       }
-      if (familiesRes.ok) {
+      if (familiesRes && familiesRes.ok) {
         const familiesData = await familiesRes.json();
         setFamilies(familiesData);
       }

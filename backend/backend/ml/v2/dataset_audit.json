@@ -1,0 +1,178 @@
+{
+    "total_images": 40,
+    "real_count": 20,
+    "fake_count": 20,
+    "average_file_size_kb": 1.38,
+    "average_resolution": "224x224",
+    "resolution_distribution": {
+        "low_res_lt_256": 40,
+        "mid_res_256_1024": 0,
+        "high_res_gt_1024": 0
+    },
+    "exif_availability_rate": 0.0,
+    "camera_makes": {},
+    "camera_models": {},
+    "duplicate_detection": {
+        "duplicate_count": 39,
+        "duplicate_contamination_rate": 0.975
+    },
+    "leakage_detection": {
+        "leakage_count": 20,
+        "leakage_rate": 20.0
+    },
+    "category_counts": {
+        "iphone": 4,
+        "android": 4,
+        "dslr": 6,
+        "screenshot": 0,
+        "whatsapp": 4,
+        "instagram": 2,
+        "midjourney": 2,
+        "flux": 6,
+        "chatgpt": 10,
+        "sdxl": 2
+    },
+    "top_20_largest_sources": [
+        {
+            "filename": "dummy_0.jpg",
+            "dataset": "ai_detection",
+            "source": "CHATGPT",
+            "file_size_bytes": 1409,
+            "resolution": "224x224"
+        },
+        {
+            "filename": "dummy_1.jpg",
+            "dataset": "ai_detection",
+            "source": "FLUX",
+            "file_size_bytes": 1409,
+            "resolution": "224x224"
+        },
+        {
+            "filename": "dummy_2.jpg",
+            "dataset": "ai_detection",
+            "source": "MIDJOURNEY",
+            "file_size_bytes": 1409,
+            "resolution": "224x224"
+        },
+        {
+            "filename": "dummy_3.jpg",
+            "dataset": "ai_detection",
+            "source": "CHATGPT",
+            "file_size_bytes": 1409,
+            "resolution": "224x224"
+        },
+        {
+            "filename": "dummy_4.jpg",
+            "dataset": "ai_detection",
+            "source": "CHATGPT",
+            "file_size_bytes": 1409,
+            "resolution": "224x224"
+        },
+        {
+            "filename": "dummy_5.jpg",
+            "dataset": "ai_detection",
+            "source": "FLUX",
+            "file_size_bytes": 1409,
+            "resolution": "224x224"
+        },
+        {
+            "filename": "dummy_6.jpg",
+            "dataset": "ai_detection",
+            "source": "CHATGPT",
+            "file_size_bytes": 1409,
+            "resolution": "224x224"
+        },
+        {
+            "filename": "dummy_7.jpg",
+            "dataset": "ai_detection",
+            "source": "FLUX",
+            "file_size_bytes": 1409,
+            "resolution": "224x224"
+        },
+        {
+            "filename": "dummy_8.jpg",
+            "dataset": "ai_detection",
+            "source": "CHATGPT",
+            "file_size_bytes": 1409,
+            "resolution": "224x224"
+        },
+        {
+            "filename": "dummy_9.jpg",
+            "dataset": "ai_detection",
+            "source": "SDXL",
+            "file_size_bytes": 1409,
+            "resolution": "224x224"
+        },
+        {
+            "filename": "dummy_0.jpg",
+            "dataset": "ai_detection",
+            "source": "DSLR",
+            "file_size_bytes": 1409,
+            "resolution": "224x224"
+        },
+        {
+            "filename": "dummy_1.jpg",
+            "dataset": "ai_detection",
+            "source": "ANDROID",
+            "file_size_bytes": 1409,
+            "resolution": "224x224"
+        },
+        {
+            "filename": "dummy_2.jpg",
+            "dataset": "ai_detection",
+            "source": "WHATSAPP",
+            "file_size_bytes": 1409,
+            "resolution": "224x224"
+        },
+        {
+            "filename": "dummy_3.jpg",
+            "dataset": "ai_detection",
+            "source": "ANDROID",
+            "file_size_bytes": 1409,
+            "resolution": "224x224"
+        },
+        {
+            "filename": "dummy_4.jpg",
+            "dataset": "ai_detection",
+            "source": "DSLR",
+            "file_size_bytes": 1409,
+            "resolution": "224x224"
+        },
+        {
+            "filename": "dummy_5.jpg",
+            "dataset": "ai_detection",
+            "source": "WHATSAPP",
+            "file_size_bytes": 1409,
+            "resolution": "224x224"
+        },
+        {
+            "filename": "dummy_6.jpg",
+            "dataset": "ai_detection",
+            "source": "IPHONE",
+            "file_size_bytes": 1409,
+            "resolution": "224x224"
+        },
+        {
+            "filename": "dummy_7.jpg",
+            "dataset": "ai_detection",
+            "source": "IPHONE",
+            "file_size_bytes": 1409,
+            "resolution": "224x224"
+        },
+        {
+            "filename": "dummy_8.jpg",
+            "dataset": "ai_detection",
+            "source": "DSLR",
+            "file_size_bytes": 1409,
+            "resolution": "224x224"
+        },
+        {
+            "filename": "dummy_9.jpg",
+            "dataset": "ai_detection",
+            "source": "INSTAGRAM",
+            "file_size_bytes": 1409,
+            "resolution": "224x224"
+        }
+    ],
+    "extremely_small_images_count": 0
+}

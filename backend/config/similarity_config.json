@@ -1,0 +1,40 @@
+{
+  "stage_0": {
+    "hamming_threshold": 24,
+    "histogram_threshold": 0.30,
+    "aspect_ratio_threshold": 0.05,
+    "clip_threshold": 0.60
+  },
+  "gates": {
+    "min_ssim_similarity": 0.30,
+    "min_color_similarity": 0.35,
+    "min_cropped_ssim_similarity": 0.40,
+    "min_cropped_color_similarity": 0.40,
+    "min_clip_similarity": 0.60,
+    "min_inliers_for_containment": 10
+  },
+  "enable_sift": true,
+  "weights": {
+    "containment": {
+      "features": 0.35,
+      "ssim": 0.35,
+      "color": 0.15,
+      "clip": 0.15
+    },
+    "full_frame": {
+      "hashes": 0.25,
+      "ssim": 0.25,
+      "color": 0.20,
+      "clip": 0.20,
+      "jpeg": 0.05,
+      "aspect_ratio": 0.05
+    },
+    "resize_duplicate_email": {
+      "hashes": 0.25,
+      "ssim": 0.25,
+      "color": 0.20,
+      "aspect_ratio": 0.20,
+      "jpeg": 0.10
+    }
+  }
+}

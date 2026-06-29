@@ -66,6 +66,12 @@ class MediaItemResponse(BaseModel):
     risk_score: int
     integrity_score: int
     modification_report: Optional[Dict[str, Any]] = None
+    
+    # Localized AI Editing Fields
+    ai_edit_analysis_version: Optional[str] = None
+    ai_edit_analysis_timestamp: Optional[datetime] = None
+    ai_edit_analysis_json: Optional[Dict[str, Any]] = None
+    
     keyframes: List[KeyframeResponse] = []
 
     class Config:

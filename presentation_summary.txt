@@ -1,0 +1,97 @@
+# Conference Presentation Summary: TraceLens AI
+
+## Submission Metadata
+* **Title:** TraceLens AI: A Media DNA Intelligence Platform for Image Provenance Analysis, Variant Detection, and Digital Forensic Investigation
+* **Duration:** 20 Minutes (Oral Presentation)
+* **Target Track:** Digital Media Forensics, OSINT & Information Security
+
+---
+
+## 1. Key Presentation Highlights
+1. **The Provenance Challenge:** Traditional hashing fails to link modified media copies (resizing, crop, compression) to their sources. Perceptual and semantic hashing can solve this.
+2. **The Hybrid Heuristics & ML Engine:** Combining SHA-256, a/d/pHashes, EXIF metadata trust, LSB-entropy stego, and ELA blockiness.
+3. **Target Leakage Discovery:** Audited the CASIA 2.0 dataset (2000 images) and solved target leakage issues caused by format bias (TIFF vs JPEG) in ML classifiers.
+4. **Visual-Only Robustness:** Evaluated the platform on JPEG-only format-balanced sets without metadata. Verified that physical signatures (double compression blockiness) achieve an ROC-AUC of 0.6607, proving wild-usage viability.
+5. **Relationship Graph & Timeline Engine:** Multi-criteria optimization ranking (Resolution, EXIF, File size, Chronology) to dynamically find the Most Probable Origin and trace descendant variants.
+
+---
+
+## 2. Presentation Slide Outline
+
+### Slide 1: Title & Introduction
+* **Visual:** Platform logo with screenshots of the dark-themed UI.
+* **Key Bullet Points:**
+  - TraceLens AI: Media DNA Intelligence Platform
+  - Objective: Automate image provenance, variant detection, and lineage tracing
+* **Speaker Notes:** Welcome everyone. Today we are presenting TraceLens AI, a platform that connects digital media duplicates, estimates the capture origin, and isolates manipulations using a hybrid of perceptual hashing, EXIF trust scoring, and machine learning.
+
+### Slide 2: The Digital Media Ingestion Problem
+* **Visual:** An illustration showing how a single original photo is cropped, resized, watermarked, and compressed, changing its SHA-256 checksum completely but retaining its visual semantics.
+* **Key Bullet Points:**
+  - Cryptographic hashes are fragile to single-bit changes
+  - Social media platforms automatically strip EXIF metadata
+  - Lack of structured lineage tools for open-source investigators
+* **Speaker Notes:** Modern forensics faces an indexing challenge. Standard SHA-256 signatures break if a file is re-saved. We need a way to group these variants together and trace them back to their source.
+
+### Slide 3: TraceLens AI System Architecture
+* **Visual:** Decoupled multi-tier block diagram (Frontend Next.js -> FastAPI Backend -> DNA Engine & SQLite DB).
+* **Key Bullet Points:**
+  - decopled architecture
+  - FastAPI processing pipeline (Synchronous DNA extraction + Asynchronous CLIP embeddings)
+  - SQLAlchemy model maps lineage trees
+* **Speaker Notes:** TraceLens AI uses Next.js with FastAPI. High-speed feature extraction (hashes, metadata, stego, blockiness) is computed synchronously. Heavyweight semantic CLIP embeddings and database cross-similarity run asynchronously to maintain UI responsiveness.
+
+### Slide 4: Perceptual Hashing & DNA Extraction
+* **Visual:** Math equations for aHash, dHash, and pHash side-by-side with downsampling visual representations.
+* **Key Bullet Points:**
+  - Average Hash (aHash) for low-frequency structural matches
+  - Difference Hash (dHash) for vertical/horizontal gradients
+  - Perceptual Hash (pHash) utilizing Discrete Cosine Transform (DCT)
+* **Speaker Notes:** We calculate three distinct perceptual hashes. For example, pHash downsamples the image, computes its DCT, selects the top frequency coefficients, and binarizes them against the median value. Hamming distance enables fast similarity queries.
+
+### Slide 5: Physical & Metadata Forensics
+* **Visual:** Equations for Metadata Trust Score ($M_{\text{trust}}$) and ELA Blockiness.
+* **Key Bullet Points:**
+  - Metadata Trust: Deductions based on missing camera details, software tags (Photoshop/GIMP), or GPS details
+  - Blockiness: Ratio of block boundary intensity difference to internal differences (double compression)
+  - Steganography: LSB plane byte-entropy checking
+* **Speaker Notes:** Spliced regions undergo double JPEG compression, leaving a physical double-quantization footprint. We measure this blockiness index alongside stego LSB plane entropy to check for hidden files or canvas modifications.
+
+### Slide 6: Experimental Benchmark (Heuristics vs. ML)
+* **Visual:** Plot of the CASIA 2.0 decision boundary scan (threshold 5 vs. 35) and a bar chart showing performance.
+* **Key Bullet Points:**
+  - Default Heuristic Threshold (35): 100% Precision, 1.10% Recall
+  - Optimal Heuristic Threshold (5): 62.06% F1 Score
+  - Random Forest Classifier solves rule-based limits
+* **Speaker Notes:** Evaluating our rule-based cumulative heuristics on CASIA 2.0 showed a high false-negative rate at the default threshold of 35. Scanning the boundary located the mathematical optimum at 5, but machine learning classification was required to model non-linear boundaries.
+
+### Slide 7: Addressing Dataset Bias & Target Leakage
+* **Visual:** Gini importance table of visual-only features.
+* **Key Bullet Points:**
+  - Discovered format leakage in CASIA 2.0 (spliced images were TIFFs, clean were JPEGs)
+  - Retrained on format-balanced (JPEG-only) subset: Accuracy = 97.75%, ROC-AUC = 0.9993
+  - Evaluated on Visual-only features (No EXIF metadata): Accuracy = 65.92%, ROC-AUC = 0.6607
+* **Speaker Notes:** Our initial ML model achieved a perfect 1.0000 ROC-AUC. An audit showed this was caused by format leakage (TIFF vs JPEG). Retraining on format-balanced JPEGs with metadata stripped still yielded an ROC-AUC of 0.6607, validating the robust predictive power of our blockiness and stego features.
+
+### Slide 8: Case Clustering & Lineage Logic
+* **Visual:** Tree diagram tracing cropped, resized, and compressed versions back to a single primary origin.
+* **Key Bullet Points:**
+  - Multi-criteria optimization ranking (Resolution, EXIF, File size, Chronology)
+  - 10% safety margin check to prevent false origin claims
+  - Updates database parent-child relationships dynamically
+* **Speaker Notes:** Once similar items are grouped, the origin estimation engine ranks them. High resolution, intact EXIF tags, larger file size, and earlier timestamps indicate the source. A 10% margin check ensures we only assign origin when the confidence difference is statistically significant.
+
+### Slide 9: Future Work & Planned Research
+* **Visual:** FFT frequency anomalies and diffusion model artifacts.
+* **Key Bullet Points:**
+  - AI Detector V2: FFT artifacts and high-resolution generative AI datasets (GenImage, DiffusionDB)
+  - Audio and Video DNA: 3D CNNs and acoustic fingerprinters
+  - Expanded OSINT search integrations
+* **Speaker Notes:** Currently, AI Detector V1 is limited by low-resolution training sets. Our planned V2 research focuses on high-resolution diffusion models (Midjourney, SDXL, Flux) and FFT frequency anomaly detection. We also aim to expand this to audio-video fingerprinters.
+
+### Slide 10: Conclusion & Q&A
+* **Key Bullet Points:**
+  - TraceLens AI integrates perceptual, semantic, and metadata anomalies
+  - Confirmed robustness of double-compression blockiness on platform-balanced datasets
+  - Provides explainable, data-driven reports for forensics investigators
+* **Speaker Notes:** In conclusion, TraceLens AI bridges the gap between cryptographic verification and visual alignment. Thank you, and I am open to any questions.

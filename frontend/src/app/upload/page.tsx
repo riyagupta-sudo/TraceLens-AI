@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { 
   Upload, Shield, FileText, CheckCircle, AlertTriangle, 
@@ -19,7 +19,7 @@ interface PipelineStep {
   status: "idle" | "running" | "done" | "skipped";
 }
 
-export default function IngestionPage() {
+function IngestionPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [cases, setCases] = useState<Case[]>([]);
@@ -398,5 +398,13 @@ export default function IngestionPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function IngestionPage() {
+  return (
+    <Suspense fallback={<div className="font-mono text-xs text-gray-500 p-8">Loading Ingestion Engine...</div>}>
+      <IngestionPageContent />
+    </Suspense>
   );
 }

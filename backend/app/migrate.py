@@ -53,6 +53,28 @@ def run_migration():
     else:
         print("Column 'source_type' already exists in 'osint_results'.")
         
+    # 4. Add localized AI editing analysis columns to media_items if missing
+    cursor.execute("PRAGMA table_info(media_items)")
+    columns = [col[1] for col in cursor.fetchall()]
+    
+    if "ai_edit_analysis_version" not in columns:
+        print("Adding column 'ai_edit_analysis_version' to table 'media_items'...")
+        cursor.execute("ALTER TABLE media_items ADD COLUMN ai_edit_analysis_version VARCHAR")
+        conn.commit()
+        print("Column 'ai_edit_analysis_version' added.")
+        
+    if "ai_edit_analysis_timestamp" not in columns:
+        print("Adding column 'ai_edit_analysis_timestamp' to table 'media_items'...")
+        cursor.execute("ALTER TABLE media_items ADD COLUMN ai_edit_analysis_timestamp TIMESTAMP")
+        conn.commit()
+        print("Column 'ai_edit_analysis_timestamp' added.")
+        
+    if "ai_edit_analysis_json" not in columns:
+        print("Adding column 'ai_edit_analysis_json' to table 'media_items'...")
+        cursor.execute("ALTER TABLE media_items ADD COLUMN ai_edit_analysis_json JSON")
+        conn.commit()
+        print("Column 'ai_edit_analysis_json' added.")
+        
     conn.close()
     print("Migrations completed successfully.")
 

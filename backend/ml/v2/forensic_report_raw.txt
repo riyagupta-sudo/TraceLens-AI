@@ -1,0 +1,103 @@
+TOP 50 FALSE POSITIVES (REAL flagged as FAKE):
+ 1. Filename: Au_txt_00015.jpg                              | Prob FAKE: 0.8813 | Source: DSLR
+ 2. Filename: Au_art_10104.jpg                              | Prob FAKE: 0.8235 | Source: ANDROID
+ 3. Filename: Au_ani_30011.jpg                              | Prob FAKE: 0.8118 | Source: ANDROID
+ 4. Filename: Au_art_00005.jpg                              | Prob FAKE: 0.7810 | Source: ANDROID
+ 5. Filename: Au_nat_20017.jpg                              | Prob FAKE: 0.7727 | Source: IPHONE
+ 6. Filename: twitter_screenshot_23_en.jpg                  | Prob FAKE: 0.7547 | Source: SCREENSHOT
+ 7. Filename: Au_pla_30373.jpg                              | Prob FAKE: 0.7320 | Source: DSLR
+ 8. Filename: Au_sec_30533.jpg                              | Prob FAKE: 0.7083 | Source: ANDROID
+ 9. Filename: Au_art_30308.jpg                              | Prob FAKE: 0.6949 | Source: DSLR
+10. Filename: Au_sec_30527.jpg                              | Prob FAKE: 0.6746 | Source: IPHONE
+11. Filename: Au_nat_30622.jpg                              | Prob FAKE: 0.6610 | Source: ANDROID
+12. Filename: Au_arc_30716.jpg                              | Prob FAKE: 0.6568 | Source: IPHONE
+13. Filename: Au_arc_30508.jpg                              | Prob FAKE: 0.6541 | Source: ANDROID
+14. Filename: Au_arc_30495.jpg                              | Prob FAKE: 0.6377 | Source: WHATSAPP
+15. Filename: Au_ani_30400.jpg                              | Prob FAKE: 0.6266 | Source: ANDROID
+16. Filename: Au_pla_30365.jpg                              | Prob FAKE: 0.6221 | Source: IPHONE
+17. Filename: Au_sec_00040.jpg                              | Prob FAKE: 0.6199 | Source: ANDROID
+18. Filename: Au_ani_20058.jpg                              | Prob FAKE: 0.6184 | Source: DSLR
+19. Filename: Au_ani_00003.jpg                              | Prob FAKE: 0.6149 | Source: IPHONE
+20. Filename: Au_arc_30273.jpg                              | Prob FAKE: 0.6118 | Source: IPHONE
+21. Filename: Au_sec_30069.jpg                              | Prob FAKE: 0.6113 | Source: ANDROID
+22. Filename: Au_arc_30223.jpg                              | Prob FAKE: 0.6062 | Source: WHATSAPP
+23. Filename: Au_arc_30470.jpg                              | Prob FAKE: 0.6057 | Source: IPHONE
+24. Filename: Au_arc_30614.jpg                              | Prob FAKE: 0.6044 | Source: ANDROID
+25. Filename: Au_arc_30046.jpg                              | Prob FAKE: 0.6035 | Source: IPHONE
+26. Filename: Au_pla_30610.jpg                              | Prob FAKE: 0.6015 | Source: WHATSAPP
+27. Filename: Au_ani_30701.jpg                              | Prob FAKE: 0.6009 | Source: ANDROID
+28. Filename: vehicle_007.jpg                               | Prob FAKE: 0.5971 | Source: WHATSAPP
+29. Filename: Au_ani_10109.jpg                              | Prob FAKE: 0.5970 | Source: WHATSAPP
+30. Filename: Au_ani_00017.jpg                              | Prob FAKE: 0.5926 | Source: IPHONE
+31. Filename: Au_ani_10112.jpg                              | Prob FAKE: 0.5921 | Source: DSLR
+32. Filename: Au_arc_30613.jpg                              | Prob FAKE: 0.5914 | Source: DSLR
+33. Filename: Au_sec_30284.jpg                              | Prob FAKE: 0.5869 | Source: IPHONE
+34. Filename: Au_nat_30731.jpg                              | Prob FAKE: 0.5866 | Source: DSLR
+35. Filename: Au_ani_30786.jpg                              | Prob FAKE: 0.5848 | Source: ANDROID
+36. Filename: Au_ani_00086.jpg                              | Prob FAKE: 0.5803 | Source: ANDROID
+37. Filename: Au_ani_30324.jpg                              | Prob FAKE: 0.5777 | Source: IPHONE
+38. Filename: Au_ani_10161.jpg                              | Prob FAKE: 0.5702 | Source: DSLR
+39. Filename: Au_ani_10192.jpg                              | Prob FAKE: 0.5596 | Source: ANDROID
+40. Filename: Au_ani_30516.jpg                              | Prob FAKE: 0.5592 | Source: IPHONE
+41. Filename: Au_ani_30793.jpg                              | Prob FAKE: 0.5577 | Source: DSLR
+42. Filename: Au_ind_30052.jpg                              | Prob FAKE: 0.5532 | Source: WHATSAPP
+43. Filename: Au_arc_30417.jpg                              | Prob FAKE: 0.5504 | Source: IPHONE
+44. Filename: Au_sec_30397.jpg                              | Prob FAKE: 0.5490 | Source: ANDROID
+45. Filename: Au_ani_10159.jpg                              | Prob FAKE: 0.5399 | Source: ANDROID
+46. Filename: Au_ani_30406.jpg                              | Prob FAKE: 0.5362 | Source: IPHONE
+47. Filename: Screenshot_20210918-164922_Messenger.jpg      | Prob FAKE: 0.5329 | Source: SCREENSHOT
+48. Filename: Au_arc_30301.jpg                              | Prob FAKE: 0.5237 | Source: DSLR
+49. Filename: Au_ani_30536.jpg                              | Prob FAKE: 0.5229 | Source: DSLR
+50. Filename: Au_arc_00080.jpg                              | Prob FAKE: 0.5210 | Source: DSLR
+
+TOP 50 FALSE NEGATIVES (FAKE flagged as REAL):
+ 1. Filename: Tp_S_CRN_S_N_ind00045_ind00045_10914.jpg      | Prob FAKE: 0.1296 | Source: MIDJOURNEY
+ 2. Filename: Tp_S_CRN_S_N_ani10155_ani10155_12485.jpg      | Prob FAKE: 0.1477 | Source: SDXL
+ 3. Filename: Tp_S_NNN_S_N_sec00008_sec00008_10801.jpg      | Prob FAKE: 0.1521 | Source: MIDJOURNEY
+ 4. Filename: Tp_D_NNN_M_N_arc00054_nat00059_11934.jpg      | Prob FAKE: 0.1827 | Source: MIDJOURNEY
+ 5. Filename: Tp_S_NRN_S_N_arc10119_arc10119_10758.jpg      | Prob FAKE: 0.1956 | Source: CHATGPT
+ 6. Filename: Tp_S_NNN_S_N_nat00061_nat00061_10562.jpg      | Prob FAKE: 0.2095 | Source: SDXL
+ 7. Filename: Tp_S_CNN_S_N_sec00055_sec00055_11236.jpg      | Prob FAKE: 0.2145 | Source: CHATGPT
+ 8. Filename: Tp_S_NRN_S_N_nat00028_nat00028_20122.jpg      | Prob FAKE: 0.2196 | Source: CHATGPT
+ 9. Filename: Tp_S_CRN_S_N_sec00055_sec00055_11234.jpg      | Prob FAKE: 0.2197 | Source: MIDJOURNEY
+10. Filename: Tp_D_NNN_S_O_pla00056_pla00065_11225.jpg      | Prob FAKE: 0.2251 | Source: SDXL
+11. Filename: Tp_S_CRD_M_N_arc10119_arc10119_10757.jpg      | Prob FAKE: 0.2267 | Source: SDXL
+12. Filename: Tp_D_NRN_M_N_art00049_nat00059_11759.jpg      | Prob FAKE: 0.2372 | Source: FLUX
+13. Filename: Tp_D_CRN_S_N_nat00004_art00025_11426.jpg      | Prob FAKE: 0.2423 | Source: FLUX
+14. Filename: Tp_D_NNN_S_N_sec00051_sec00055_11240.jpg      | Prob FAKE: 0.2607 | Source: CHATGPT
+15. Filename: Tp_S_NRN_S_N_ani10214_ani10214_12379.jpg      | Prob FAKE: 0.2666 | Source: MIDJOURNEY
+16. Filename: Tp_D_NRN_S_N_cha10137_cha10140_12208.jpg      | Prob FAKE: 0.2763 | Source: FLUX
+17. Filename: Tp_D_CRN_M_N_cha00050_cha00026_11787.jpg      | Prob FAKE: 0.2799 | Source: MIDJOURNEY
+18. Filename: Tp_D_NNN_S_B_arc00023_cha00023_20092.jpg      | Prob FAKE: 0.2808 | Source: FLUX
+19. Filename: Tp_D_NRN_S_N_cha00008_art10102_11163.jpg      | Prob FAKE: 0.2913 | Source: SDXL
+20. Filename: Tp_S_NRN_S_N_cha10206_cha10206_12343.jpg      | Prob FAKE: 0.3041 | Source: SDXL
+21. Filename: Tp_D_CRN_S_N_cha00053_art00014_11817.jpg      | Prob FAKE: 0.3161 | Source: MIDJOURNEY
+22. Filename: Tp_D_NNN_S_N_nat00063_cha00042_11113.jpg      | Prob FAKE: 0.3304 | Source: SDXL
+23. Filename: Tp_S_NNN_S_N_nat10161_nat10161_12078.jpg      | Prob FAKE: 0.3368 | Source: FLUX
+24. Filename: Tp_S_NRN_S_N_ind00089_ind00089_10642.jpg      | Prob FAKE: 0.3373 | Source: FLUX
+25. Filename: Tp_D_NNN_M_N_arc00008_cha00050_11769.jpg      | Prob FAKE: 0.3381 | Source: MIDJOURNEY
+26. Filename: Tp_S_NNN_S_N_nat00015_nat00015_11051.jpg      | Prob FAKE: 0.3392 | Source: SDXL
+27. Filename: Tp_S_NRN_S_N_sec00062_sec00062_11261.jpg      | Prob FAKE: 0.3422 | Source: FLUX
+28. Filename: Tp_S_CRD_S_N_cha10204_cha10204_12351.jpg      | Prob FAKE: 0.3531 | Source: SDXL
+29. Filename: Tp_D_NRN_S_N_cha10209_pla00050_12336.jpg      | Prob FAKE: 0.3548 | Source: FLUX
+30. Filename: Tp_D_NRN_S_N_ind10104_pla00050_11551.jpg      | Prob FAKE: 0.3551 | Source: FLUX
+31. Filename: Tp_D_NRN_M_N_art10115_cha10110_11536.jpg      | Prob FAKE: 0.3578 | Source: SDXL
+32. Filename: Tp_S_NNN_S_N_cha10209_cha10209_12334.jpg      | Prob FAKE: 0.3587 | Source: FLUX
+33. Filename: Tp_D_NRN_S_N_nat00030_cha00042_11090.jpg      | Prob FAKE: 0.3591 | Source: SDXL
+34. Filename: Tp_D_CNN_S_N_ani00053_ani00051_11148.jpg      | Prob FAKE: 0.3594 | Source: SDXL
+35. Filename: Tp_D_CRN_S_N_ani10116_sec00098_11616.jpg      | Prob FAKE: 0.3611 | Source: MIDJOURNEY
+36. Filename: Tp_D_NNN_M_N_art00023_nat00059_11875.jpg      | Prob FAKE: 0.3673 | Source: CHATGPT
+37. Filename: Tp_S_NNN_S_N_nat10162_nat10162_12087.jpg      | Prob FAKE: 0.3679 | Source: MIDJOURNEY
+38. Filename: Tp_D_NRN_M_N_nat10144_nat00099_11966.jpg      | Prob FAKE: 0.3711 | Source: FLUX
+39. Filename: Tp_D_NRN_S_N_sec00023_ind00042_10886.jpg      | Prob FAKE: 0.3722 | Source: FLUX
+40. Filename: Tp_D_NRN_M_N_nat10161_nat10158_12083.jpg      | Prob FAKE: 0.3749 | Source: MIDJOURNEY
+41. Filename: Tp_S_CNN_M_N_txt00006_txt00006_10839.jpg      | Prob FAKE: 0.3749 | Source: SDXL
+42. Filename: Tp_D_NNN_M_N_cha10166_nat10156_12272.jpg      | Prob FAKE: 0.3756 | Source: CHATGPT
+43. Filename: Tp_D_NRN_S_N_arc00059_cha00062_11824.jpg      | Prob FAKE: 0.3764 | Source: MIDJOURNEY
+44. Filename: Tp_D_NNN_S_B_nat00027_nat00030_11094.jpg      | Prob FAKE: 0.3795 | Source: CHATGPT
+45. Filename: Tp_S_NRN_S_B_cha10146_cha10146_12229.jpg      | Prob FAKE: 0.3807 | Source: CHATGPT
+46. Filename: Tp_D_NRD_S_N_art00070_art00092_11822.jpg      | Prob FAKE: 0.3823 | Source: FLUX
+47. Filename: Tp_D_NRN_S_N_arc00016_arc00020_11703.jpg      | Prob FAKE: 0.3831 | Source: CHATGPT
+48. Filename: Tp_D_NRN_S_N_nat00019_cha00021_20022.jpg      | Prob FAKE: 0.3883 | Source: MIDJOURNEY
+49. Filename: Tp_D_NRN_S_N_pla00077_pla00053_11213.jpg      | Prob FAKE: 0.3924 | Source: MIDJOURNEY
+50. Filename: Tp_D_NRN_S_N_cha10109_ani00017_11588.jpg      | Prob FAKE: 0.3939 | Source: FLUX

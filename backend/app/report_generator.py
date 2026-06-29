@@ -401,6 +401,101 @@ def generate_pdf_report(
     ]))
     story.append(match_table)
     
+    # --- PAGE 5: LOCALIZED AI EDITING ANALYSIS ---
+    ai_edit_json = media_item.get("ai_edit_analysis_json")
+    if isinstance(ai_edit_json, str):
+        import json
+        try:
+            ai_edit_json = json.loads(ai_edit_json)
+        except Exception:
+            ai_edit_json = None
+            
+    if ai_edit_json:
+        story.append(PageBreak())
+        story.append(Paragraph("LOCALIZED AI EDITING ANALYSIS", h1_style))
+        story.append(Paragraph(
+            "This section details localized AI-assisted editing/inpainting forensics (e.g. object removals, content fills). "
+            "The analysis scans for regional texture smoothness, ELA variances, noise residual consistency, "
+            "periodic FFT frequency grids, and JPEG block boundary disruptions.",
+            body_style
+        ))
+        story.append(Spacer(1, 10))
+        
+        prob = ai_edit_json.get("editing_probability", 0)
+        conf = ai_edit_json.get("confidence", "Low")
+        
+        edit_score_data = [
+            [
+                Paragraph(f"<font color='#FFCC00' size='18'><b>{prob}%</b></font><br/>AI EDITED PROBABILITY", body_bold_style),
+                Paragraph(f"<font color='#00E5FF' size='18'><b>{conf}</b></font><br/>ANALYSIS CONFIDENCE", body_bold_style)
+            ]
+        ]
+        edit_score_table = Table(edit_score_data, colWidths=[3.5*inch, 3.5*inch])
+        edit_score_table.setStyle(TableStyle([
+            ('ALIGN', (0,0), (-1,-1), 'CENTER'),
+            ('VALIGN', (0,0), (-1,-1), 'MIDDLE'),
+            ('BACKGROUND', (0,0), (-1,-1), colors.HexColor('#121212')),
+            ('BOX', (0,0), (-1,-1), 1, colors.HexColor('#2A2A2A')),
+            ('TOPPADDING', (0,0), (-1,-1), 12),
+            ('BOTTOMPADDING', (0,0), (-1,-1), 12),
+        ]))
+        story.append(edit_score_table)
+        story.append(Spacer(1, 15))
+        
+        # Suspicious Regions List
+        story.append(Paragraph("SUSPICIOUS DETECTED REGIONS", body_bold_style))
+        regions = ai_edit_json.get("suspicious_regions", [])
+        if regions:
+            reg_rows = [
+                [Paragraph("<b>Region Box (X, Y, W, H)</b>", body_bold_style), 
+                 Paragraph("<b>Conf.</b>", body_bold_style), 
+                 Paragraph("<b>Forensic Signals / Reason</b>", body_bold_style)]
+            ]
+            for r in regions:
+                box_str = f"{r.get('x_pct')}% x {r.get('y_pct')}% ({r.get('width_pct')}% x {r.get('height_pct')}%)"
+                reg_rows.append([
+                    Paragraph(box_str, body_style),
+                    Paragraph(f"<font color='#FFCC00'><b>{r.get('confidence')}</b></font> ({r.get('score')}%)", body_style),
+                    Paragraph(r.get("reason", "Forensic anomaly"), body_style)
+                ])
+            reg_table = Table(reg_rows, colWidths=[2.3*inch, 1.5*inch, 3.2*inch])
+            reg_table.setStyle(TableStyle([
+                ('BACKGROUND', (0,0), (-1,0), colors.HexColor('#1E1E2F')),
+                ('VALIGN', (0,0), (-1,-1), 'MIDDLE'),
+                ('GRID', (0,0), (-1,-1), 0.5, colors.HexColor('#2A2A2A')),
+                ('TOPPADDING', (0,0), (-1,-1), 6),
+                ('BOTTOMPADDING', (0,0), (-1,-1), 6),
+            ]))
+            story.append(reg_table)
+        else:
+            story.append(Paragraph("• No localized suspicious regions or inpainting boundaries detected. Image structure is locally consistent.", body_style))
+            
+        story.append(Spacer(1, 15))
+        
+        # Image-wide signals table
+        signals = ai_edit_json.get("signals", {})
+        story.append(Paragraph("CONTRIBUTING FORENSIC SIGNS", body_bold_style))
+        sig_data = [
+            [Paragraph("<b>Forensic Metric</b>", body_bold_style), Paragraph("<b>Value</b>", body_bold_style),
+             Paragraph("<b>Forensic Metric</b>", body_bold_style), Paragraph("<b>Value</b>", body_bold_style)],
+            [Paragraph("ELA Inconsistency", body_style), Paragraph(f"{signals.get('ela_inconsistency', 0):.4f}", body_style),
+             Paragraph("Noise Residual Variance", body_style), Paragraph(f"{signals.get('noise_residual_var', 0):.4f}", body_style)],
+            [Paragraph("JPEG Block Inconsistency", body_style), Paragraph(f"{signals.get('jpeg_block_inconsistency', 0):.4f}", body_style),
+             Paragraph("Average Laplacian Variance", body_style), Paragraph(f"{signals.get('laplacian_variance_avg', 0):.2f}", body_style)],
+            [Paragraph("Average Local Entropy", body_style), Paragraph(f"{signals.get('local_entropy_avg', 0):.2f}", body_style),
+             Paragraph("", body_style), Paragraph("", body_style)]
+        ]
+        sig_table = Table(sig_data, colWidths=[2.0*inch, 1.5*inch, 2.0*inch, 1.5*inch])
+        sig_table.setStyle(TableStyle([
+            ('BACKGROUND', (0,0), (-1,0), colors.HexColor('#1E1E2F')),
+            ('ALIGN', (0,0), (-1,-1), 'LEFT'),
+            ('VALIGN', (0,0), (-1,-1), 'MIDDLE'),
+            ('GRID', (0,0), (-1,-1), 0.5, colors.HexColor('#2A2A2A')),
+            ('TOPPADDING', (0,0), (-1,-1), 5),
+            ('BOTTOMPADDING', (0,0), (-1,-1), 5),
+        ]))
+        story.append(sig_table)
+    
     # Canvas background painter function for dark mode
     def make_dark_bg(canvas, doc):
         canvas.saveState()

@@ -65,7 +65,8 @@ def main():
         "width": orig_meta.get("width", 0),
         "height": orig_meta.get("height", 0),
         "phash": orig_ph,
-        "exif": orig_meta.get("exif", {})
+        "exif": orig_meta.get("exif", {}),
+        "filepath": moon_orig_path
     }
     
     # Target files to test

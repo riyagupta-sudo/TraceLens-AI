@@ -1,0 +1,56 @@
+{
+    "original_v1": {
+        "accuracy": 0.5013333333333333,
+        "precision": 0.5190615835777126,
+        "recall": 0.885,
+        "f1_score": 0.6543438077634011,
+        "false_positive_rate": 0.9371428571428572,
+        "false_negative_rate": 0.115,
+        "expected_calibration_error": 0.3673333333333335,
+        "brier_score": 0.39836399999999994,
+        "roc_auc": 0.44312857142857137,
+        "avg_inference_time_ms": 48.47345226649971,
+        "iphone_fpr": 0.98,
+        "android_fpr": 0.94,
+        "dslr_fpr": 0.84,
+        "screenshot_fpr": 0.84,
+        "confusion_matrix": {
+            "tn": 11,
+            "fp": 164,
+            "fn": 23,
+            "tp": 177
+        }
+    },
+    "improved_v1": {
+        "accuracy": 0.5653333333333334,
+        "precision": 0.5545722713864307,
+        "recall": 0.94,
+        "f1_score": 0.6975881261595547,
+        "false_positive_rate": 0.8628571428571429,
+        "false_negative_rate": 0.06,
+        "expected_calibration_error": 0.011386666666666767,
+        "brier_score": 0.2335309333333333,
+        "roc_auc": 0.6009857142857143,
+        "avg_inference_time_ms": 49.327750133622125,
+        "iphone_fpr": 0.86,
+        "android_fpr": 0.84,
+        "dslr_fpr": 0.88,
+        "screenshot_fpr": 0.76,
+        "confusion_matrix": {
+            "tn": 24,
+            "fp": 151,
+            "fn": 12,
+            "tp": 188
+        }
+    },
+    "improvements": {
+        "accuracy_gain": 0.06400000000000006,
+        "precision_gain": 0.03551068780871813,
+        "f1_gain": 0.043244318396153614,
+        "roc_auc_gain": 0.15785714285714297,
+        "fpr_reduction": 0.07428571428571429,
+        "ece_reduction": 0.35594666666666674,
+        "brier_reduction": 0.16483306666666664,
+        "inference_time_difference_ms": 0.854297867122412
+    }
+}

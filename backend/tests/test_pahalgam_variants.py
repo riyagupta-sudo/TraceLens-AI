@@ -31,13 +31,20 @@ def setup_pahalgam_files():
     
     assert os.path.exists(nature_path), f"Base file nature_001.jpg not found at {nature_path}"
     
-    # 1. pahalgam.jpg (Copy of nature_001.jpg)
-    orig_dest = os.path.join(dataset_dir, "originals", "pahalgam.jpg")
-    shutil.copy(nature_path, orig_dest)
-    
-    # 2. pahalgam1.png (Cropped portion of nature_001.jpg)
     with Image.open(nature_path) as img:
-        # Crop to standard 4:3 aspect ratio, slightly smaller
+        # If the image is portrait, rotate it 90 degrees to landscape so the crop coordinates (50, 50, 690, 530) fit
+        if img.width < img.height:
+            img = img.transpose(Image.ROTATE_90)
+            
+        # 1. pahalgam.jpg with injected EXIF metadata to prevent screenshot false positives
+        orig_dest = os.path.join(dataset_dir, "originals", "pahalgam.jpg")
+        exif = img.getexif()
+        exif[271] = "Canon"
+        exif[272] = "EOS 5D"
+        exif[36867] = "2026:06:16 12:00:00"
+        img.save(orig_dest, "JPEG", exif=exif)
+        
+        # 2. pahalgam1.png (Cropped portion of landscape nature_001.jpg)
         crop1 = img.crop((50, 50, 690, 530)) # 640x480 size
         crop1.save(os.path.join(dataset_dir, "originals", "pahalgam1.png"), "PNG")
         

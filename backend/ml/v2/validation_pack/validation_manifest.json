@@ -1,0 +1,2252 @@
+[
+    {
+        "filename": "Au_ani_30324.jpg",
+        "label": "REAL",
+        "source": "IPHONE",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\Screenshot\\pictures\\Au_ani_30324.jpg"
+    },
+    {
+        "filename": "Au_sec_30679.jpg",
+        "label": "REAL",
+        "source": "IPHONE",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\authentic\\Au_sec_30679.jpg"
+    },
+    {
+        "filename": "Au_cha_30470.jpg",
+        "label": "REAL",
+        "source": "IPHONE",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\authentic\\Au_cha_30470.jpg"
+    },
+    {
+        "filename": "Au_nat_30450.jpg",
+        "label": "REAL",
+        "source": "IPHONE",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\authentic\\Au_nat_30450.jpg"
+    },
+    {
+        "filename": "Au_ani_30017.jpg",
+        "label": "REAL",
+        "source": "IPHONE",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\Screenshot\\pictures\\Au_ani_30017.jpg"
+    },
+    {
+        "filename": "Au_ani_00003.jpg",
+        "label": "REAL",
+        "source": "IPHONE",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\Screenshot\\pictures\\Au_ani_00003.jpg"
+    },
+    {
+        "filename": "Au_sec_30456.jpg",
+        "label": "REAL",
+        "source": "IPHONE",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\authentic\\Au_sec_30456.jpg"
+    },
+    {
+        "filename": "Au_ani_30305.jpg",
+        "label": "REAL",
+        "source": "IPHONE",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\Screenshot\\pictures\\Au_ani_30305.jpg"
+    },
+    {
+        "filename": "Au_nat_20017.jpg",
+        "label": "REAL",
+        "source": "IPHONE",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\authentic\\Au_nat_20017.jpg"
+    },
+    {
+        "filename": "Au_arc_30610.jpg",
+        "label": "REAL",
+        "source": "IPHONE",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\Screenshot\\pictures\\Au_arc_30610.jpg"
+    },
+    {
+        "filename": "Au_sec_30527.jpg",
+        "label": "REAL",
+        "source": "IPHONE",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\authentic\\Au_sec_30527.jpg"
+    },
+    {
+        "filename": "Au_sec_20066.jpg",
+        "label": "REAL",
+        "source": "IPHONE",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\authentic\\Au_sec_20066.jpg"
+    },
+    {
+        "filename": "Au_ani_30406.jpg",
+        "label": "REAL",
+        "source": "IPHONE",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\Screenshot\\pictures\\Au_ani_30406.jpg"
+    },
+    {
+        "filename": "Au_sec_30284.jpg",
+        "label": "REAL",
+        "source": "IPHONE",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\authentic\\Au_sec_30284.jpg"
+    },
+    {
+        "filename": "human_004.jpg",
+        "label": "REAL",
+        "source": "IPHONE",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\originals\\human_004.jpg"
+    },
+    {
+        "filename": "Au_cha_30249.jpg",
+        "label": "REAL",
+        "source": "IPHONE",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\authentic\\Au_cha_30249.jpg"
+    },
+    {
+        "filename": "Au_arc_30683.jpg",
+        "label": "REAL",
+        "source": "IPHONE",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\Screenshot\\pictures\\Au_arc_30683.jpg"
+    },
+    {
+        "filename": "Au_arc_30644.jpg",
+        "label": "REAL",
+        "source": "IPHONE",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\Screenshot\\pictures\\Au_arc_30644.jpg"
+    },
+    {
+        "filename": "Au_arc_20028.jpg",
+        "label": "REAL",
+        "source": "IPHONE",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\Screenshot\\pictures\\Au_arc_20028.jpg"
+    },
+    {
+        "filename": "Au_ani_30217.jpg",
+        "label": "REAL",
+        "source": "IPHONE",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\Screenshot\\pictures\\Au_ani_30217.jpg"
+    },
+    {
+        "filename": "Au_arc_30741.jpg",
+        "label": "REAL",
+        "source": "IPHONE",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\Screenshot\\pictures\\Au_arc_30741.jpg"
+    },
+    {
+        "filename": "Au_arc_30716.jpg",
+        "label": "REAL",
+        "source": "IPHONE",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\authentic\\Au_arc_30716.jpg"
+    },
+    {
+        "filename": "Au_arc_30674.jpg",
+        "label": "REAL",
+        "source": "IPHONE",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\Screenshot\\pictures\\Au_arc_30674.jpg"
+    },
+    {
+        "filename": "Au_arc_30046.jpg",
+        "label": "REAL",
+        "source": "IPHONE",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\Screenshot\\pictures\\Au_arc_30046.jpg"
+    },
+    {
+        "filename": "Au_arc_30288.jpg",
+        "label": "REAL",
+        "source": "IPHONE",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\Screenshot\\pictures\\Au_arc_30288.jpg"
+    },
+    {
+        "filename": "Au_arc_30098.jpg",
+        "label": "REAL",
+        "source": "IPHONE",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\Screenshot\\pictures\\Au_arc_30098.jpg"
+    },
+    {
+        "filename": "Au_ani_30490.jpg",
+        "label": "REAL",
+        "source": "IPHONE",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\Screenshot\\pictures\\Au_ani_30490.jpg"
+    },
+    {
+        "filename": "vehicle_003.jpg",
+        "label": "REAL",
+        "source": "IPHONE",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\originals\\vehicle_003.jpg"
+    },
+    {
+        "filename": "Au_arc_30273.jpg",
+        "label": "REAL",
+        "source": "IPHONE",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\Screenshot\\pictures\\Au_arc_30273.jpg"
+    },
+    {
+        "filename": "Au_ani_30312.jpg",
+        "label": "REAL",
+        "source": "IPHONE",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\Screenshot\\pictures\\Au_ani_30312.jpg"
+    },
+    {
+        "filename": "Au_arc_30747.jpg",
+        "label": "REAL",
+        "source": "IPHONE",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\Screenshot\\pictures\\Au_arc_30747.jpg"
+    },
+    {
+        "filename": "Au_arc_30417.jpg",
+        "label": "REAL",
+        "source": "IPHONE",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\Screenshot\\pictures\\Au_arc_30417.jpg"
+    },
+    {
+        "filename": "Au_nat_30248.jpg",
+        "label": "REAL",
+        "source": "IPHONE",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\authentic\\Au_nat_30248.jpg"
+    },
+    {
+        "filename": "Au_arc_30665.jpg",
+        "label": "REAL",
+        "source": "IPHONE",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\Screenshot\\pictures\\Au_arc_30665.jpg"
+    },
+    {
+        "filename": "Au_arc_20040.jpg",
+        "label": "REAL",
+        "source": "IPHONE",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\Screenshot\\pictures\\Au_arc_20040.jpg"
+    },
+    {
+        "filename": "Au_arc_30569.jpg",
+        "label": "REAL",
+        "source": "IPHONE",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\Screenshot\\pictures\\Au_arc_30569.jpg"
+    },
+    {
+        "filename": "Au_arc_30470.jpg",
+        "label": "REAL",
+        "source": "IPHONE",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\Screenshot\\pictures\\Au_arc_30470.jpg"
+    },
+    {
+        "filename": "Au_cha_30592.jpg",
+        "label": "REAL",
+        "source": "IPHONE",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\authentic\\Au_cha_30592.jpg"
+    },
+    {
+        "filename": "Au_arc_30289.jpg",
+        "label": "REAL",
+        "source": "IPHONE",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\Screenshot\\pictures\\Au_arc_30289.jpg"
+    },
+    {
+        "filename": "Au_ani_30622.jpg",
+        "label": "REAL",
+        "source": "IPHONE",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\Screenshot\\pictures\\Au_ani_30622.jpg"
+    },
+    {
+        "filename": "Au_ani_30516.jpg",
+        "label": "REAL",
+        "source": "IPHONE",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\Screenshot\\pictures\\Au_ani_30516.jpg"
+    },
+    {
+        "filename": "Au_arc_30227.jpg",
+        "label": "REAL",
+        "source": "IPHONE",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\Screenshot\\pictures\\Au_arc_30227.jpg"
+    },
+    {
+        "filename": "Au_cha_30669.jpg",
+        "label": "REAL",
+        "source": "IPHONE",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\authentic\\Au_cha_30669.jpg"
+    },
+    {
+        "filename": "Au_ani_30392.jpg",
+        "label": "REAL",
+        "source": "IPHONE",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\Screenshot\\pictures\\Au_ani_30392.jpg"
+    },
+    {
+        "filename": "Au_sec_30661.jpg",
+        "label": "REAL",
+        "source": "IPHONE",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\authentic\\Au_sec_30661.jpg"
+    },
+    {
+        "filename": "Au_ani_30215.jpg",
+        "label": "REAL",
+        "source": "IPHONE",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\Screenshot\\pictures\\Au_ani_30215.jpg"
+    },
+    {
+        "filename": "Au_arc_30717.jpg",
+        "label": "REAL",
+        "source": "IPHONE",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\Screenshot\\pictures\\Au_arc_30717.jpg"
+    },
+    {
+        "filename": "Au_ani_00017.jpg",
+        "label": "REAL",
+        "source": "IPHONE",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\Screenshot\\pictures\\Au_ani_00017.jpg"
+    },
+    {
+        "filename": "Au_pla_30365.jpg",
+        "label": "REAL",
+        "source": "IPHONE",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\authentic\\Au_pla_30365.jpg"
+    },
+    {
+        "filename": "Au_arc_30284.jpg",
+        "label": "REAL",
+        "source": "IPHONE",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\Screenshot\\pictures\\Au_arc_30284.jpg"
+    },
+    {
+        "filename": "Au_arc_00046.jpg",
+        "label": "REAL",
+        "source": "ANDROID",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\Screenshot\\pictures\\Au_arc_00046.jpg"
+    },
+    {
+        "filename": "Au_ind_30106.jpg",
+        "label": "REAL",
+        "source": "ANDROID",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\authentic\\Au_ind_30106.jpg"
+    },
+    {
+        "filename": "Au_ani_00043.jpg",
+        "label": "REAL",
+        "source": "ANDROID",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\Screenshot\\pictures\\Au_ani_00043.jpg"
+    },
+    {
+        "filename": "Au_ani_10192.jpg",
+        "label": "REAL",
+        "source": "ANDROID",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\Screenshot\\pictures\\Au_ani_10192.jpg"
+    },
+    {
+        "filename": "Au_ani_30400.jpg",
+        "label": "REAL",
+        "source": "ANDROID",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\authentic\\Au_ani_30400.jpg"
+    },
+    {
+        "filename": "Au_arc_30232.jpg",
+        "label": "REAL",
+        "source": "ANDROID",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\authentic\\Au_arc_30232.jpg"
+    },
+    {
+        "filename": "Au_sec_30533.jpg",
+        "label": "REAL",
+        "source": "ANDROID",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\authentic\\Au_sec_30533.jpg"
+    },
+    {
+        "filename": "Au_arc_00061.jpg",
+        "label": "REAL",
+        "source": "ANDROID",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\Screenshot\\pictures\\Au_arc_00061.jpg"
+    },
+    {
+        "filename": "Au_ani_30048.jpg",
+        "label": "REAL",
+        "source": "ANDROID",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\Screenshot\\pictures\\Au_ani_30048.jpg"
+    },
+    {
+        "filename": "Au_ani_30394.jpg",
+        "label": "REAL",
+        "source": "ANDROID",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\Screenshot\\pictures\\Au_ani_30394.jpg"
+    },
+    {
+        "filename": "Au_ani_10175.jpg",
+        "label": "REAL",
+        "source": "ANDROID",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\authentic\\Au_ani_10175.jpg"
+    },
+    {
+        "filename": "Au_cha_30439.jpg",
+        "label": "REAL",
+        "source": "ANDROID",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\authentic\\Au_cha_30439.jpg"
+    },
+    {
+        "filename": "Au_arc_30226.jpg",
+        "label": "REAL",
+        "source": "ANDROID",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\Screenshot\\pictures\\Au_arc_30226.jpg"
+    },
+    {
+        "filename": "Au_ani_30432.jpg",
+        "label": "REAL",
+        "source": "ANDROID",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\Screenshot\\pictures\\Au_ani_30432.jpg"
+    },
+    {
+        "filename": "Au_ani_10159.jpg",
+        "label": "REAL",
+        "source": "ANDROID",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\Screenshot\\pictures\\Au_ani_10159.jpg"
+    },
+    {
+        "filename": "Au_sec_30069.jpg",
+        "label": "REAL",
+        "source": "ANDROID",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\authentic\\Au_sec_30069.jpg"
+    },
+    {
+        "filename": "Au_arc_30325.jpg",
+        "label": "REAL",
+        "source": "ANDROID",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\Screenshot\\pictures\\Au_arc_30325.jpg"
+    },
+    {
+        "filename": "Au_ani_30369.jpg",
+        "label": "REAL",
+        "source": "ANDROID",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\Screenshot\\pictures\\Au_ani_30369.jpg"
+    },
+    {
+        "filename": "vehicle_010.jpg",
+        "label": "REAL",
+        "source": "ANDROID",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\originals\\vehicle_010.jpg"
+    },
+    {
+        "filename": "Au_ani_30701.jpg",
+        "label": "REAL",
+        "source": "ANDROID",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\Screenshot\\pictures\\Au_ani_30701.jpg"
+    },
+    {
+        "filename": "Au_nat_30622.jpg",
+        "label": "REAL",
+        "source": "ANDROID",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\authentic\\Au_nat_30622.jpg"
+    },
+    {
+        "filename": "Au_arc_20086.jpg",
+        "label": "REAL",
+        "source": "ANDROID",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\Screenshot\\pictures\\Au_arc_20086.jpg"
+    },
+    {
+        "filename": "Au_ani_30049.jpg",
+        "label": "REAL",
+        "source": "ANDROID",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\Screenshot\\pictures\\Au_ani_30049.jpg"
+    },
+    {
+        "filename": "Au_art_00005.jpg",
+        "label": "REAL",
+        "source": "ANDROID",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\authentic\\Au_art_00005.jpg"
+    },
+    {
+        "filename": "Au_arc_30508.jpg",
+        "label": "REAL",
+        "source": "ANDROID",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\Screenshot\\pictures\\Au_arc_30508.jpg"
+    },
+    {
+        "filename": "Au_ani_30473.jpg",
+        "label": "REAL",
+        "source": "ANDROID",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\Screenshot\\pictures\\Au_ani_30473.jpg"
+    },
+    {
+        "filename": "Au_ani_30011.jpg",
+        "label": "REAL",
+        "source": "ANDROID",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\Screenshot\\pictures\\Au_ani_30011.jpg"
+    },
+    {
+        "filename": "Au_arc_00015.jpg",
+        "label": "REAL",
+        "source": "ANDROID",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\Screenshot\\pictures\\Au_arc_00015.jpg"
+    },
+    {
+        "filename": "Au_nat_30468.jpg",
+        "label": "REAL",
+        "source": "ANDROID",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\authentic\\Au_nat_30468.jpg"
+    },
+    {
+        "filename": "Au_ani_30212.jpg",
+        "label": "REAL",
+        "source": "ANDROID",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\Screenshot\\pictures\\Au_ani_30212.jpg"
+    },
+    {
+        "filename": "Au_arc_30104.jpg",
+        "label": "REAL",
+        "source": "ANDROID",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\Screenshot\\pictures\\Au_arc_30104.jpg"
+    },
+    {
+        "filename": "Au_ani_30596.jpg",
+        "label": "REAL",
+        "source": "ANDROID",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\Screenshot\\pictures\\Au_ani_30596.jpg"
+    },
+    {
+        "filename": "Au_arc_00086.jpg",
+        "label": "REAL",
+        "source": "ANDROID",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\Screenshot\\pictures\\Au_arc_00086.jpg"
+    },
+    {
+        "filename": "Au_ani_30786.jpg",
+        "label": "REAL",
+        "source": "ANDROID",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\Screenshot\\pictures\\Au_ani_30786.jpg"
+    },
+    {
+        "filename": "Au_ani_30253.jpg",
+        "label": "REAL",
+        "source": "ANDROID",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\authentic\\Au_ani_30253.jpg"
+    },
+    {
+        "filename": "Au_arc_30614.jpg",
+        "label": "REAL",
+        "source": "ANDROID",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\authentic\\Au_arc_30614.jpg"
+    },
+    {
+        "filename": "Au_ani_00086.jpg",
+        "label": "REAL",
+        "source": "ANDROID",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\authentic\\Au_ani_00086.jpg"
+    },
+    {
+        "filename": "Au_arc_30718.jpg",
+        "label": "REAL",
+        "source": "ANDROID",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\Screenshot\\pictures\\Au_arc_30718.jpg"
+    },
+    {
+        "filename": "Au_sec_30397.jpg",
+        "label": "REAL",
+        "source": "ANDROID",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\authentic\\Au_sec_30397.jpg"
+    },
+    {
+        "filename": "Au_ani_00036.jpg",
+        "label": "REAL",
+        "source": "ANDROID",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\Screenshot\\pictures\\Au_ani_00036.jpg"
+    },
+    {
+        "filename": "Au_arc_30188.jpg",
+        "label": "REAL",
+        "source": "ANDROID",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\Screenshot\\pictures\\Au_arc_30188.jpg"
+    },
+    {
+        "filename": "Au_arc_30396.jpg",
+        "label": "REAL",
+        "source": "ANDROID",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\Screenshot\\pictures\\Au_arc_30396.jpg"
+    },
+    {
+        "filename": "Au_ani_30027.jpg",
+        "label": "REAL",
+        "source": "ANDROID",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\Screenshot\\pictures\\Au_ani_30027.jpg"
+    },
+    {
+        "filename": "Au_art_30575.jpg",
+        "label": "REAL",
+        "source": "ANDROID",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\authentic\\Au_art_30575.jpg"
+    },
+    {
+        "filename": "Au_sec_30237.jpg",
+        "label": "REAL",
+        "source": "ANDROID",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\authentic\\Au_sec_30237.jpg"
+    },
+    {
+        "filename": "Au_arc_30412.jpg",
+        "label": "REAL",
+        "source": "ANDROID",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\authentic\\Au_arc_30412.jpg"
+    },
+    {
+        "filename": "Au_sec_00040.jpg",
+        "label": "REAL",
+        "source": "ANDROID",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\authentic\\Au_sec_00040.jpg"
+    },
+    {
+        "filename": "Au_art_10104.jpg",
+        "label": "REAL",
+        "source": "ANDROID",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\authentic\\Au_art_10104.jpg"
+    },
+    {
+        "filename": "Au_arc_00022.jpg",
+        "label": "REAL",
+        "source": "ANDROID",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\Screenshot\\pictures\\Au_arc_00022.jpg"
+    },
+    {
+        "filename": "Au_arc_30447.jpg",
+        "label": "REAL",
+        "source": "ANDROID",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\Screenshot\\pictures\\Au_arc_30447.jpg"
+    },
+    {
+        "filename": "Au_arc_30613.jpg",
+        "label": "REAL",
+        "source": "DSLR",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\Screenshot\\pictures\\Au_arc_30613.jpg"
+    },
+    {
+        "filename": "Au_arc_30367.jpg",
+        "label": "REAL",
+        "source": "DSLR",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\Screenshot\\pictures\\Au_arc_30367.jpg"
+    },
+    {
+        "filename": "Au_ani_30695.jpg",
+        "label": "REAL",
+        "source": "DSLR",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\Screenshot\\pictures\\Au_ani_30695.jpg"
+    },
+    {
+        "filename": "Au_cha_30326.jpg",
+        "label": "REAL",
+        "source": "DSLR",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\authentic\\Au_cha_30326.jpg"
+    },
+    {
+        "filename": "Au_nat_30731.jpg",
+        "label": "REAL",
+        "source": "DSLR",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\authentic\\Au_nat_30731.jpg"
+    },
+    {
+        "filename": "Au_ani_10222.jpg",
+        "label": "REAL",
+        "source": "DSLR",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\authentic\\Au_ani_10222.jpg"
+    },
+    {
+        "filename": "Au_cha_10179.jpg",
+        "label": "REAL",
+        "source": "DSLR",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\authentic\\Au_cha_10179.jpg"
+    },
+    {
+        "filename": "Au_arc_30281.jpg",
+        "label": "REAL",
+        "source": "DSLR",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\Screenshot\\pictures\\Au_arc_30281.jpg"
+    },
+    {
+        "filename": "Au_ani_10112.jpg",
+        "label": "REAL",
+        "source": "DSLR",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\authentic\\Au_ani_10112.jpg"
+    },
+    {
+        "filename": "Au_ani_10161.jpg",
+        "label": "REAL",
+        "source": "DSLR",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\Screenshot\\pictures\\Au_ani_10161.jpg"
+    },
+    {
+        "filename": "Au_ani_10178.jpg",
+        "label": "REAL",
+        "source": "DSLR",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\Screenshot\\pictures\\Au_ani_10178.jpg"
+    },
+    {
+        "filename": "Au_arc_30039.jpg",
+        "label": "REAL",
+        "source": "DSLR",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\Screenshot\\pictures\\Au_arc_30039.jpg"
+    },
+    {
+        "filename": "Au_pla_20086.jpg",
+        "label": "REAL",
+        "source": "DSLR",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\authentic\\Au_pla_20086.jpg"
+    },
+    {
+        "filename": "Au_ani_30623.jpg",
+        "label": "REAL",
+        "source": "DSLR",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\Screenshot\\pictures\\Au_ani_30623.jpg"
+    },
+    {
+        "filename": "Au_arc_30301.jpg",
+        "label": "REAL",
+        "source": "DSLR",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\Screenshot\\pictures\\Au_arc_30301.jpg"
+    },
+    {
+        "filename": "Au_art_30308.jpg",
+        "label": "REAL",
+        "source": "DSLR",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\authentic\\Au_art_30308.jpg"
+    },
+    {
+        "filename": "Au_arc_30324.jpg",
+        "label": "REAL",
+        "source": "DSLR",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\Screenshot\\pictures\\Au_arc_30324.jpg"
+    },
+    {
+        "filename": "Au_ani_30793.jpg",
+        "label": "REAL",
+        "source": "DSLR",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\Screenshot\\pictures\\Au_ani_30793.jpg"
+    },
+    {
+        "filename": "Au_ani_30536.jpg",
+        "label": "REAL",
+        "source": "DSLR",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\Screenshot\\pictures\\Au_ani_30536.jpg"
+    },
+    {
+        "filename": "Au_ani_20058.jpg",
+        "label": "REAL",
+        "source": "DSLR",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\Screenshot\\pictures\\Au_ani_20058.jpg"
+    },
+    {
+        "filename": "Au_ani_10196.jpg",
+        "label": "REAL",
+        "source": "DSLR",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\Screenshot\\pictures\\Au_ani_10196.jpg"
+    },
+    {
+        "filename": "Au_pla_30373.jpg",
+        "label": "REAL",
+        "source": "DSLR",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\authentic\\Au_pla_30373.jpg"
+    },
+    {
+        "filename": "Au_txt_00015.jpg",
+        "label": "REAL",
+        "source": "DSLR",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\authentic\\Au_txt_00015.jpg"
+    },
+    {
+        "filename": "Au_arc_30006.jpg",
+        "label": "REAL",
+        "source": "DSLR",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\Screenshot\\pictures\\Au_arc_30006.jpg"
+    },
+    {
+        "filename": "Au_arc_00080.jpg",
+        "label": "REAL",
+        "source": "DSLR",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\authentic\\Au_arc_00080.jpg"
+    },
+    {
+        "filename": "Screenshot_20210429-013033_NYTimes.jpg",
+        "label": "REAL",
+        "source": "SCREENSHOT",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\Screenshot\\screenshot\\NYT\\Screenshot_20210429-013033_NYTimes.jpg"
+    },
+    {
+        "filename": "86.jpg",
+        "label": "REAL",
+        "source": "SCREENSHOT",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\Screenshot\\screenshot\\FB\\86.jpg"
+    },
+    {
+        "filename": "5.jpg",
+        "label": "REAL",
+        "source": "SCREENSHOT",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\Screenshot\\screenshot\\FB\\5.jpg"
+    },
+    {
+        "filename": "twitter_screenshot_130_en.jpg",
+        "label": "REAL",
+        "source": "SCREENSHOT",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\Screenshot\\screenshot\\Twitter\\twitter_screenshot_130_en.jpg"
+    },
+    {
+        "filename": "Screenshot_20210525-162038_NYTimes.jpg",
+        "label": "REAL",
+        "source": "SCREENSHOT",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\Screenshot\\screenshot\\NYT\\Screenshot_20210525-162038_NYTimes.jpg"
+    },
+    {
+        "filename": "Screenshot_20210918-164922_Messenger.jpg",
+        "label": "REAL",
+        "source": "SCREENSHOT",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\Screenshot\\screenshot\\FBM\\Screenshot_20210918-164922_Messenger.jpg"
+    },
+    {
+        "filename": "twitter_screenshot_113_de.jpg",
+        "label": "REAL",
+        "source": "SCREENSHOT",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\Screenshot\\screenshot\\Twitter\\twitter_screenshot_113_de.jpg"
+    },
+    {
+        "filename": "twitter_screenshot_123_en.jpg",
+        "label": "REAL",
+        "source": "SCREENSHOT",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\Screenshot\\screenshot\\Twitter\\twitter_screenshot_123_en.jpg"
+    },
+    {
+        "filename": "twitter_screenshot_26_de.jpg",
+        "label": "REAL",
+        "source": "SCREENSHOT",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\Screenshot\\screenshot\\Twitter\\twitter_screenshot_26_de.jpg"
+    },
+    {
+        "filename": "Screenshot_20210430-002532_NYTimes.jpg",
+        "label": "REAL",
+        "source": "SCREENSHOT",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\Screenshot\\screenshot\\NYT\\Screenshot_20210430-002532_NYTimes.jpg"
+    },
+    {
+        "filename": "56.jpg",
+        "label": "REAL",
+        "source": "SCREENSHOT",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\Screenshot\\screenshot\\FB\\56.jpg"
+    },
+    {
+        "filename": "7.jpg",
+        "label": "REAL",
+        "source": "SCREENSHOT",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\Screenshot\\screenshot\\Discord\\7.jpg"
+    },
+    {
+        "filename": "twitter_screenshot_75_de.jpg",
+        "label": "REAL",
+        "source": "SCREENSHOT",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\Screenshot\\screenshot\\Twitter\\twitter_screenshot_75_de.jpg"
+    },
+    {
+        "filename": "twitter_screenshot_85_de.jpg",
+        "label": "REAL",
+        "source": "SCREENSHOT",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\Screenshot\\screenshot\\Twitter\\twitter_screenshot_85_de.jpg"
+    },
+    {
+        "filename": "twitter_screenshot_105_de.jpg",
+        "label": "REAL",
+        "source": "SCREENSHOT",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\Screenshot\\screenshot\\Twitter\\twitter_screenshot_105_de.jpg"
+    },
+    {
+        "filename": "Screenshot_20210523-185631_NYTimes.jpg",
+        "label": "REAL",
+        "source": "SCREENSHOT",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\Screenshot\\screenshot\\NYT\\Screenshot_20210523-185631_NYTimes.jpg"
+    },
+    {
+        "filename": "twitter_screenshot_179_en.jpg",
+        "label": "REAL",
+        "source": "SCREENSHOT",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\Screenshot\\screenshot\\Twitter\\twitter_screenshot_179_en.jpg"
+    },
+    {
+        "filename": "twitter_screenshot_23_en.jpg",
+        "label": "REAL",
+        "source": "SCREENSHOT",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\Screenshot\\screenshot\\Twitter\\twitter_screenshot_23_en.jpg"
+    },
+    {
+        "filename": "4.jpg",
+        "label": "REAL",
+        "source": "SCREENSHOT",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\Screenshot\\screenshot\\Tagesschau\\4.jpg"
+    },
+    {
+        "filename": "twitter_screenshot_140_de.jpg",
+        "label": "REAL",
+        "source": "SCREENSHOT",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\Screenshot\\screenshot\\Twitter\\twitter_screenshot_140_de.jpg"
+    },
+    {
+        "filename": "Screenshot_20210707-093957_NYTimes.jpg",
+        "label": "REAL",
+        "source": "SCREENSHOT",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\Screenshot\\screenshot\\NYT\\Screenshot_20210707-093957_NYTimes.jpg"
+    },
+    {
+        "filename": "twitter_screenshot_133_de.jpg",
+        "label": "REAL",
+        "source": "SCREENSHOT",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\Screenshot\\screenshot\\Twitter\\twitter_screenshot_133_de.jpg"
+    },
+    {
+        "filename": "twitter_screenshot_18_de.jpg",
+        "label": "REAL",
+        "source": "SCREENSHOT",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\Screenshot\\screenshot\\Twitter\\twitter_screenshot_18_de.jpg"
+    },
+    {
+        "filename": "82.jpg",
+        "label": "REAL",
+        "source": "SCREENSHOT",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\Screenshot\\screenshot\\FB\\82.jpg"
+    },
+    {
+        "filename": "0.jpg",
+        "label": "REAL",
+        "source": "SCREENSHOT",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\Screenshot\\screenshot\\WPost\\0.jpg"
+    },
+    {
+        "filename": "Au_pla_30610.jpg",
+        "label": "REAL",
+        "source": "WHATSAPP",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\authentic\\Au_pla_30610.jpg"
+    },
+    {
+        "filename": "vehicle_007.jpg",
+        "label": "REAL",
+        "source": "WHATSAPP",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\originals\\vehicle_007.jpg"
+    },
+    {
+        "filename": "Au_arc_20069.jpg",
+        "label": "REAL",
+        "source": "WHATSAPP",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\Screenshot\\pictures\\Au_arc_20069.jpg"
+    },
+    {
+        "filename": "Au_arc_30252.jpg",
+        "label": "REAL",
+        "source": "WHATSAPP",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\Screenshot\\pictures\\Au_arc_30252.jpg"
+    },
+    {
+        "filename": "Au_ani_30121.jpg",
+        "label": "REAL",
+        "source": "WHATSAPP",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\Screenshot\\pictures\\Au_ani_30121.jpg"
+    },
+    {
+        "filename": "Au_ani_30600.jpg",
+        "label": "REAL",
+        "source": "WHATSAPP",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\Screenshot\\pictures\\Au_ani_30600.jpg"
+    },
+    {
+        "filename": "Au_ani_30149.jpg",
+        "label": "REAL",
+        "source": "WHATSAPP",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\authentic\\Au_ani_30149.jpg"
+    },
+    {
+        "filename": "Au_arc_30223.jpg",
+        "label": "REAL",
+        "source": "WHATSAPP",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\Screenshot\\pictures\\Au_arc_30223.jpg"
+    },
+    {
+        "filename": "Au_arc_30495.jpg",
+        "label": "REAL",
+        "source": "WHATSAPP",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\Screenshot\\pictures\\Au_arc_30495.jpg"
+    },
+    {
+        "filename": "Au_ani_30339.jpg",
+        "label": "REAL",
+        "source": "WHATSAPP",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\Screenshot\\pictures\\Au_ani_30339.jpg"
+    },
+    {
+        "filename": "Au_ani_00070.jpg",
+        "label": "REAL",
+        "source": "WHATSAPP",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\Screenshot\\pictures\\Au_ani_00070.jpg"
+    },
+    {
+        "filename": "Au_nat_30152.jpg",
+        "label": "REAL",
+        "source": "WHATSAPP",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\authentic\\Au_nat_30152.jpg"
+    },
+    {
+        "filename": "Au_ani_10205.jpg",
+        "label": "REAL",
+        "source": "WHATSAPP",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\Screenshot\\pictures\\Au_ani_10205.jpg"
+    },
+    {
+        "filename": "Au_art_30059.jpg",
+        "label": "REAL",
+        "source": "WHATSAPP",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\authentic\\Au_art_30059.jpg"
+    },
+    {
+        "filename": "Au_sec_30404.jpg",
+        "label": "REAL",
+        "source": "WHATSAPP",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\authentic\\Au_sec_30404.jpg"
+    },
+    {
+        "filename": "Au_arc_30263.jpg",
+        "label": "REAL",
+        "source": "WHATSAPP",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\Screenshot\\pictures\\Au_arc_30263.jpg"
+    },
+    {
+        "filename": "Au_ani_30302.jpg",
+        "label": "REAL",
+        "source": "WHATSAPP",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\Screenshot\\pictures\\Au_ani_30302.jpg"
+    },
+    {
+        "filename": "Au_ani_30091.jpg",
+        "label": "REAL",
+        "source": "WHATSAPP",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\Screenshot\\pictures\\Au_ani_30091.jpg"
+    },
+    {
+        "filename": "Au_sec_30317.jpg",
+        "label": "REAL",
+        "source": "WHATSAPP",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\authentic\\Au_sec_30317.jpg"
+    },
+    {
+        "filename": "Au_ani_30061.jpg",
+        "label": "REAL",
+        "source": "WHATSAPP",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\authentic\\Au_ani_30061.jpg"
+    },
+    {
+        "filename": "Au_ind_30052.jpg",
+        "label": "REAL",
+        "source": "WHATSAPP",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\authentic\\Au_ind_30052.jpg"
+    },
+    {
+        "filename": "Au_arc_30496.jpg",
+        "label": "REAL",
+        "source": "WHATSAPP",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\Screenshot\\pictures\\Au_arc_30496.jpg"
+    },
+    {
+        "filename": "Au_ani_20048.jpg",
+        "label": "REAL",
+        "source": "WHATSAPP",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\Screenshot\\pictures\\Au_ani_20048.jpg"
+    },
+    {
+        "filename": "Au_arc_30182.jpg",
+        "label": "REAL",
+        "source": "WHATSAPP",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\Screenshot\\pictures\\Au_arc_30182.jpg"
+    },
+    {
+        "filename": "Au_ani_10109.jpg",
+        "label": "REAL",
+        "source": "WHATSAPP",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\Screenshot\\pictures\\Au_ani_10109.jpg"
+    },
+    {
+        "filename": "Tp_D_NRN_S_N_pla00077_pla00053_11213.jpg",
+        "label": "FAKE",
+        "source": "MIDJOURNEY",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\tampered\\Tp_D_NRN_S_N_pla00077_pla00053_11213.jpg"
+    },
+    {
+        "filename": "Tp_S_CRN_M_N_pla00086_pla00086_10626.jpg",
+        "label": "FAKE",
+        "source": "MIDJOURNEY",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\tampered\\Tp_S_CRN_M_N_pla00086_pla00086_10626.jpg"
+    },
+    {
+        "filename": "Tp_S_CRN_S_N_ani10221_ani10221_12393.jpg",
+        "label": "FAKE",
+        "source": "MIDJOURNEY",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\tampered\\Tp_S_CRN_S_N_ani10221_ani10221_12393.jpg"
+    },
+    {
+        "filename": "Tp_S_NRN_S_N_pla00049_pla00049_10984.jpg",
+        "label": "FAKE",
+        "source": "MIDJOURNEY",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\tampered\\Tp_S_NRN_S_N_pla00049_pla00049_10984.jpg"
+    },
+    {
+        "filename": "Tp_S_NNN_S_B_sec10003_sec10003_20070.jpg",
+        "label": "FAKE",
+        "source": "MIDJOURNEY",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\tampered\\Tp_S_NNN_S_B_sec10003_sec10003_20070.jpg"
+    },
+    {
+        "filename": "Tp_D_NNN_M_N_sec00041_nat00097_11253.jpg",
+        "label": "FAKE",
+        "source": "MIDJOURNEY",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\tampered\\Tp_D_NNN_M_N_sec00041_nat00097_11253.jpg"
+    },
+    {
+        "filename": "Tp_D_CRN_M_N_txt00063_txt00017_10835.jpg",
+        "label": "FAKE",
+        "source": "MIDJOURNEY",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\tampered\\Tp_D_CRN_M_N_txt00063_txt00017_10835.jpg"
+    },
+    {
+        "filename": "Tp_S_NRN_S_N_sec00028_sec00028_10783.jpg",
+        "label": "FAKE",
+        "source": "MIDJOURNEY",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\tampered\\Tp_S_NRN_S_N_sec00028_sec00028_10783.jpg"
+    },
+    {
+        "filename": "Tp_D_NNN_M_N_arc00054_nat00059_11934.jpg",
+        "label": "FAKE",
+        "source": "MIDJOURNEY",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\tampered\\Tp_D_NNN_M_N_arc00054_nat00059_11934.jpg"
+    },
+    {
+        "filename": "Tp_S_CRN_S_N_sec00055_sec00055_11234.jpg",
+        "label": "FAKE",
+        "source": "MIDJOURNEY",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\tampered\\Tp_S_CRN_S_N_sec00055_sec00055_11234.jpg"
+    },
+    {
+        "filename": "Tp_D_CRN_S_N_nat10159_ani00097_12063.jpg",
+        "label": "FAKE",
+        "source": "MIDJOURNEY",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\tampered\\Tp_D_CRN_S_N_nat10159_ani00097_12063.jpg"
+    },
+    {
+        "filename": "Tp_S_NRN_S_N_ind00024_ind00024_10712.jpg",
+        "label": "FAKE",
+        "source": "MIDJOURNEY",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\tampered\\Tp_S_NRN_S_N_ind00024_ind00024_10712.jpg"
+    },
+    {
+        "filename": "Tp_S_NNN_S_N_sec00008_sec00008_10801.jpg",
+        "label": "FAKE",
+        "source": "MIDJOURNEY",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\tampered\\Tp_S_NNN_S_N_sec00008_sec00008_10801.jpg"
+    },
+    {
+        "filename": "Tp_D_NRN_S_N_nat10164_ani00058_12091.jpg",
+        "label": "FAKE",
+        "source": "MIDJOURNEY",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\tampered\\Tp_D_NRN_S_N_nat10164_ani00058_12091.jpg"
+    },
+    {
+        "filename": "Tp_D_NRN_S_N_nat00041_art00025_11430.jpg",
+        "label": "FAKE",
+        "source": "MIDJOURNEY",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\tampered\\Tp_D_NRN_S_N_nat00041_art00025_11430.jpg"
+    },
+    {
+        "filename": "Tp_S_NRN_S_B_arc00004_arc00004_11173.jpg",
+        "label": "FAKE",
+        "source": "MIDJOURNEY",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\tampered\\Tp_S_NRN_S_B_arc00004_arc00004_11173.jpg"
+    },
+    {
+        "filename": "Tp_D_CRN_S_N_cha00053_art00014_11817.jpg",
+        "label": "FAKE",
+        "source": "MIDJOURNEY",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\tampered\\Tp_D_CRN_S_N_cha00053_art00014_11817.jpg"
+    },
+    {
+        "filename": "Tp_D_CRN_S_N_sec00061_sec00097_11694.jpg",
+        "label": "FAKE",
+        "source": "MIDJOURNEY",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\tampered\\Tp_D_CRN_S_N_sec00061_sec00097_11694.jpg"
+    },
+    {
+        "filename": "Tp_D_NNN_M_N_nat00075_nat00097_11100.jpg",
+        "label": "FAKE",
+        "source": "MIDJOURNEY",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\tampered\\Tp_D_NNN_M_N_nat00075_nat00097_11100.jpg"
+    },
+    {
+        "filename": "Tp_D_NRN_M_N_art10110_cha00063_11646.jpg",
+        "label": "FAKE",
+        "source": "MIDJOURNEY",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\tampered\\Tp_D_NRN_M_N_art10110_cha00063_11646.jpg"
+    },
+    {
+        "filename": "Tp_D_NRN_S_N_nat00063_nat00061_11436.jpg",
+        "label": "FAKE",
+        "source": "MIDJOURNEY",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\tampered\\Tp_D_NRN_S_N_nat00063_nat00061_11436.jpg"
+    },
+    {
+        "filename": "Tp_D_CRN_M_N_cha00050_cha00026_11787.jpg",
+        "label": "FAKE",
+        "source": "MIDJOURNEY",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\tampered\\Tp_D_CRN_M_N_cha00050_cha00026_11787.jpg"
+    },
+    {
+        "filename": "Tp_D_NRN_S_N_arc00059_cha00062_11824.jpg",
+        "label": "FAKE",
+        "source": "MIDJOURNEY",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\tampered\\Tp_D_NRN_S_N_arc00059_cha00062_11824.jpg"
+    },
+    {
+        "filename": "Tp_S_NNN_M_N_cha00044_cha00044_11008.jpg",
+        "label": "FAKE",
+        "source": "MIDJOURNEY",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\tampered\\Tp_S_NNN_M_N_cha00044_cha00044_11008.jpg"
+    },
+    {
+        "filename": "Tp_D_CRN_S_N_cha00075_cha00086_10868.jpg",
+        "label": "FAKE",
+        "source": "MIDJOURNEY",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\tampered\\Tp_D_CRN_S_N_cha00075_cha00086_10868.jpg"
+    },
+    {
+        "filename": "Tp_S_CRN_S_N_cha10159_cha10159_12332.jpg",
+        "label": "FAKE",
+        "source": "MIDJOURNEY",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\tampered\\Tp_S_CRN_S_N_cha10159_cha10159_12332.jpg"
+    },
+    {
+        "filename": "Tp_D_CRN_S_N_ani10116_sec00098_11616.jpg",
+        "label": "FAKE",
+        "source": "MIDJOURNEY",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\tampered\\Tp_D_CRN_S_N_ani10116_sec00098_11616.jpg"
+    },
+    {
+        "filename": "Tp_D_NRN_M_N_ani00046_ani00059_11143.jpg",
+        "label": "FAKE",
+        "source": "MIDJOURNEY",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\tampered\\Tp_D_NRN_M_N_ani00046_ani00059_11143.jpg"
+    },
+    {
+        "filename": "Tp_S_CNN_M_N_nat00071_nat00071_10610.jpg",
+        "label": "FAKE",
+        "source": "MIDJOURNEY",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\tampered\\Tp_S_CNN_M_N_nat00071_nat00071_10610.jpg"
+    },
+    {
+        "filename": "Tp_D_NNN_M_N_arc00008_cha00050_11769.jpg",
+        "label": "FAKE",
+        "source": "MIDJOURNEY",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\tampered\\Tp_D_NNN_M_N_arc00008_cha00050_11769.jpg"
+    },
+    {
+        "filename": "Tp_S_CNN_M_N_pla00076_pla00076_10622.jpg",
+        "label": "FAKE",
+        "source": "MIDJOURNEY",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\tampered\\Tp_S_CNN_M_N_pla00076_pla00076_10622.jpg"
+    },
+    {
+        "filename": "Tp_D_NRN_M_N_cha10138_cha00067_12204.jpg",
+        "label": "FAKE",
+        "source": "MIDJOURNEY",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\tampered\\Tp_D_NRN_M_N_cha10138_cha00067_12204.jpg"
+    },
+    {
+        "filename": "Tp_S_NRN_S_N_cha10174_cha10174_12274.jpg",
+        "label": "FAKE",
+        "source": "MIDJOURNEY",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\tampered\\Tp_S_NRN_S_N_cha10174_cha10174_12274.jpg"
+    },
+    {
+        "filename": "Tp_S_CRN_S_N_ind00045_ind00045_10914.jpg",
+        "label": "FAKE",
+        "source": "MIDJOURNEY",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\tampered\\Tp_S_CRN_S_N_ind00045_ind00045_10914.jpg"
+    },
+    {
+        "filename": "Tp_S_NNN_S_N_art10112_art10112_11559.jpg",
+        "label": "FAKE",
+        "source": "MIDJOURNEY",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\tampered\\Tp_S_NNN_S_N_art10112_art10112_11559.jpg"
+    },
+    {
+        "filename": "Tp_D_NRN_M_N_nat10133_nat00013_11910.jpg",
+        "label": "FAKE",
+        "source": "MIDJOURNEY",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\tampered\\Tp_D_NRN_M_N_nat10133_nat00013_11910.jpg"
+    },
+    {
+        "filename": "Tp_S_NRN_M_B_cha10125_cha10125_12162.jpg",
+        "label": "FAKE",
+        "source": "MIDJOURNEY",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\tampered\\Tp_S_NRN_M_B_cha10125_cha10125_12162.jpg"
+    },
+    {
+        "filename": "Tp_S_NNN_M_N_txt00075_txt00075_11298.jpg",
+        "label": "FAKE",
+        "source": "MIDJOURNEY",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\tampered\\Tp_S_NNN_M_N_txt00075_txt00075_11298.jpg"
+    },
+    {
+        "filename": "Tp_S_NNN_S_N_nat10162_nat10162_12087.jpg",
+        "label": "FAKE",
+        "source": "MIDJOURNEY",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\tampered\\Tp_S_NNN_S_N_nat10162_nat10162_12087.jpg"
+    },
+    {
+        "filename": "Tp_S_NNN_S_N_nat10147_nat10147_11994.jpg",
+        "label": "FAKE",
+        "source": "MIDJOURNEY",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\tampered\\Tp_S_NNN_S_N_nat10147_nat10147_11994.jpg"
+    },
+    {
+        "filename": "Tp_D_NRN_M_N_ani10216_ani10215_12387.jpg",
+        "label": "FAKE",
+        "source": "MIDJOURNEY",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\tampered\\Tp_D_NRN_M_N_ani10216_ani10215_12387.jpg"
+    },
+    {
+        "filename": "Tp_D_NRN_M_N_nat10161_nat10158_12083.jpg",
+        "label": "FAKE",
+        "source": "MIDJOURNEY",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\tampered\\Tp_D_NRN_M_N_nat10161_nat10158_12083.jpg"
+    },
+    {
+        "filename": "Tp_S_CNN_S_N_pla00069_pla00069_11215.jpg",
+        "label": "FAKE",
+        "source": "MIDJOURNEY",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\tampered\\Tp_S_CNN_S_N_pla00069_pla00069_11215.jpg"
+    },
+    {
+        "filename": "Tp_S_NRN_S_N_ani10214_ani10214_12379.jpg",
+        "label": "FAKE",
+        "source": "MIDJOURNEY",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\tampered\\Tp_S_NRN_S_N_ani10214_ani10214_12379.jpg"
+    },
+    {
+        "filename": "Tp_D_CRN_S_N_sec00041_sec00034_11251.jpg",
+        "label": "FAKE",
+        "source": "MIDJOURNEY",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\tampered\\Tp_D_CRN_S_N_sec00041_sec00034_11251.jpg"
+    },
+    {
+        "filename": "Tp_D_NRN_S_N_nat00019_cha00021_20022.jpg",
+        "label": "FAKE",
+        "source": "MIDJOURNEY",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\tampered\\Tp_D_NRN_S_N_nat00019_cha00021_20022.jpg"
+    },
+    {
+        "filename": "Tp_S_CRN_S_B_pla10002_pla10002_20045.jpg",
+        "label": "FAKE",
+        "source": "MIDJOURNEY",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\tampered\\Tp_S_CRN_S_B_pla10002_pla10002_20045.jpg"
+    },
+    {
+        "filename": "Tp_D_NNN_M_B_art00023_nat00095_11877.jpg",
+        "label": "FAKE",
+        "source": "MIDJOURNEY",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\tampered\\Tp_D_NNN_M_B_art00023_nat00095_11877.jpg"
+    },
+    {
+        "filename": "Tp_S_NRN_S_N_ani10167_ani10167_12446.jpg",
+        "label": "FAKE",
+        "source": "MIDJOURNEY",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\tampered\\Tp_S_NRN_S_N_ani10167_ani10167_12446.jpg"
+    },
+    {
+        "filename": "Tp_D_NRN_M_N_nat10150_nat10125_12036.jpg",
+        "label": "FAKE",
+        "source": "MIDJOURNEY",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\tampered\\Tp_D_NRN_M_N_nat10150_nat10125_12036.jpg"
+    },
+    {
+        "filename": "Tp_S_NRN_S_N_cha00037_cha00037_11014.jpg",
+        "label": "FAKE",
+        "source": "FLUX",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\tampered\\Tp_S_NRN_S_N_cha00037_cha00037_11014.jpg"
+    },
+    {
+        "filename": "Tp_D_NRD_S_N_art00070_art00092_11822.jpg",
+        "label": "FAKE",
+        "source": "FLUX",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\tampered\\Tp_D_NRD_S_N_art00070_art00092_11822.jpg"
+    },
+    {
+        "filename": "Tp_S_NRN_M_N_pla00020_pla00020_10988.jpg",
+        "label": "FAKE",
+        "source": "FLUX",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\tampered\\Tp_S_NRN_M_N_pla00020_pla00020_10988.jpg"
+    },
+    {
+        "filename": "Tp_S_NRN_S_N_ani10189_ani10189_12433.jpg",
+        "label": "FAKE",
+        "source": "FLUX",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\tampered\\Tp_S_NRN_S_N_ani10189_ani10189_12433.jpg"
+    },
+    {
+        "filename": "Tp_D_NRN_M_N_nat10144_nat00099_11966.jpg",
+        "label": "FAKE",
+        "source": "FLUX",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\tampered\\Tp_D_NRN_M_N_nat10144_nat00099_11966.jpg"
+    },
+    {
+        "filename": "Tp_D_CRN_M_N_nat00085_nat00073_10591.jpg",
+        "label": "FAKE",
+        "source": "FLUX",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\tampered\\Tp_D_CRN_M_N_nat00085_nat00073_10591.jpg"
+    },
+    {
+        "filename": "Tp_D_NRN_M_N_nat10136_arc00069_11918.jpg",
+        "label": "FAKE",
+        "source": "FLUX",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\tampered\\Tp_D_NRN_M_N_nat10136_arc00069_11918.jpg"
+    },
+    {
+        "filename": "Tp_D_CRN_S_N_pla00023_pla00024_10953.jpg",
+        "label": "FAKE",
+        "source": "FLUX",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\tampered\\Tp_D_CRN_S_N_pla00023_pla00024_10953.jpg"
+    },
+    {
+        "filename": "Tp_D_NRN_S_N_cha10137_cha10140_12208.jpg",
+        "label": "FAKE",
+        "source": "FLUX",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\tampered\\Tp_D_NRN_S_N_cha10137_cha10140_12208.jpg"
+    },
+    {
+        "filename": "Tp_D_NNN_S_N_nat10159_nat10157_12049.jpg",
+        "label": "FAKE",
+        "source": "FLUX",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\tampered\\Tp_D_NNN_S_N_nat10159_nat10157_12049.jpg"
+    },
+    {
+        "filename": "Tp_D_NRN_M_N_nat00097_nat00059_11109.jpg",
+        "label": "FAKE",
+        "source": "FLUX",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\tampered\\Tp_D_NRN_M_N_nat00097_nat00059_11109.jpg"
+    },
+    {
+        "filename": "Tp_D_NRN_S_N_cha10128_nat10114_12180.jpg",
+        "label": "FAKE",
+        "source": "FLUX",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\tampered\\Tp_D_NRN_S_N_cha10128_nat10114_12180.jpg"
+    },
+    {
+        "filename": "Tp_S_CRN_M_N_ind00051_ind00051_10902.jpg",
+        "label": "FAKE",
+        "source": "FLUX",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\tampered\\Tp_S_CRN_M_N_ind00051_ind00051_10902.jpg"
+    },
+    {
+        "filename": "Tp_D_NRN_S_N_art10106_cha00067_11593.jpg",
+        "label": "FAKE",
+        "source": "FLUX",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\tampered\\Tp_D_NRN_S_N_art10106_cha00067_11593.jpg"
+    },
+    {
+        "filename": "Tp_D_NRN_S_N_pla00008_pla00009_10936.jpg",
+        "label": "FAKE",
+        "source": "FLUX",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\tampered\\Tp_D_NRN_S_N_pla00008_pla00009_10936.jpg"
+    },
+    {
+        "filename": "Tp_D_NRN_S_N_cha10109_ani00017_11588.jpg",
+        "label": "FAKE",
+        "source": "FLUX",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\tampered\\Tp_D_NRN_S_N_cha10109_ani00017_11588.jpg"
+    },
+    {
+        "filename": "Tp_D_NRN_S_N_cha10209_pla00050_12336.jpg",
+        "label": "FAKE",
+        "source": "FLUX",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\tampered\\Tp_D_NRN_S_N_cha10209_pla00050_12336.jpg"
+    },
+    {
+        "filename": "Tp_S_NNN_S_N_ind00099_ind00099_10630.jpg",
+        "label": "FAKE",
+        "source": "FLUX",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\tampered\\Tp_S_NNN_S_N_ind00099_ind00099_10630.jpg"
+    },
+    {
+        "filename": "Tp_D_CRN_S_N_arc00008_ani00070_11774.jpg",
+        "label": "FAKE",
+        "source": "FLUX",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\tampered\\Tp_D_CRN_S_N_arc00008_ani00070_11774.jpg"
+    },
+    {
+        "filename": "Tp_S_NNN_S_N_cha10209_cha10209_12334.jpg",
+        "label": "FAKE",
+        "source": "FLUX",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\tampered\\Tp_S_NNN_S_N_cha10209_cha10209_12334.jpg"
+    },
+    {
+        "filename": "Tp_D_NRN_M_B_nat10128_nat00097_11542.jpg",
+        "label": "FAKE",
+        "source": "FLUX",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\tampered\\Tp_D_NRN_M_B_nat10128_nat00097_11542.jpg"
+    },
+    {
+        "filename": "Tp_S_NRN_S_N_ind00089_ind00089_10642.jpg",
+        "label": "FAKE",
+        "source": "FLUX",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\tampered\\Tp_S_NRN_S_N_ind00089_ind00089_10642.jpg"
+    },
+    {
+        "filename": "Tp_D_NNN_S_B_arc00023_cha00023_20092.jpg",
+        "label": "FAKE",
+        "source": "FLUX",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\tampered\\Tp_D_NNN_S_B_arc00023_cha00023_20092.jpg"
+    },
+    {
+        "filename": "Tp_S_NNN_S_N_nat10161_nat10161_12078.jpg",
+        "label": "FAKE",
+        "source": "FLUX",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\tampered\\Tp_S_NNN_S_N_nat10161_nat10161_12078.jpg"
+    },
+    {
+        "filename": "Tp_S_NNN_M_O_nat00045_nat00099_10558.jpg",
+        "label": "FAKE",
+        "source": "FLUX",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\tampered\\Tp_S_NNN_M_O_nat00045_nat00099_10558.jpg"
+    },
+    {
+        "filename": "Tp_S_NRN_S_N_ind00068_ind00068_10690.jpg",
+        "label": "FAKE",
+        "source": "FLUX",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\tampered\\Tp_S_NRN_S_N_ind00068_ind00068_10690.jpg"
+    },
+    {
+        "filename": "Tp_S_NRN_S_B_ani10217_ani10217_12370.jpg",
+        "label": "FAKE",
+        "source": "FLUX",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\tampered\\Tp_S_NRN_S_B_ani10217_ani10217_12370.jpg"
+    },
+    {
+        "filename": "Tp_S_NNN_M_N_arc10118_arc10118_10779.jpg",
+        "label": "FAKE",
+        "source": "FLUX",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\tampered\\Tp_S_NNN_M_N_arc10118_arc10118_10779.jpg"
+    },
+    {
+        "filename": "Tp_D_NRN_S_N_art00025_ani10123_11689.jpg",
+        "label": "FAKE",
+        "source": "FLUX",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\tampered\\Tp_D_NRN_S_N_art00025_ani10123_11689.jpg"
+    },
+    {
+        "filename": "Tp_S_NRN_M_N_nat10164_nat00097_12097.jpg",
+        "label": "FAKE",
+        "source": "FLUX",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\tampered\\Tp_S_NRN_M_N_nat10164_nat00097_12097.jpg"
+    },
+    {
+        "filename": "Tp_S_NRN_S_O_cha10126_cha10126_12153.jpg",
+        "label": "FAKE",
+        "source": "FLUX",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\tampered\\Tp_S_NRN_S_O_cha10126_cha10126_12153.jpg"
+    },
+    {
+        "filename": "Tp_S_NNN_S_B_nat00100_nat00100_11095.jpg",
+        "label": "FAKE",
+        "source": "FLUX",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\tampered\\Tp_S_NNN_S_B_nat00100_nat00100_11095.jpg"
+    },
+    {
+        "filename": "Tp_D_CRN_M_N_nat10165_nat10164_12099.jpg",
+        "label": "FAKE",
+        "source": "FLUX",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\tampered\\Tp_D_CRN_M_N_nat10165_nat10164_12099.jpg"
+    },
+    {
+        "filename": "Tp_D_NRN_S_N_nat10159_ani00099_12054.jpg",
+        "label": "FAKE",
+        "source": "FLUX",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\tampered\\Tp_D_NRN_S_N_nat10159_ani00099_12054.jpg"
+    },
+    {
+        "filename": "Tp_D_CRN_M_N_nat10130_cha00086_11523.jpg",
+        "label": "FAKE",
+        "source": "FLUX",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\tampered\\Tp_D_CRN_M_N_nat10130_cha00086_11523.jpg"
+    },
+    {
+        "filename": "Tp_S_NRN_S_N_txt10109_txt10109_10814.jpg",
+        "label": "FAKE",
+        "source": "FLUX",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\tampered\\Tp_S_NRN_S_N_txt10109_txt10109_10814.jpg"
+    },
+    {
+        "filename": "Tp_D_NRN_S_N_pla10122_ani10122_11606.jpg",
+        "label": "FAKE",
+        "source": "FLUX",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\tampered\\Tp_D_NRN_S_N_pla10122_ani10122_11606.jpg"
+    },
+    {
+        "filename": "Tp_D_NRN_S_N_ind10104_pla00050_11551.jpg",
+        "label": "FAKE",
+        "source": "FLUX",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\tampered\\Tp_D_NRN_S_N_ind10104_pla00050_11551.jpg"
+    },
+    {
+        "filename": "Tp_S_CRN_S_N_sec00020_sec00020_10795.jpg",
+        "label": "FAKE",
+        "source": "FLUX",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\tampered\\Tp_S_CRN_S_N_sec00020_sec00020_10795.jpg"
+    },
+    {
+        "filename": "Tp_S_NRN_S_N_sec00062_sec00062_11261.jpg",
+        "label": "FAKE",
+        "source": "FLUX",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\tampered\\Tp_S_NRN_S_N_sec00062_sec00062_11261.jpg"
+    },
+    {
+        "filename": "Tp_S_NND_M_N_nat00022_nat00022_11040.jpg",
+        "label": "FAKE",
+        "source": "FLUX",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\tampered\\Tp_S_NND_M_N_nat00022_nat00022_11040.jpg"
+    },
+    {
+        "filename": "Tp_D_NNN_S_N_ani10176_ani10175_12460.jpg",
+        "label": "FAKE",
+        "source": "FLUX",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\tampered\\Tp_D_NNN_S_N_ani10176_ani10175_12460.jpg"
+    },
+    {
+        "filename": "Tp_D_NRN_M_B_cha10162_nat10142_12254.jpg",
+        "label": "FAKE",
+        "source": "FLUX",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\tampered\\Tp_D_NRN_M_B_cha10162_nat10142_12254.jpg"
+    },
+    {
+        "filename": "Tp_D_NRN_S_N_sec00023_ind00042_10886.jpg",
+        "label": "FAKE",
+        "source": "FLUX",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\tampered\\Tp_D_NRN_S_N_sec00023_ind00042_10886.jpg"
+    },
+    {
+        "filename": "Tp_D_CRN_S_N_nat00004_art00025_11426.jpg",
+        "label": "FAKE",
+        "source": "FLUX",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\tampered\\Tp_D_CRN_S_N_nat00004_art00025_11426.jpg"
+    },
+    {
+        "filename": "Tp_S_CRD_M_N_sec00018_sec00018_10792.jpg",
+        "label": "FAKE",
+        "source": "FLUX",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\tampered\\Tp_S_CRD_M_N_sec00018_sec00018_10792.jpg"
+    },
+    {
+        "filename": "Tp_S_CRN_S_N_txt00048_txt00048_11319.jpg",
+        "label": "FAKE",
+        "source": "FLUX",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\tampered\\Tp_S_CRN_S_N_txt00048_txt00048_11319.jpg"
+    },
+    {
+        "filename": "Tp_D_NNN_M_N_art00023_nat10122_11873.jpg",
+        "label": "FAKE",
+        "source": "FLUX",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\tampered\\Tp_D_NNN_M_N_art00023_nat10122_11873.jpg"
+    },
+    {
+        "filename": "Tp_D_NRN_M_N_art00049_nat00059_11759.jpg",
+        "label": "FAKE",
+        "source": "FLUX",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\tampered\\Tp_D_NRN_M_N_art00049_nat00059_11759.jpg"
+    },
+    {
+        "filename": "Tp_S_NNN_S_B_pla00031_pla00031_10964.jpg",
+        "label": "FAKE",
+        "source": "FLUX",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\tampered\\Tp_S_NNN_S_B_pla00031_pla00031_10964.jpg"
+    },
+    {
+        "filename": "Tp_S_NNN_S_N_cha10162_cha10162_12250.jpg",
+        "label": "FAKE",
+        "source": "CHATGPT",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\tampered\\Tp_S_NNN_S_N_cha10162_cha10162_12250.jpg"
+    },
+    {
+        "filename": "Tp_S_NNN_S_N_pla00013_pla00013_20067.jpg",
+        "label": "FAKE",
+        "source": "CHATGPT",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\tampered\\Tp_S_NNN_S_N_pla00013_pla00013_20067.jpg"
+    },
+    {
+        "filename": "Tp_D_NRN_M_N_cha10123_nat10124_12192.jpg",
+        "label": "FAKE",
+        "source": "CHATGPT",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\tampered\\Tp_D_NRN_M_N_cha10123_nat10124_12192.jpg"
+    },
+    {
+        "filename": "Tp_S_NRN_S_B_cha10140_cha10140_12199.jpg",
+        "label": "FAKE",
+        "source": "CHATGPT",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\tampered\\Tp_S_NRN_S_B_cha10140_cha10140_12199.jpg"
+    },
+    {
+        "filename": "Tp_S_CRN_S_N_ani10221_ani10221_12391.jpg",
+        "label": "FAKE",
+        "source": "CHATGPT",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\tampered\\Tp_S_CRN_S_N_ani10221_ani10221_12391.jpg"
+    },
+    {
+        "filename": "Tp_S_NRN_S_N_cha00049_cha00049_11002.jpg",
+        "label": "FAKE",
+        "source": "CHATGPT",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\tampered\\Tp_S_NRN_S_N_cha00049_cha00049_11002.jpg"
+    },
+    {
+        "filename": "Tp_S_NRN_S_N_arc10119_arc10119_10758.jpg",
+        "label": "FAKE",
+        "source": "CHATGPT",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\tampered\\Tp_S_NRN_S_N_arc10119_arc10119_10758.jpg"
+    },
+    {
+        "filename": "Tp_D_NRN_M_N_nat10144_nat10124_11970.jpg",
+        "label": "FAKE",
+        "source": "CHATGPT",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\tampered\\Tp_D_NRN_M_N_nat10144_nat10124_11970.jpg"
+    },
+    {
+        "filename": "Tp_S_NRN_M_N_cha00055_cha00055_11727.jpg",
+        "label": "FAKE",
+        "source": "CHATGPT",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\tampered\\Tp_S_NRN_M_N_cha00055_cha00055_11727.jpg"
+    },
+    {
+        "filename": "Tp_D_CNN_S_N_cha10122_nat00059_12169.jpg",
+        "label": "FAKE",
+        "source": "CHATGPT",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\tampered\\Tp_D_CNN_S_N_cha10122_nat00059_12169.jpg"
+    },
+    {
+        "filename": "Tp_S_NRN_S_N_cha00083_cha00083_11016.jpg",
+        "label": "FAKE",
+        "source": "CHATGPT",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\tampered\\Tp_S_NRN_S_N_cha00083_cha00083_11016.jpg"
+    },
+    {
+        "filename": "Tp_D_NRN_M_N_nat10136_arc00023_11916.jpg",
+        "label": "FAKE",
+        "source": "CHATGPT",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\tampered\\Tp_D_NRN_M_N_nat10136_arc00023_11916.jpg"
+    },
+    {
+        "filename": "Tp_D_NRN_M_N_art10107_cha00067_11583.jpg",
+        "label": "FAKE",
+        "source": "CHATGPT",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\tampered\\Tp_D_NRN_M_N_art10107_cha00067_11583.jpg"
+    },
+    {
+        "filename": "Tp_S_CRN_S_N_nat10111_nat10111_11361.jpg",
+        "label": "FAKE",
+        "source": "CHATGPT",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\tampered\\Tp_S_CRN_S_N_nat10111_nat10111_11361.jpg"
+    },
+    {
+        "filename": "Tp_D_NNN_S_N_sec00051_sec00055_11240.jpg",
+        "label": "FAKE",
+        "source": "CHATGPT",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\tampered\\Tp_D_NNN_S_N_sec00051_sec00055_11240.jpg"
+    },
+    {
+        "filename": "Tp_S_CRN_M_N_art00008_art00008_10743.jpg",
+        "label": "FAKE",
+        "source": "CHATGPT",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\tampered\\Tp_S_CRN_M_N_art00008_art00008_10743.jpg"
+    },
+    {
+        "filename": "Tp_S_CNN_S_O_ind00071_ind00071_10940.jpg",
+        "label": "FAKE",
+        "source": "CHATGPT",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\tampered\\Tp_S_CNN_S_O_ind00071_ind00071_10940.jpg"
+    },
+    {
+        "filename": "Tp_S_NRN_S_N_cha10153_cha10153_12269.jpg",
+        "label": "FAKE",
+        "source": "CHATGPT",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\tampered\\Tp_S_NRN_S_N_cha10153_cha10153_12269.jpg"
+    },
+    {
+        "filename": "Tp_S_NRN_S_B_cha10146_cha10146_12229.jpg",
+        "label": "FAKE",
+        "source": "CHATGPT",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\tampered\\Tp_S_NRN_S_B_cha10146_cha10146_12229.jpg"
+    },
+    {
+        "filename": "Tp_D_NRN_S_N_nat10149_ani00070_12007.jpg",
+        "label": "FAKE",
+        "source": "CHATGPT",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\tampered\\Tp_D_NRN_S_N_nat10149_ani00070_12007.jpg"
+    },
+    {
+        "filename": "Tp_D_NNN_S_N_arc00059_nat10122_11828.jpg",
+        "label": "FAKE",
+        "source": "CHATGPT",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\tampered\\Tp_D_NNN_S_N_arc00059_nat10122_11828.jpg"
+    },
+    {
+        "filename": "Tp_S_NRN_S_N_nat00028_nat00028_20122.jpg",
+        "label": "FAKE",
+        "source": "CHATGPT",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\tampered\\Tp_S_NRN_S_N_nat00028_nat00028_20122.jpg"
+    },
+    {
+        "filename": "Tp_S_NNN_S_N_pla00030_pla00030_10946.jpg",
+        "label": "FAKE",
+        "source": "CHATGPT",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\tampered\\Tp_S_NNN_S_N_pla00030_pla00030_10946.jpg"
+    },
+    {
+        "filename": "Tp_S_CNN_S_N_sec00055_sec00055_11236.jpg",
+        "label": "FAKE",
+        "source": "CHATGPT",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\tampered\\Tp_S_CNN_S_N_sec00055_sec00055_11236.jpg"
+    },
+    {
+        "filename": "Tp_D_NNN_M_N_art00023_nat00059_11875.jpg",
+        "label": "FAKE",
+        "source": "CHATGPT",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\tampered\\Tp_D_NNN_M_N_art00023_nat00059_11875.jpg"
+    },
+    {
+        "filename": "Tp_D_NRN_S_N_nat10140_arc10125_11958.jpg",
+        "label": "FAKE",
+        "source": "CHATGPT",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\tampered\\Tp_D_NRN_S_N_nat10140_arc10125_11958.jpg"
+    },
+    {
+        "filename": "Tp_D_NNN_M_N_nat00060_nat00099_10570.jpg",
+        "label": "FAKE",
+        "source": "CHATGPT",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\tampered\\Tp_D_NNN_M_N_nat00060_nat00099_10570.jpg"
+    },
+    {
+        "filename": "Tp_S_CNN_S_N_cha10114_nat10114_12182.jpg",
+        "label": "FAKE",
+        "source": "CHATGPT",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\tampered\\Tp_S_CNN_S_N_cha10114_nat10114_12182.jpg"
+    },
+    {
+        "filename": "Tp_D_CRN_S_N_pla10121_sec00097_11692.jpg",
+        "label": "FAKE",
+        "source": "CHATGPT",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\tampered\\Tp_D_CRN_S_N_pla10121_sec00097_11692.jpg"
+    },
+    {
+        "filename": "Tp_S_NRN_S_N_ani10200_ani10200_12410.jpg",
+        "label": "FAKE",
+        "source": "CHATGPT",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\tampered\\Tp_S_NRN_S_N_ani10200_ani10200_12410.jpg"
+    },
+    {
+        "filename": "Tp_S_NNN_S_N_nat00026_nat00026_11035.jpg",
+        "label": "FAKE",
+        "source": "CHATGPT",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\tampered\\Tp_S_NNN_S_N_nat00026_nat00026_11035.jpg"
+    },
+    {
+        "filename": "Tp_D_CNN_M_N_txt10109_txt10110_10816.jpg",
+        "label": "FAKE",
+        "source": "CHATGPT",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\tampered\\Tp_D_CNN_M_N_txt10109_txt10110_10816.jpg"
+    },
+    {
+        "filename": "Tp_S_NRD_M_N_arc10124_arc10124_11882.jpg",
+        "label": "FAKE",
+        "source": "CHATGPT",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\tampered\\Tp_S_NRD_M_N_arc10124_arc10124_11882.jpg"
+    },
+    {
+        "filename": "Tp_D_NNN_M_N_cha10166_nat10156_12272.jpg",
+        "label": "FAKE",
+        "source": "CHATGPT",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\tampered\\Tp_D_NNN_M_N_cha10166_nat10156_12272.jpg"
+    },
+    {
+        "filename": "Tp_D_CNN_M_N_ind00091_ind00091_10648.jpg",
+        "label": "FAKE",
+        "source": "CHATGPT",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\tampered\\Tp_D_CNN_M_N_ind00091_ind00091_10648.jpg"
+    },
+    {
+        "filename": "Tp_D_NND_S_N_txt00061_txt00083_10825.jpg",
+        "label": "FAKE",
+        "source": "CHATGPT",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\tampered\\Tp_D_NND_S_N_txt00061_txt00083_10825.jpg"
+    },
+    {
+        "filename": "Tp_D_NRN_S_N_sec00009_art00076_11744.jpg",
+        "label": "FAKE",
+        "source": "CHATGPT",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\tampered\\Tp_D_NRN_S_N_sec00009_art00076_11744.jpg"
+    },
+    {
+        "filename": "Tp_D_NNN_S_B_nat00027_nat00030_11094.jpg",
+        "label": "FAKE",
+        "source": "CHATGPT",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\tampered\\Tp_D_NNN_S_B_nat00027_nat00030_11094.jpg"
+    },
+    {
+        "filename": "Tp_S_CRN_M_N_txt00007_txt00007_10841.jpg",
+        "label": "FAKE",
+        "source": "CHATGPT",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\tampered\\Tp_S_CRN_M_N_txt00007_txt00007_10841.jpg"
+    },
+    {
+        "filename": "Tp_D_CRN_S_N_ind00006_art00076_11745.jpg",
+        "label": "FAKE",
+        "source": "CHATGPT",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\tampered\\Tp_D_CRN_S_N_ind00006_art00076_11745.jpg"
+    },
+    {
+        "filename": "Tp_D_CNN_M_B_nat10139_nat00097_11948.jpg",
+        "label": "FAKE",
+        "source": "CHATGPT",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\tampered\\Tp_D_CNN_M_B_nat10139_nat00097_11948.jpg"
+    },
+    {
+        "filename": "Tp_D_NRN_M_N_nat00002_nat00059_11513.jpg",
+        "label": "FAKE",
+        "source": "CHATGPT",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\tampered\\Tp_D_NRN_M_N_nat00002_nat00059_11513.jpg"
+    },
+    {
+        "filename": "Tp_D_NRN_S_N_arc00045_art00092_11757.jpg",
+        "label": "FAKE",
+        "source": "CHATGPT",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\tampered\\Tp_D_NRN_S_N_arc00045_art00092_11757.jpg"
+    },
+    {
+        "filename": "Tp_D_NRN_M_N_pla10121_cha00050_11658.jpg",
+        "label": "FAKE",
+        "source": "CHATGPT",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\tampered\\Tp_D_NRN_M_N_pla10121_cha00050_11658.jpg"
+    },
+    {
+        "filename": "Tp_D_NRN_S_N_arc00016_arc00020_11703.jpg",
+        "label": "FAKE",
+        "source": "CHATGPT",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\tampered\\Tp_D_NRN_S_N_arc00016_arc00020_11703.jpg"
+    },
+    {
+        "filename": "Tp_D_NRN_S_O_nat10159_ani00084_12055.jpg",
+        "label": "FAKE",
+        "source": "CHATGPT",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\tampered\\Tp_D_NRN_S_O_nat10159_ani00084_12055.jpg"
+    },
+    {
+        "filename": "Tp_S_CNN_S_N_ani10221_ani10221_12392.jpg",
+        "label": "FAKE",
+        "source": "CHATGPT",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\tampered\\Tp_S_CNN_S_N_ani10221_ani10221_12392.jpg"
+    },
+    {
+        "filename": "Tp_D_NNN_M_B_nat10106_nat00097_11352.jpg",
+        "label": "FAKE",
+        "source": "CHATGPT",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\tampered\\Tp_D_NNN_M_B_nat10106_nat00097_11352.jpg"
+    },
+    {
+        "filename": "Tp_D_CRN_S_N_txt00055_txt00048_11329.jpg",
+        "label": "FAKE",
+        "source": "CHATGPT",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\tampered\\Tp_D_CRN_S_N_txt00055_txt00048_11329.jpg"
+    },
+    {
+        "filename": "Tp_D_NRN_M_N_sec00014_cha00052_11401.jpg",
+        "label": "FAKE",
+        "source": "CHATGPT",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\tampered\\Tp_D_NRN_M_N_sec00014_cha00052_11401.jpg"
+    },
+    {
+        "filename": "Tp_D_NRN_S_N_nat00030_cha00042_11090.jpg",
+        "label": "FAKE",
+        "source": "SDXL",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\tampered\\Tp_D_NRN_S_N_nat00030_cha00042_11090.jpg"
+    },
+    {
+        "filename": "Tp_D_NRN_M_N_art10115_cha10110_11536.jpg",
+        "label": "FAKE",
+        "source": "SDXL",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\tampered\\Tp_D_NRN_M_N_art10115_cha10110_11536.jpg"
+    },
+    {
+        "filename": "Tp_S_CRN_S_N_ani10155_ani10155_12485.jpg",
+        "label": "FAKE",
+        "source": "SDXL",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\tampered\\Tp_S_CRN_S_N_ani10155_ani10155_12485.jpg"
+    },
+    {
+        "filename": "Tp_D_CRN_S_N_nat10159_ani00037_12060.jpg",
+        "label": "FAKE",
+        "source": "SDXL",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\tampered\\Tp_D_CRN_S_N_nat10159_ani00037_12060.jpg"
+    },
+    {
+        "filename": "Tp_S_CNN_S_N_pla10127_pla10127_12137.jpg",
+        "label": "FAKE",
+        "source": "SDXL",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\tampered\\Tp_S_CNN_S_N_pla10127_pla10127_12137.jpg"
+    },
+    {
+        "filename": "Tp_D_CNN_M_N_nat00090_nat00090_10575.jpg",
+        "label": "FAKE",
+        "source": "SDXL",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\tampered\\Tp_D_CNN_M_N_nat00090_nat00090_10575.jpg"
+    },
+    {
+        "filename": "Tp_D_NRN_M_N_nat10140_nat00095_11956.jpg",
+        "label": "FAKE",
+        "source": "SDXL",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\tampered\\Tp_D_NRN_M_N_nat10140_nat00095_11956.jpg"
+    },
+    {
+        "filename": "Tp_D_NNN_S_N_ani10177_ani10179_12488.jpg",
+        "label": "FAKE",
+        "source": "SDXL",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\tampered\\Tp_D_NNN_S_N_ani10177_ani10179_12488.jpg"
+    },
+    {
+        "filename": "Tp_D_CRN_M_N_pla00035_pla00033_10997.jpg",
+        "label": "FAKE",
+        "source": "SDXL",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\tampered\\Tp_D_CRN_M_N_pla00035_pla00033_10997.jpg"
+    },
+    {
+        "filename": "Tp_S_NNN_S_N_pla00023_pla00023_20086.jpg",
+        "label": "FAKE",
+        "source": "SDXL",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\tampered\\Tp_S_NNN_S_N_pla00023_pla00023_20086.jpg"
+    },
+    {
+        "filename": "Tp_D_NRN_M_B_nat10123_nat00059_11333.jpg",
+        "label": "FAKE",
+        "source": "SDXL",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\tampered\\Tp_D_NRN_M_B_nat10123_nat00059_11333.jpg"
+    },
+    {
+        "filename": "Tp_S_NNN_S_N_nat00015_nat00015_11051.jpg",
+        "label": "FAKE",
+        "source": "SDXL",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\tampered\\Tp_S_NNN_S_N_nat00015_nat00015_11051.jpg"
+    },
+    {
+        "filename": "Tp_D_NNN_S_N_ani10166_ani00070_12444.jpg",
+        "label": "FAKE",
+        "source": "SDXL",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\tampered\\Tp_D_NNN_S_N_ani10166_ani00070_12444.jpg"
+    },
+    {
+        "filename": "Tp_S_CNN_M_N_ind00088_ind00088_10639.jpg",
+        "label": "FAKE",
+        "source": "SDXL",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\tampered\\Tp_S_CNN_M_N_ind00088_ind00088_10639.jpg"
+    },
+    {
+        "filename": "Tp_D_CRN_M_N_pla00046_pla00025_10994.jpg",
+        "label": "FAKE",
+        "source": "SDXL",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\tampered\\Tp_D_CRN_M_N_pla00046_pla00025_10994.jpg"
+    },
+    {
+        "filename": "Tp_S_NNN_S_N_nat00061_nat00061_10562.jpg",
+        "label": "FAKE",
+        "source": "SDXL",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\tampered\\Tp_S_NNN_S_N_nat00061_nat00061_10562.jpg"
+    },
+    {
+        "filename": "Tp_D_NRN_S_N_cha00008_art10102_11163.jpg",
+        "label": "FAKE",
+        "source": "SDXL",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\tampered\\Tp_D_NRN_S_N_cha00008_art10102_11163.jpg"
+    },
+    {
+        "filename": "Tp_D_NRN_M_N_nat10160_nat10159_12070.jpg",
+        "label": "FAKE",
+        "source": "SDXL",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\tampered\\Tp_D_NRN_M_N_nat10160_nat10159_12070.jpg"
+    },
+    {
+        "filename": "Tp_D_NRN_M_N_cha10123_nat10139_12193.jpg",
+        "label": "FAKE",
+        "source": "SDXL",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\tampered\\Tp_D_NRN_M_N_cha10123_nat10139_12193.jpg"
+    },
+    {
+        "filename": "Tp_D_CRN_M_N_nat00041_nat00061_11438.jpg",
+        "label": "FAKE",
+        "source": "SDXL",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\tampered\\Tp_D_CRN_M_N_nat00041_nat00061_11438.jpg"
+    },
+    {
+        "filename": "Tp_D_NRN_S_N_ani00060_ani00059_11128.jpg",
+        "label": "FAKE",
+        "source": "SDXL",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\tampered\\Tp_D_NRN_S_N_ani00060_ani00059_11128.jpg"
+    },
+    {
+        "filename": "Tp_D_NRN_S_N_cha00036_art00092_11780.jpg",
+        "label": "FAKE",
+        "source": "SDXL",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\tampered\\Tp_D_NRN_S_N_cha00036_art00092_11780.jpg"
+    },
+    {
+        "filename": "Tp_D_CNN_S_N_ani00053_ani00051_11148.jpg",
+        "label": "FAKE",
+        "source": "SDXL",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\tampered\\Tp_D_CNN_S_N_ani00053_ani00051_11148.jpg"
+    },
+    {
+        "filename": "Tp_S_NRN_S_B_ind10002_ind10002_20010.jpg",
+        "label": "FAKE",
+        "source": "SDXL",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\tampered\\Tp_S_NRN_S_B_ind10002_ind10002_20010.jpg"
+    },
+    {
+        "filename": "Tp_D_NRN_M_N_pla00027_pla00014_10963.jpg",
+        "label": "FAKE",
+        "source": "SDXL",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\tampered\\Tp_D_NRN_M_N_pla00027_pla00014_10963.jpg"
+    },
+    {
+        "filename": "Tp_S_CRD_M_N_arc10119_arc10119_10757.jpg",
+        "label": "FAKE",
+        "source": "SDXL",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\tampered\\Tp_S_CRD_M_N_arc10119_arc10119_10757.jpg"
+    },
+    {
+        "filename": "Tp_S_CRD_S_N_cha10204_cha10204_12351.jpg",
+        "label": "FAKE",
+        "source": "SDXL",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\tampered\\Tp_S_CRD_S_N_cha10204_cha10204_12351.jpg"
+    },
+    {
+        "filename": "Tp_S_NRN_M_N_nat00075_nat00075_11101.jpg",
+        "label": "FAKE",
+        "source": "SDXL",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\tampered\\Tp_S_NRN_M_N_nat00075_nat00075_11101.jpg"
+    },
+    {
+        "filename": "Tp_D_NNN_S_N_ani10174_ani10173_12454.jpg",
+        "label": "FAKE",
+        "source": "SDXL",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\tampered\\Tp_D_NNN_S_N_ani10174_ani10173_12454.jpg"
+    },
+    {
+        "filename": "Tp_D_NRN_S_N_pla00093_txt00070_11327.jpg",
+        "label": "FAKE",
+        "source": "SDXL",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\tampered\\Tp_D_NRN_S_N_pla00093_txt00070_11327.jpg"
+    },
+    {
+        "filename": "Tp_S_NRN_S_N_cha10178_cha10178_12288.jpg",
+        "label": "FAKE",
+        "source": "SDXL",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\tampered\\Tp_S_NRN_S_N_cha10178_cha10178_12288.jpg"
+    },
+    {
+        "filename": "Tp_D_NRN_M_B_nat00041_art00096_11443.jpg",
+        "label": "FAKE",
+        "source": "SDXL",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\tampered\\Tp_D_NRN_M_B_nat00041_art00096_11443.jpg"
+    },
+    {
+        "filename": "Tp_S_CNN_M_N_txt00016_txt00016_10833.jpg",
+        "label": "FAKE",
+        "source": "SDXL",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\tampered\\Tp_S_CNN_M_N_txt00016_txt00016_10833.jpg"
+    },
+    {
+        "filename": "Tp_S_CRN_M_N_txt00083_txt00083_10864.jpg",
+        "label": "FAKE",
+        "source": "SDXL",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\tampered\\Tp_S_CRN_M_N_txt00083_txt00083_10864.jpg"
+    },
+    {
+        "filename": "Tp_D_NRN_S_N_nat10139_ani00005_11950.jpg",
+        "label": "FAKE",
+        "source": "SDXL",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\tampered\\Tp_D_NRN_S_N_nat10139_ani00005_11950.jpg"
+    },
+    {
+        "filename": "Tp_S_CRD_M_N_sec00010_sec00010_10857.jpg",
+        "label": "FAKE",
+        "source": "SDXL",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\tampered\\Tp_S_CRD_M_N_sec00010_sec00010_10857.jpg"
+    },
+    {
+        "filename": "Tp_S_NRN_S_N_cha10206_cha10206_12343.jpg",
+        "label": "FAKE",
+        "source": "SDXL",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\tampered\\Tp_S_NRN_S_N_cha10206_cha10206_12343.jpg"
+    },
+    {
+        "filename": "Tp_S_NNN_S_B_art10009_art10009_20072.jpg",
+        "label": "FAKE",
+        "source": "SDXL",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\tampered\\Tp_S_NNN_S_B_art10009_art10009_20072.jpg"
+    },
+    {
+        "filename": "Tp_D_NNN_S_N_nat00063_cha00042_11113.jpg",
+        "label": "FAKE",
+        "source": "SDXL",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\tampered\\Tp_D_NNN_S_N_nat00063_cha00042_11113.jpg"
+    },
+    {
+        "filename": "Tp_D_NNN_S_O_pla00056_pla00065_11225.jpg",
+        "label": "FAKE",
+        "source": "SDXL",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\tampered\\Tp_D_NNN_S_O_pla00056_pla00065_11225.jpg"
+    },
+    {
+        "filename": "Tp_D_NRN_S_N_nat10156_cha00062_12010.jpg",
+        "label": "FAKE",
+        "source": "SDXL",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\tampered\\Tp_D_NRN_S_N_nat10156_cha00062_12010.jpg"
+    },
+    {
+        "filename": "Tp_D_CRN_M_N_nat10154_nat10140_12075.jpg",
+        "label": "FAKE",
+        "source": "SDXL",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\tampered\\Tp_D_CRN_M_N_nat10154_nat10140_12075.jpg"
+    },
+    {
+        "filename": "Tp_D_NNN_S_N_pla00042_pla00043_10975.jpg",
+        "label": "FAKE",
+        "source": "SDXL",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\tampered\\Tp_D_NNN_S_N_pla00042_pla00043_10975.jpg"
+    },
+    {
+        "filename": "Tp_D_NRN_S_N_pla00020_pla10126_12131.jpg",
+        "label": "FAKE",
+        "source": "SDXL",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\tampered\\Tp_D_NRN_S_N_pla00020_pla10126_12131.jpg"
+    },
+    {
+        "filename": "Tp_D_CRN_S_N_cha10169_cha10171_12290.jpg",
+        "label": "FAKE",
+        "source": "SDXL",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\tampered\\Tp_D_CRN_S_N_cha10169_cha10171_12290.jpg"
+    },
+    {
+        "filename": "Tp_D_NRN_M_N_art10110_cha00062_11645.jpg",
+        "label": "FAKE",
+        "source": "SDXL",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\tampered\\Tp_D_NRN_M_N_art10110_cha00062_11645.jpg"
+    },
+    {
+        "filename": "Tp_D_NRN_M_B_sec00085_cha00072_11458.jpg",
+        "label": "FAKE",
+        "source": "SDXL",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\tampered\\Tp_D_NRN_M_B_sec00085_cha00072_11458.jpg"
+    },
+    {
+        "filename": "Tp_D_NNN_M_N_txt00013_txt00019_10847.jpg",
+        "label": "FAKE",
+        "source": "SDXL",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\tampered\\Tp_D_NNN_M_N_txt00013_txt00019_10847.jpg"
+    },
+    {
+        "filename": "Tp_S_CNN_M_N_txt00006_txt00006_10839.jpg",
+        "label": "FAKE",
+        "source": "SDXL",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\tampered\\Tp_S_CNN_M_N_txt00006_txt00006_10839.jpg"
+    },
+    {
+        "filename": "Tp_D_NRN_S_N_ani10186_ani10189_12434.jpg",
+        "label": "FAKE",
+        "source": "SDXL",
+        "original_filepath": "C:\\Users\\riya2\\OneDrive\\Desktop\\TraceLens AI\\dataset\\casia_binary\\tampered\\Tp_D_NRN_S_N_ani10186_ani10189_12434.jpg"
+    }
+]

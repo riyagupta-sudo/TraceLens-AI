@@ -1,0 +1,11 @@
+{
+    "real_iphone": 1049,
+    "real_android": 1049,
+    "real_dslr": 1100,
+    "real_screenshot": 1100,
+    "real_social": 1100,
+    "fake_mj": 1100,
+    "fake_flux": 1100,
+    "fake_sdxl": 1100,
+    "fake_gpt": 1100
+}

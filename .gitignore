@@ -37,6 +37,14 @@ backend/app/keyframes/*
 backend/app/reports/*
 !backend/app/reports/.gitkeep
 
+# Model Checkpoints & Weights
+*.pth
+*.pt
+*.ckpt
+*.bin
+*.onnx
+*.h5
+
 # Environment Variables
 .env
 .env.local

@@ -30,7 +30,8 @@ from .schemas import (
 )
 from .dna_engine import (
     compute_sha256, compute_image_hashes, get_clip_embedding, 
-    extract_metadata_signature, calculate_integrity_and_risk
+    extract_metadata_signature, calculate_integrity_and_risk,
+    ENABLE_CLIP
 )
 from .video_analyzer import analyze_video
 from .similarity_engine import analyze_matches, estimate_primary_origin, hamming_distance
@@ -38,6 +39,26 @@ from .phash_visualizer import get_p_hash_steps
 from .report_generator import generate_pdf_report
 from .seeder import seed_data_if_empty
 from .web_intelligence import run_asynchronous_web_intelligence
+
+def get_parsed_timestamp(forensics_dict: Optional[Dict[str, Any]]) -> Optional[datetime.datetime]:
+    if not forensics_dict:
+        return None
+    val = forensics_dict.get("ai_edit_analysis_timestamp")
+    if not val:
+        return None
+    if isinstance(val, datetime.datetime):
+        return val
+    if isinstance(val, str):
+        try:
+            return datetime.datetime.fromisoformat(val)
+        except Exception:
+            try:
+                if val.endswith('Z'):
+                    val = val[:-1]
+                return datetime.datetime.fromisoformat(val)
+            except Exception:
+                return None
+    return None
 
 # Setup folder directories
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -160,6 +181,496 @@ def get_media_detail(media_id: int, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Media asset not found")
     return item
 
+def process_clip_and_cross_match(
+    media_id: int,
+    dest_path: str,
+    case_id: int,
+    parent_id: Optional[int],
+    forensics: Dict[str, Any],
+    db_session_factory
+):
+    import time
+    import numpy as np
+    import uuid
+    from .models import ClusterMergeRecommendation
+    from .similarity_engine import (
+        filter_candidates_stage_0,
+        analyze_matches,
+        estimate_primary_origin,
+        save_heavy_features
+    )
+    print(f"[BACKGROUND TASK] Starting CLIP embedding generation and cross-matching for media ID {media_id}")
+    db = db_session_factory()
+    try:
+        db_item = db.query(MediaItem).filter(MediaItem.id == media_id).first()
+        if not db_item:
+            print(f"[BACKGROUND TASK] Media item {media_id} not found in database.")
+            return
+
+        if ENABLE_CLIP:
+            t0 = time.perf_counter()
+            print("[BACKGROUND TASK] Generating CLIP embedding in background...")
+            emb = get_clip_embedding(dest_path)
+            t1 = time.perf_counter()
+            print(f"[BACKGROUND TASK] CLIP Embedding generated in {(t1 - t0)*1000:.2f} ms")
+        else:
+            emb = []
+            print("[BACKGROUND TASK] CLIP disabled. Skipping embedding generation.")
+
+        db_item.embedding = emb
+        meta = dict(db_item.metadata_sig or {})
+        if "video" not in db_item.mime_type:
+            meta["embedding"] = emb
+            db_item.metadata_sig = meta
+        db.commit()
+        db.refresh(db_item)
+
+        other_items = db.query(MediaItem).filter(
+            MediaItem.id != db_item.id,
+            MediaItem.case_id == case_id
+        ).all()
+
+        # Stage 0 Candidate Retrieval
+        db_item_dna = {
+            "phash": db_item.phash,
+            "dhash": db_item.dhash,
+            "ahash": db_item.ahash,
+            "width": db_item.metadata_sig.get("width", 0) if isinstance(db_item.metadata_sig, dict) else 0,
+            "height": db_item.metadata_sig.get("height", 0) if isinstance(db_item.metadata_sig, dict) else 0,
+            "embedding": db_item.embedding
+        }
+        filtered_items = filter_candidates_stage_0(db_item_dna, other_items)
+
+        matching_pairs = []
+        direct_matches = []
+
+        for item in filtered_items:
+            src_dna = {
+                "phash": item.phash, "dhash": item.dhash, "ahash": item.ahash,
+                "embedding": item.embedding, "audio_fingerprint": item.audio_fingerprint,
+                "width": item.metadata_sig.get("width", 0) if isinstance(item.metadata_sig, dict) else 0,
+                "height": item.metadata_sig.get("height", 0) if isinstance(item.metadata_sig, dict) else 0,
+                "file_size": item.file_size, "mime_type": item.mime_type,
+                "sha256": item.sha256,
+                "filepath": os.path.join(UPLOADS_DIR, os.path.basename(item.filepath)),
+                "feature_cache_path": item.metadata_sig.get("feature_cache_path") if isinstance(item.metadata_sig, dict) else None,
+                "screenshot_indicators": item.modification_report.get("screenshot_indicators") if isinstance(item.modification_report, dict) else None
+            }
+            tgt_dna = {
+                "phash": db_item.phash, "dhash": db_item.dhash, "ahash": db_item.ahash,
+                "embedding": db_item.embedding, "audio_fingerprint": db_item.audio_fingerprint,
+                "width": db_item.metadata_sig.get("width", 0) if isinstance(db_item.metadata_sig, dict) else 0,
+                "height": db_item.metadata_sig.get("height", 0) if isinstance(db_item.metadata_sig, dict) else 0,
+                "file_size": db_item.file_size, "mime_type": db_item.mime_type,
+                "sha256": db_item.sha256,
+                "filepath": dest_path,
+                "feature_cache_path": db_item.metadata_sig.get("feature_cache_path") if isinstance(db_item.metadata_sig, dict) else None,
+                "screenshot_indicators": forensics.get("screenshot_indicators")
+            }
+
+            combined, level, details = analyze_matches(src_dna, tgt_dna)
+
+            # Match Gate Check: min combined threshold
+            gate_passed = (combined >= 0.58)
+
+            print(f"[BACKGROUND FORENSIC GATE] File: '{db_item.filename}' against candidate '{item.filename}' (ID: {item.id})")
+            print(f"  Combined score: {combined:.4f}")
+            print(f"  Admission Decision: {'PASSED' if gate_passed else 'REJECTED'}")
+
+            if gate_passed:
+                direct_matches.append(item)
+                matching_pairs.append((item, combined, details))
+
+        primary_cluster_id = None
+        if not direct_matches:
+            # Create a permanent UUID for the cluster, which is immutable
+            new_cid = f"cluster_{uuid.uuid4().hex[:8]}"
+            db_item.cluster_id = new_cid
+            db_item.estimated_origin_id = db_item.id
+            db_item.parent_id = None
+            db.commit()
+            cluster_items = [db_item]
+            primary_cluster_id = new_cid
+        else:
+            matching_cluster_ids = {item.cluster_id for item in direct_matches if item.cluster_id}
+
+            if not matching_cluster_ids:
+                new_cid = f"cluster_{uuid.uuid4().hex[:8]}"
+                db_item.cluster_id = new_cid
+                db_item.estimated_origin_id = db_item.id
+                db_item.parent_id = None
+                for item in direct_matches:
+                    item.cluster_id = new_cid
+                db.commit()
+                cluster_items = db.query(MediaItem).filter(
+                    MediaItem.case_id == case_id,
+                    MediaItem.cluster_id == new_cid
+                ).all()
+                primary_cluster_id = new_cid
+            else:
+                best_match_item = None
+                best_match_score = -1.0
+                for item, combined, _ in matching_pairs:
+                    if item.cluster_id and combined > best_match_score:
+                        best_match_score = combined
+                        best_match_item = item
+
+                primary_cluster_id = best_match_item.cluster_id
+                db_item.cluster_id = primary_cluster_id
+                db.commit()
+
+                # Recommend merges if other items matched but belong to different clusters
+                for other_cid in matching_cluster_ids:
+                    if other_cid != primary_cluster_id:
+                        existing_rec = db.query(ClusterMergeRecommendation).filter(
+                            ClusterMergeRecommendation.case_id == case_id,
+                            ((ClusterMergeRecommendation.source_cluster_id == other_cid) & (ClusterMergeRecommendation.target_cluster_id == primary_cluster_id)) |
+                            ((ClusterMergeRecommendation.source_cluster_id == primary_cluster_id) & (ClusterMergeRecommendation.target_cluster_id == other_cid))
+                        ).first()
+                        if not existing_rec:
+                            rec = ClusterMergeRecommendation(
+                                case_id=case_id,
+                                source_cluster_id=other_cid,
+                                target_cluster_id=primary_cluster_id,
+                                confidence=float(best_match_score),
+                                status="Pending"
+                            )
+                            db.add(rec)
+                db.commit()
+
+                cluster_items = db.query(MediaItem).filter(
+                    MediaItem.case_id == case_id,
+                    MediaItem.cluster_id == primary_cluster_id
+                ).all()
+
+        print(f"\n=================== CLUSTER REPORT AFTER UPLOAD OF '{db_item.filename}' ===================")
+        print(f"Total cluster members found: {len(cluster_items)}")
+        for idx, item in enumerate(cluster_items):
+            print(f"  [{idx+1}] ID: {item.id} | Filename: {item.filename} | "
+                  f"Mime: {item.mime_type} | Size: {item.file_size} bytes")
+        print("==========================================================================")
+
+        if len(cluster_items) > 1:
+            cluster_dicts = [
+                {
+                    "id": item.id,
+                    "filename": item.filename,
+                    "resolution": item.resolution,
+                    "file_size": item.file_size,
+                    "integrity_score": item.integrity_score,
+                    "width": item.metadata_sig.get("width", 0) if isinstance(item.metadata_sig, dict) else 0,
+                    "height": item.metadata_sig.get("height", 0) if isinstance(item.metadata_sig, dict) else 0,
+                    "exif_count": len(item.metadata_sig.get("exif", {})) if isinstance(item.metadata_sig, dict) and item.metadata_sig.get("exif") else 0,
+                    "heavy_compression": item.modification_report.get("heavy_compression", False) if isinstance(item.modification_report, dict) else False,
+                    "blockiness": item.metadata_sig.get("blockiness", 1.0) if isinstance(item.metadata_sig, dict) else 1.0,
+                    "jpeg_quality": item.metadata_sig.get("jpeg_quality") if isinstance(item.metadata_sig, dict) else None,
+                    "created_at": item.created_at,
+                    "exif": item.metadata_sig.get("exif", {}) if isinstance(item.metadata_sig, dict) else {},
+                    "cropping_detected": item.modification_report.get("cropping_detected", False) if isinstance(item.modification_report, dict) else False,
+                    "resizing_detected": item.modification_report.get("resizing_detected", False) if isinstance(item.modification_report, dict) else False,
+                    "watermark_detected": item.modification_report.get("watermark_detected", False) if isinstance(item.modification_report, dict) else False,
+                    "screenshot_detected": (item.modification_report.get("screenshot_indicators", {}).get("status") in ["Likely Screenshot", "Possible Screenshot"]) if isinstance(item.modification_report, dict) else False,
+                    "embedding": item.embedding
+                } for item in cluster_items
+            ]
+
+            # Dynamic Root Selection
+            origin_id, origin_confidence, origin_probability, origin_undetermined, origin_explainability_factors, origin_audit_trail = estimate_primary_origin(cluster_dicts)
+
+            origin_item = next((x for x in cluster_items if x.id == origin_id), None)
+            if origin_item:
+                origin_meta = {
+                    "width": origin_item.metadata_sig.get("width", 0) if isinstance(origin_item.metadata_sig, dict) else 0,
+                    "height": origin_item.metadata_sig.get("height", 0) if isinstance(origin_item.metadata_sig, dict) else 0,
+                    "phash": origin_item.phash,
+                    "dhash": origin_item.dhash,
+                    "ahash": origin_item.ahash,
+                    "exif": origin_item.metadata_sig.get("exif", {}) if isinstance(origin_item.metadata_sig, dict) else {},
+                    "sha256": origin_item.sha256,
+                    "mime_type": origin_item.mime_type,
+                    "file_size": origin_item.file_size,
+                    "embedding": origin_item.embedding,
+                    "integrity_score": origin_item.integrity_score,
+                    "filepath": os.path.join(UPLOADS_DIR, os.path.basename(origin_item.filepath)),
+                    "filename": origin_item.filename
+                }
+            else:
+                origin_meta = None
+
+            print("\n--- Recalculating and re-evaluating cluster members ---")
+
+            # directed graph structure parent-child assignment
+            for item in cluster_items:
+                item.estimated_origin_id = origin_id
+
+                if item.id == origin_id:
+                    item.parent_id = None
+                else:
+                    # Parent is the closest item of higher quality in the cluster
+                    best_parent = origin_item
+                    best_score = -1.0
+                    
+                    item_pixels = (item.metadata_sig.get("width", 0) * item.metadata_sig.get("height", 0)) if isinstance(item.metadata_sig, dict) else 0
+                    
+                    # Initialize best_score with similarity to origin_item if origin_item exists
+                    if origin_item:
+                        s_dna_orig = {
+                            "phash": origin_item.phash, "dhash": origin_item.dhash, "ahash": origin_item.ahash,
+                            "embedding": origin_item.embedding,
+                            "width": origin_item.metadata_sig.get("width", 0) if isinstance(origin_item.metadata_sig, dict) else 0,
+                            "height": origin_item.metadata_sig.get("height", 0) if isinstance(origin_item.metadata_sig, dict) else 0,
+                            "file_size": origin_item.file_size, "mime_type": origin_item.mime_type, "sha256": origin_item.sha256,
+                            "filepath": os.path.join(UPLOADS_DIR, os.path.basename(origin_item.filepath)),
+                            "filename": origin_item.filename
+                        }
+                        t_dna_orig = {
+                            "phash": item.phash, "dhash": item.dhash, "ahash": item.ahash,
+                            "embedding": item.embedding,
+                            "width": item.metadata_sig.get("width", 0) if isinstance(item.metadata_sig, dict) else 0,
+                            "height": item.metadata_sig.get("height", 0) if isinstance(item.metadata_sig, dict) else 0,
+                            "file_size": item.file_size, "mime_type": item.mime_type, "sha256": item.sha256,
+                            "filepath": os.path.join(UPLOADS_DIR, os.path.basename(item.filepath)),
+                            "filename": item.filename
+                        }
+                        best_score, _, _ = analyze_matches(s_dna_orig, t_dna_orig)
+                        
+                    for other in cluster_items:
+                        if other.id == item.id or other.id == origin_id:
+                            continue
+                        other_pixels = (other.metadata_sig.get("width", 0) * other.metadata_sig.get("height", 0)) if isinstance(other.metadata_sig, dict) else 0
+                        if other_pixels >= item_pixels:
+                            # Compare similarity to find closest parent
+                            s_dna = {
+                                "phash": other.phash, "dhash": other.dhash, "ahash": other.ahash,
+                                "embedding": other.embedding,
+                                "width": other.metadata_sig.get("width", 0) if isinstance(other.metadata_sig, dict) else 0,
+                                "height": other.metadata_sig.get("height", 0) if isinstance(other.metadata_sig, dict) else 0,
+                                "file_size": other.file_size, "mime_type": other.mime_type, "sha256": other.sha256,
+                                "filepath": os.path.join(UPLOADS_DIR, os.path.basename(other.filepath)),
+                                "filename": other.filename
+                            }
+                            t_dna = {
+                                "phash": item.phash, "dhash": item.dhash, "ahash": item.ahash,
+                                "embedding": item.embedding,
+                                "width": item.metadata_sig.get("width", 0) if isinstance(item.metadata_sig, dict) else 0,
+                                "height": item.metadata_sig.get("height", 0) if isinstance(item.metadata_sig, dict) else 0,
+                                "file_size": item.file_size, "mime_type": item.mime_type, "sha256": item.sha256,
+                                "filepath": os.path.join(UPLOADS_DIR, os.path.basename(item.filepath)),
+                                "filename": item.filename
+                            }
+                            comb, _, _ = analyze_matches(s_dna, t_dna)
+                            if comb > best_score:
+                                best_score = comb
+                                best_parent = other
+                                
+                    item.parent_id = best_parent.id
+            db.commit()
+
+            # Track Transformation Depths
+            depths = {origin_id: 0}
+            changed = True
+            while changed:
+                changed = False
+                for item in cluster_items:
+                    if item.id not in depths and item.parent_id in depths:
+                        depths[item.id] = depths[item.parent_id] + 1
+                        changed = True
+
+            # Recalculate forensics
+            for item in cluster_items:
+                old_integrity = item.integrity_score
+                old_risk = item.risk_score
+                old_class = item.modification_report.get("asset_classification") if isinstance(item.modification_report, dict) else "None"
+
+                item_phys_name = os.path.basename(item.filepath)
+                item_phys_path = os.path.join(UPLOADS_DIR, item_phys_name)
+
+                item_meta = dict(item.metadata_sig) if isinstance(item.metadata_sig, dict) else {}
+                item_meta["filename"] = item.filename
+                
+                if item.id == origin_id:
+                    i_integrity, i_risk, i_forensics = calculate_integrity_and_risk(
+                        item_phys_path, item_meta, item.mime_type, item.phash, parent_metadata=None
+                    )
+                    has_strong_anomaly = (
+                        i_forensics.get("re_encoded", False) or 
+                        (i_forensics.get("heavy_compression", False) and item_meta.get("jpeg_quality", 100) < 30) or
+                        i_forensics.get("metadata_intelligence", {}).get("metadata_trust_score", 100) < 30
+                    )
+                    if not has_strong_anomaly:
+                        i_integrity = 100
+                        i_risk = 0
+                    i_forensics["asset_classification"] = "Most Probable Origin"
+                    item.integrity_score = i_integrity
+                    item.risk_score = i_risk
+                    item.modification_report = i_forensics
+                    item.ai_edit_analysis_version = i_forensics.get("ai_edit_analysis_version")
+                    item.ai_edit_analysis_timestamp = get_parsed_timestamp(i_forensics)
+                    item.ai_edit_analysis_json = i_forensics.get("ai_edit_analysis_json")
+                else:
+                    v_integrity, v_risk, v_forensics = calculate_integrity_and_risk(
+                        item_phys_path, item_meta, item.mime_type, item.phash, parent_metadata=origin_meta
+                    )
+                    item.integrity_score = v_integrity
+                    item.risk_score = v_risk
+                    item.modification_report = v_forensics
+                    item.ai_edit_analysis_version = v_forensics.get("ai_edit_analysis_version")
+                    item.ai_edit_analysis_timestamp = get_parsed_timestamp(v_forensics)
+                    item.ai_edit_analysis_json = v_forensics.get("ai_edit_analysis_json")
+
+                print(f"  Asset ID: {item.id} ({item.filename}):")
+                print(f"    Parent ID: {old_class} -> {item.parent_id}")
+                print(f"    Integrity: {old_integrity} -> {item.integrity_score}")
+                print(f"    Risk:      {old_risk} -> {item.risk_score}")
+                print(f"    Class:     {old_class} -> {item.modification_report.get('asset_classification')}")
+
+            if origin_item:
+                origin_dna = {
+                    "phash": origin_item.phash,
+                    "dhash": origin_item.dhash,
+                    "ahash": origin_item.ahash,
+                    "embedding": origin_item.embedding,
+                    "audio_fingerprint": origin_item.audio_fingerprint,
+                    "width": origin_item.metadata_sig.get("width", 0) if isinstance(origin_item.metadata_sig, dict) else 0,
+                    "height": origin_item.metadata_sig.get("height", 0) if isinstance(origin_item.metadata_sig, dict) else 0,
+                    "file_size": origin_item.file_size,
+                    "mime_type": origin_item.mime_type,
+                    "sha256": origin_item.sha256,
+                    "filepath": os.path.join(UPLOADS_DIR, os.path.basename(origin_item.filepath)),
+                    "feature_cache_path": origin_item.metadata_sig.get("feature_cache_path") if isinstance(origin_item.metadata_sig, dict) else None
+                }
+            else:
+                origin_dna = tgt_dna # fallback
+
+            matching_pairs = []
+            for item in cluster_items:
+                if item.id == origin_id:
+                    similarity_pct = 100
+                    details = {
+                        "visual_similarity": 1.0,
+                        "audio_similarity": 1.0,
+                        "semantic_similarity": 1.0,
+                        "relationship_type": "Original",
+                        "relationship_stability": 1.0,
+                        "explainability": {"metrics_breakdown": {}}
+                    }
+                    combined_score = 1.0
+                else:
+                    item_dna = {
+                        "phash": item.phash,
+                        "dhash": item.dhash,
+                        "ahash": item.ahash,
+                        "embedding": item.embedding,
+                        "audio_fingerprint": item.audio_fingerprint,
+                        "width": item.metadata_sig.get("width", 0) if isinstance(item.metadata_sig, dict) else 0,
+                        "height": item.metadata_sig.get("height", 0) if isinstance(item.metadata_sig, dict) else 0,
+                        "file_size": item.file_size,
+                        "mime_type": item.mime_type,
+                        "sha256": item.sha256,
+                        "filepath": os.path.join(UPLOADS_DIR, os.path.basename(item.filepath)),
+                        "feature_cache_path": item.metadata_sig.get("feature_cache_path") if isinstance(item.metadata_sig, dict) else None
+                    }
+                    combined_score, _, details = analyze_matches(origin_dna, item_dna)
+                    similarity_pct = int(combined_score * 100)
+                    matching_pairs.append((item, combined_score, details))
+
+                current_report = dict(item.modification_report or {})
+                variant_counts = {}
+                sem_sims = []
+                vis_sims = []
+                for it in cluster_items:
+                    if it.id == origin_id:
+                        continue
+                    vtype = it.modification_report.get("relationship_analysis", {}).get("relationship_type") or it.modification_report.get("asset_classification") or "variant"
+                    variant_counts[vtype] = variant_counts.get(vtype, 0) + 1
+                    if it.modification_report:
+                        sem_sims.append(it.modification_report.get("semantic_similarity", 1.0))
+                        vis_sims.append(it.modification_report.get("visual_similarity", 1.0))
+
+                var_details = ", ".join(f"{cnt} {vt}" for vt, cnt in variant_counts.items()) if variant_counts else "no variants"
+                avg_conf_score = int(np.mean([it.modification_report.get("overall_investigation_confidence", {}).get("score", 90) for it in cluster_items]))
+                avg_conf_level = "High" if avg_conf_score >= 80 else ("Medium" if avg_conf_score >= 60 else "Low")
+
+                origin_name = origin_item.filename if origin_item and not origin_undetermined else "Unable to determine with available evidence"
+                narrative = f"This media family contains {len(cluster_items)} related assets. The highest quality asset '{origin_name}' was selected as the Most Probable Origin with a capped confidence of {origin_confidence}%. Under this origin, {var_details} were identified. Evidence supports redistribution through online channels due to compression artifacts and metadata removal. Investigation Confidence: {avg_conf_level} ({avg_conf_score}%)."
+
+                current_report["overall_investigation_confidence"] = {
+                    "level": avg_conf_level,
+                    "score": avg_conf_score,
+                    "reason": f"Analyzed cluster of {len(cluster_items)} assets. Visual and metadata features align under the estimated origin with {avg_conf_score}% overall confidence."
+                }
+                current_report["investigation_narrative"] = narrative
+
+                avg_sem_sim = float(np.mean(sem_sims)) if sem_sims else 1.0
+                avg_vis_sim = float(np.mean(vis_sims)) if vis_sims else 1.0
+                low_sem_count = sum(1 for s in sem_sims if s < 0.75)
+                contamination_score = int((low_sem_count / len(cluster_items)) * 100) if cluster_items else 0
+
+                # Cluster Quality Score
+                reliability = (100.0 - contamination_score) * 0.4 + origin_confidence * 0.4 + avg_vis_sim * 20.0
+                cluster_quality = {
+                    "internal_similarity": float(round(avg_vis_sim, 2)),
+                    "contamination_risk": float(round(contamination_score, 2)),
+                    "root_confidence": origin_confidence,
+                    "overall_reliability": float(round(reliability, 2))
+                }
+
+                current_report["cluster_diagnostics"] = {
+                    "cluster_health": "Healthy" if contamination_score <= 20 else ("Review Recommended" if contamination_score <= 50 else "Possible Contamination"),
+                    "contamination_score": contamination_score,
+                    "family_size": len(cluster_items),
+                    "average_similarity": float(round(avg_vis_sim, 2)),
+                    "average_semantic_similarity": float(round(avg_sem_sim, 2)),
+                    "cluster_quality": cluster_quality
+                }
+
+                current_report["relationship_analysis"] = {
+                    "related_assets_count": len(cluster_items) - 1,
+                    "probable_origin_asset": origin_name,
+                    "relationship_type": details.get("relationship_type", "variant"),
+                    "relationship_stability": float(round(details.get("relationship_stability", 1.0), 4)),
+                    "confidence_score": similarity_pct,
+                    "origin_confidence": origin_confidence,
+                    "origin_probability": origin_probability,
+                    "origin_undetermined": origin_undetermined,
+                    "origin_explainability_factors": origin_explainability_factors,
+                    "origin_audit_trail": origin_audit_trail,
+                    "transformation_depth": depths.get(item.id, 0),
+                    "metrics_breakdown": details.get("explainability", {}).get("metrics_breakdown")
+                }
+                item.modification_report = current_report
+
+            db.commit()
+
+            for item, combined, details in matching_pairs:
+                rel_type = details.get("relationship_type", "variant")
+                if item.id == origin_id:
+                    rel_type = db_item.modification_report.get("asset_classification") or "variant"
+                elif db_item.id == origin_id:
+                    rel_type = item.modification_report.get("asset_classification") or "variant"
+
+                rel1 = MediaRelationship(
+                    source_id=item.id,
+                    target_id=db_item.id,
+                    visual_similarity=details["visual_similarity"],
+                    audio_similarity=details["audio_similarity"],
+                    semantic_similarity=details["semantic_similarity"],
+                    combined_score=combined,
+                    relationship_type=rel_type
+                )
+                db.add(rel1)
+            db.commit()
+
+        db.refresh(db_item)
+        print("[BACKGROUND TASK] CLIP and cross-matching background task completed successfully.")
+
+    except Exception as e:
+        print(f"[BACKGROUND TASK ERROR] Error in background task pipeline: {e}")
+        db.rollback()
+    finally:
+        db.close()
+
+
 @app.post("/api/upload", response_model=MediaItemResponse)
 def upload_media(
     case_id: int = Form(...),
@@ -173,6 +684,9 @@ def upload_media(
     keyframes & audio tracks if video, calculates integrity/risk, runs
     cross-similarity logic, and establishes database relationships.
     """
+    import time
+    start_total_time = time.perf_counter()
+    metadata_time_ms = 0.0
     current_stage = "File Ingestion"
     dest_path = ""
     try:
@@ -291,15 +805,35 @@ def upload_media(
             audio_fg = {"has_audio": False, "mean_chroma": [], "temporal_profile": []}
             
             current_stage = "Metadata Extraction"
+            t_meta_start = time.perf_counter()
             meta = extract_metadata_signature(dest_path)
+            meta["filename"] = file.filename
+            metadata_time_ms = (time.perf_counter() - t_meta_start) * 1000
             
             current_stage = "Semantic Embedding"
-            emb = get_clip_embedding(dest_path)
+            emb = None
             
             duration = None
             resolution = meta.get("resolution", "800x600")
             keyframes_list = []
             
+        # Caching lightweight & heavy ORB features during upload
+        if not is_video_file:
+            current_stage = "Feature Caching"
+            print("[FEATURE CACHING] Generating default ORB features...")
+            try:
+                import cv2
+                from .similarity_engine import save_heavy_features
+                with Image.open(dest_path) as img_pil:
+                    img_gray = np.array(img_pil.convert("L"))
+                    orb = cv2.ORB_create(nfeatures=1000)
+                    orb_kp, orb_des = orb.detectAndCompute(img_gray, None)
+                    cache_path = save_heavy_features(temp_filename, orb_kp, orb_des)
+                    meta["feature_cache_path"] = cache_path
+                    meta["feature_version"] = "1.0.0"
+            except Exception as orb_err:
+                print(f"Error computing and caching default ORB features: {orb_err}")
+
         # Forensic Calculations
         current_stage = "Forensic Diagnostics"
         
@@ -321,11 +855,13 @@ def upload_media(
                     "sha256": parent_item.sha256,
                     "mime_type": parent_item.mime_type,
                     "file_size": parent_item.file_size,
-                    "embedding": parent_item.embedding
+                    "embedding": parent_item.embedding,
+                    "filename": parent_item.filename
                 }
                 
         integrity, risk, forensics = calculate_integrity_and_risk(
-            dest_path, meta, mime, main_ph, parent_metadata=parent_meta
+            dest_path, meta, mime, main_ph, parent_metadata=parent_meta,
+            metadata_time_ms=metadata_time_ms, start_total_time=start_total_time
         )
         
         # Create Media Database Record
@@ -349,7 +885,10 @@ def upload_media(
             parent_id=parent_id,
             risk_score=risk,
             integrity_score=integrity,
-            modification_report=forensics
+            modification_report=forensics,
+            ai_edit_analysis_version=forensics.get("ai_edit_analysis_version"),
+            ai_edit_analysis_timestamp=get_parsed_timestamp(forensics),
+            ai_edit_analysis_json=forensics.get("ai_edit_analysis_json")
         )
         db.add(db_item)
         db.commit()
@@ -370,455 +909,21 @@ def upload_media(
             db.add(db_kf)
         db.commit()
         
-        # 4. Cross similarity match against other assets in the case
-        current_stage = "Cross Match"
-        other_items = db.query(MediaItem).filter(
-            MediaItem.id != db_item.id,
-            MediaItem.case_id == case_id
-        ).all()
-        
-        matching_pairs = []
-        direct_matches = []
-        
-        for item in other_items:
-            src_dna = {
-                "phash": item.phash, "dhash": item.dhash, "ahash": item.ahash,
-                "embedding": item.embedding, "audio_fingerprint": item.audio_fingerprint,
-                "width": item.metadata_sig.get("width", 0) if item.metadata_sig else 0,
-                "height": item.metadata_sig.get("height", 0) if item.metadata_sig else 0,
-                "file_size": item.file_size, "mime_type": item.mime_type,
-                "sha256": item.sha256,
-                "filepath": os.path.join(UPLOADS_DIR, os.path.basename(item.filepath))
-            }
-            tgt_dna = {
-                "phash": db_item.phash, "dhash": db_item.dhash, "ahash": db_item.ahash,
-                "embedding": db_item.embedding, "audio_fingerprint": db_item.audio_fingerprint,
-                "width": db_item.metadata_sig.get("width", 0) if db_item.metadata_sig else 0,
-                "height": db_item.metadata_sig.get("height", 0) if db_item.metadata_sig else 0,
-                "file_size": db_item.file_size, "mime_type": db_item.mime_type,
-                "modification_report": forensics,
-                "sha256": db_item.sha256,
-                "filepath": dest_path
-            }
-            
-            combined, level, details = analyze_matches(src_dna, tgt_dna)
-            
-            # --- CLUSTER ADMISSION GATE CHECK ---
-            # Gate requires: (combined_similarity >= 0.50 AND semantic_similarity >= 0.75 AND (contained_within or p_dist <= 12 or ORB confidence >= 30%))
-            # OR (descendant path: semantic_similarity >= 0.75 AND overlap >= 80% AND ORB confidence >= 50%)
-            sem_sim = details.get("semantic_similarity", 0.0)
-            p_dist = hamming_distance(item.phash, db_item.phash)
-            
-            # Estimate visual containment
-            from .similarity_engine import estimate_visual_containment
-            containment_res = estimate_visual_containment(src_dna["filepath"], tgt_dna["filepath"])
-            contained_within = containment_res["contained_within_source"]
-            overlap_pct = containment_res["visual_overlap_percent"]
-            orb_confidence = containment_res.get("orb_confidence", 80.0 if (contained_within or overlap_pct > 0) else 0.0)
-            containment_score = containment_res.get("containment_score", 100.0 if contained_within else 0.0)
-            
-            standard_passed = (
-                combined >= 0.50 and
-                sem_sim >= 0.75 and
-                (contained_within or p_dist <= 12 or orb_confidence >= 30.0)
-            )
-            
-            descendant_passed = (
-                sem_sim >= 0.75 and
-                overlap_pct >= 80.0 and
-                orb_confidence >= 50.0
-            )
-            
-            gate_passed = standard_passed or descendant_passed
-            
-            # Forensic Logging
-            print(f"[FORENSIC GATE EVALUATION] File: '{db_item.filename}' against candidate '{item.filename}' (ID: {item.id})")
-            print(f"  Overlap: {overlap_pct:.2f}%")
-            print(f"  ORB Confidence: {orb_confidence:.2f}%")
-            print(f"  Semantic Similarity: {sem_sim:.4f}")
-            print(f"  Containment Score: {containment_score:.2f}")
-            print(f"  Admission Decision: {'PASSED' if gate_passed else 'REJECTED'}")
-            
-            if gate_passed:
-                direct_matches.append(item)
-                matching_pairs.append((item, combined, details))
-            else:
-                # Log rejection reason
-                reasons = []
-                if combined < 0.50: reasons.append(f"combined_similarity {combined:.2f} < 0.50")
-                if sem_sim < 0.75: reasons.append(f"semantic_similarity {sem_sim:.2f} < 0.75")
-                if not (contained_within or p_dist <= 12 or orb_confidence >= 30.0):
-                    reasons.append("failed containment checklist (not contained, pHash > 12, and ORB confidence < 30%)")
-                if not descendant_passed:
-                    reasons.append("failed descendant admission path (semantic < 0.75 or overlap < 80% or ORB < 50%)")
-                print(f"  Rejection Reason: {', '.join(reasons)}")
-                print(f"[CLUSTER REJECTION] Asset {db_item.filename} failed admission gate for cluster {item.cluster_id}. Reasons: {', '.join(reasons)}")
-                
-        # 5. Build case-wide cluster consistency and estimate origin
-        current_stage = "Lineage Graph"
-        import uuid
-        from .models import ClusterMergeRecommendation
-        
-        if not direct_matches:
-            # Generate a new unique cluster_id
-            new_cid = f"cluster_{uuid.uuid4().hex[:8]}"
-            db_item.cluster_id = new_cid
-            db.commit()
-            cluster_items = [db_item]
-        else:
-            # Find unique cluster_ids among matching items
-            matching_cluster_ids = {item.cluster_id for item in direct_matches if item.cluster_id}
-            
-            if not matching_cluster_ids:
-                # Fallback: none of the matches have a cluster_id
-                new_cid = f"cluster_{uuid.uuid4().hex[:8]}"
-                db_item.cluster_id = new_cid
-                for item in direct_matches:
-                    item.cluster_id = new_cid
-                db.commit()
-                cluster_items = db.query(MediaItem).filter(
-                    MediaItem.case_id == case_id,
-                    MediaItem.cluster_id == new_cid
-                ).all()
-            else:
-                # Find matching cluster with the highest similarity score
-                best_match_item = None
-                best_match_score = -1.0
-                for item, combined, _ in matching_pairs:
-                    if item.cluster_id and combined > best_match_score:
-                        best_match_score = combined
-                        best_match_item = item
-                        
-                primary_cluster_id = best_match_item.cluster_id
-                db_item.cluster_id = primary_cluster_id
-                db.commit()
-                
-                # Check for other matching cluster IDs (potential merge recommendations)
-                for other_cid in matching_cluster_ids:
-                    if other_cid != primary_cluster_id:
-                        # Check if merge recommendation already exists
-                        existing_rec = db.query(ClusterMergeRecommendation).filter(
-                            ClusterMergeRecommendation.case_id == case_id,
-                            ((ClusterMergeRecommendation.source_cluster_id == other_cid) & (ClusterMergeRecommendation.target_cluster_id == primary_cluster_id)) |
-                            ((ClusterMergeRecommendation.source_cluster_id == primary_cluster_id) & (ClusterMergeRecommendation.target_cluster_id == other_cid))
-                        ).first()
-                        if not existing_rec:
-                            rec = ClusterMergeRecommendation(
-                                case_id=case_id,
-                                source_cluster_id=other_cid,
-                                target_cluster_id=primary_cluster_id,
-                                confidence=float(best_match_score),
-                                status="Pending"
-                            )
-                            db.add(rec)
-                db.commit()
-                
-                # Fetch all items belonging to this primary cluster
-                cluster_items = db.query(MediaItem).filter(
-                    MediaItem.case_id == case_id,
-                    MediaItem.cluster_id == primary_cluster_id
-                ).all()
-            
-        # 1. Required Investigation: Log the full cluster after every upload
-        print(f"\n=================== CLUSTER REPORT AFTER UPLOAD OF '{db_item.filename}' ===================")
-        print(f"Total cluster members found: {len(cluster_items)}")
-        for idx, item in enumerate(cluster_items):
-            print(f"  [{idx+1}] ID: {item.id} | Filename: {item.filename} | "
-                  f"Mime: {item.mime_type} | Size: {item.file_size} bytes | "
-                  f"Dimensions: {item.metadata_sig.get('width', 0) if item.metadata_sig else 0}x{item.metadata_sig.get('height', 0) if item.metadata_sig else 0}")
-        print("==========================================================================")
-        
-        # 2. Required Investigation: Log estimated_origin_id for every cluster member before recalculation
-        print("\n--- estimated_origin_id BEFORE recalculation ---")
-        for item in cluster_items:
-            print(f"  Asset ID: {item.id} ({item.filename}) | Pre-Recalc Origin ID: {item.estimated_origin_id}")
-        print("-------------------------------------------------")
-            
-        if len(cluster_items) > 1:
-            cluster_dicts = [
-                {
-                    "id": item.id,
-                    "filename": item.filename,
-                    "resolution": item.resolution,
-                    "file_size": item.file_size,
-                    "integrity_score": item.integrity_score,
-                    "width": item.metadata_sig.get("width", 0) if item.metadata_sig else 0,
-                    "height": item.metadata_sig.get("height", 0) if item.metadata_sig else 0,
-                    "exif_count": len(item.metadata_sig.get("exif", {})) if item.metadata_sig and item.metadata_sig.get("exif") else 0,
-                    "heavy_compression": item.modification_report.get("heavy_compression", False) if item.modification_report else False,
-                    "blockiness": item.metadata_sig.get("blockiness", 1.0) if item.metadata_sig else 1.0,
-                    "jpeg_quality": item.metadata_sig.get("jpeg_quality") if item.metadata_sig else None,
-                    "created_at": item.created_at,
-                    "exif": item.metadata_sig.get("exif", {}) if item.metadata_sig else {},
-                    "cropping_detected": item.modification_report.get("cropping_detected", False) if item.modification_report else False,
-                    "resizing_detected": item.modification_report.get("resizing_detected", False) if item.modification_report else False,
-                    "watermark_detected": item.modification_report.get("watermark_detected", False) if item.modification_report else False,
-                    "screenshot_detected": (item.modification_report.get("screenshot_indicators", {}).get("status") in ["Likely Screenshot", "Possible Screenshot"]) if item.modification_report else False,
-                    "embedding": item.embedding
-                } for item in cluster_items
-            ]
-            
-            # 3. Required Investigation: Log candidate origin scores (handled by estimate_primary_origin printouts)
-            origin_id, origin_confidence, origin_probability, origin_undetermined, origin_explainability_factors, origin_audit_trail = estimate_primary_origin(cluster_dicts)
-            
-            # Find the origin item
-            origin_item = next((x for x in cluster_items if x.id == origin_id), None)
-            if origin_item:
-                origin_meta = {
-                    "width": origin_item.metadata_sig.get("width", 0) if origin_item.metadata_sig else 0,
-                    "height": origin_item.metadata_sig.get("height", 0) if origin_item.metadata_sig else 0,
-                    "phash": origin_item.phash,
-                    "exif": origin_item.metadata_sig.get("exif", {}) if origin_item.metadata_sig else {},
-                    "sha256": origin_item.sha256,
-                    "mime_type": origin_item.mime_type,
-                    "file_size": origin_item.file_size,
-                    "embedding": origin_item.embedding,
-                    "integrity_score": origin_item.integrity_score,
-                    "filepath": os.path.join(UPLOADS_DIR, os.path.basename(origin_item.filepath))
-                }
-            else:
-                origin_meta = None
-            
-            print("\n--- Recalculating and re-evaluating cluster members ---")
-            
-            # Update all elements in the cluster to point to the estimated origin ID
-            for item in cluster_items:
-                # Store old scores for logging
-                old_integrity = item.integrity_score
-                old_risk = item.risk_score
-                old_class = item.modification_report.get("asset_classification") if item.modification_report else "None"
-                
-                # Update origin pointer
-                item.estimated_origin_id = origin_id
-                
-                # Resolve physical path
-                item_phys_name = os.path.basename(item.filepath)
-                item_phys_path = os.path.join(UPLOADS_DIR, item_phys_name)
-                
-                if item.id == origin_id:
-                    # Selected origin receives Integrity = 100, Risk = 0 (unless independent anomalies exist)
-                    item.parent_id = None
-                    i_integrity, i_risk, i_forensics = calculate_integrity_and_risk(
-                        item_phys_path, item.metadata_sig, item.mime_type, item.phash, parent_metadata=None
-                    )
-                    
-                    # Baseline asset protection: reset integrity and risk to 100/0 unless severe software edit, quality, AI, or metadata trust anomalies exist
-                    has_strong_anomaly = (
-                        i_forensics.get("re_encoded", False) or 
-                        (i_forensics.get("heavy_compression", False) and item.metadata_sig.get("jpeg_quality", 100) < 30) or
-                        i_forensics.get("investigation_summary", {}).get("ai_generation_probability", 0) > 90 or
-                        i_forensics.get("metadata_intelligence", {}).get("metadata_trust_score", 100) < 30
-                    )
-                    if not has_strong_anomaly:
-                        i_integrity = 100
-                        i_risk = 0
-                    
-                    # Set classification to 'Most Probable Origin'
-                    i_forensics["asset_classification"] = "Most Probable Origin"
-                        
-                    item.integrity_score = i_integrity
-                    item.risk_score = i_risk
-                    item.modification_report = i_forensics
-                else:
-                    # Variant compared to origin
-                    item.parent_id = origin_id
-                    v_integrity, v_risk, v_forensics = calculate_integrity_and_risk(
-                        item_phys_path, item.metadata_sig, item.mime_type, item.phash, parent_metadata=origin_meta
-                    )
-                    item.integrity_score = v_integrity
-                    item.risk_score = v_risk
-                    item.modification_report = v_forensics
-                
-                # 6. Required Investigation: Verify that integrity/risk values are recomputed after origin reassignment
-                print(f"  Asset ID: {item.id} ({item.filename}):")
-                print(f"    Parent ID: {old_class} -> {item.parent_id}")
-                print(f"    Integrity: {old_integrity} -> {item.integrity_score}")
-                print(f"    Risk:      {old_risk} -> {item.risk_score}")
-                print(f"    Class:     {old_class} -> {item.modification_report.get('asset_classification')}")
-                    
-            # Overwrite relationship_analysis for each cluster item with exact dynamic values
-            if origin_item:
-                origin_dna = {
-                    "phash": origin_item.phash,
-                    "dhash": origin_item.dhash,
-                    "ahash": origin_item.ahash,
-                    "embedding": origin_item.embedding,
-                    "audio_fingerprint": origin_item.audio_fingerprint,
-                    "width": origin_item.metadata_sig.get("width", 0) if origin_item.metadata_sig else 0,
-                    "height": origin_item.metadata_sig.get("height", 0) if origin_item.metadata_sig else 0,
-                    "file_size": origin_item.file_size,
-                    "mime_type": origin_item.mime_type,
-                    "sha256": origin_item.sha256,
-                    "filepath": os.path.join(UPLOADS_DIR, os.path.basename(origin_item.filepath))
-                }
-            else:
-                origin_dna = tgt_dna # fallback
-                
-            import numpy as np
-            matching_pairs = []
-            for item in cluster_items:
-                if item.id == origin_id:
-                    similarity_pct = 100
-                else:
-                    item_dna = {
-                        "phash": item.phash,
-                        "dhash": item.dhash,
-                        "ahash": item.ahash,
-                        "embedding": item.embedding,
-                        "audio_fingerprint": item.audio_fingerprint,
-                        "width": item.metadata_sig.get("width", 0) if item.metadata_sig else 0,
-                        "height": item.metadata_sig.get("height", 0) if item.metadata_sig else 0,
-                        "file_size": item.file_size,
-                        "mime_type": item.mime_type,
-                        "sha256": item.sha256,
-                        "filepath": os.path.join(UPLOADS_DIR, os.path.basename(item.filepath))
-                    }
-                    combined_score, _, details = analyze_matches(origin_dna, item_dna)
-                    similarity_pct = int(combined_score * 100)
-                    matching_pairs.append((item, combined_score, details))
-                
-                # Update relationship_analysis in the modification report
-                current_report = dict(item.modification_report or {})
-                
-                # Generate dynamic cluster-wide narrative and family summary
-                variant_counts = {}
-                sem_sims = []
-                vis_sims = []
-                for it in cluster_items:
-                    if it.id == origin_id:
-                        continue
-                    vtype = it.modification_report.get("relationship_analysis", {}).get("relationship_type") or it.modification_report.get("asset_classification") or "variant"
-                    variant_counts[vtype] = variant_counts.get(vtype, 0) + 1
-                    
-                    # collect for diagnostics
-                    if it.modification_report:
-                        sem_sims.append(it.modification_report.get("semantic_similarity", 1.0))
-                        vis_sims.append(it.modification_report.get("visual_similarity", 1.0))
-                    
-                var_details = ", ".join(f"{cnt} {vt}" for vt, cnt in variant_counts.items()) if variant_counts else "no variants"
-                
-                # Overall case-wide confidence score (avg of all cluster items overall_investigation_confidence)
-                avg_conf_score = int(np.mean([it.modification_report.get("overall_investigation_confidence", {}).get("score", 90) for it in cluster_items]))
-                avg_conf_level = "High" if avg_conf_score >= 80 else ("Medium" if avg_conf_score >= 60 else "Low")
-                
-                origin_name = origin_item.filename if origin_item and not origin_undetermined else "Unable to determine with available evidence"
-                narrative = f"This media family contains {len(cluster_items)} related assets. The highest quality asset '{origin_name}' was selected as the Most Probable Origin with a capped confidence of {origin_confidence}%. Under this origin, {var_details} were identified. Evidence supports redistribution through online channels due to compression artifacts and metadata removal. Investigation Confidence: {avg_conf_level} ({avg_conf_score}%)."
-                
-                current_report["overall_investigation_confidence"] = {
-                    "level": avg_conf_level,
-                    "score": avg_conf_score,
-                    "reason": f"Analyzed cluster of {len(cluster_items)} assets. Visual and metadata features align under the estimated origin with {avg_conf_score}% overall confidence."
-                }
-                current_report["investigation_narrative"] = narrative
-                
-                # Calculate cluster health diagnostics
-                avg_sem_sim = float(np.mean(sem_sims)) if sem_sims else 1.0
-                avg_vis_sim = float(np.mean(vis_sims)) if vis_sims else 1.0
-                low_sem_count = sum(1 for s in sem_sims if s < 0.75)
-                contamination_score = int((low_sem_count / len(cluster_items)) * 100) if cluster_items else 0
-                
-                if contamination_score <= 20:
-                    cluster_health = "Healthy"
-                elif contamination_score <= 50:
-                    cluster_health = "Review Recommended"
-                else:
-                    cluster_health = "Possible Contamination"
-                    
-                current_report["cluster_diagnostics"] = {
-                    "cluster_health": cluster_health,
-                    "contamination_score": contamination_score,
-                    "family_size": len(cluster_items),
-                    "average_similarity": float(round(avg_vis_sim, 2)),
-                    "average_semantic_similarity": float(round(avg_sem_sim, 2))
-                }
-                
-                current_report["relationship_analysis"] = {
-                    "related_assets_count": len(cluster_items) - 1,
-                    "probable_origin_asset": origin_name,
-                    "relationship_type": current_report.get("asset_classification") or "Unknown Baseline Asset",
-                    "confidence_score": similarity_pct,
-                    "origin_confidence": origin_confidence,
-                    "origin_probability": origin_probability,
-                    "origin_undetermined": origin_undetermined,
-                    "origin_explainability_factors": origin_explainability_factors,
-                    "origin_audit_trail": origin_audit_trail
-                }
-                item.modification_report = current_report
-                
-            # 4. & 5. Required Investigation: Verify that all cluster members are rewritten and persisted to the database
-            print("\n[PERSISTENCE VERIFICATION] Committing cluster updates to database...")
-            db.commit()
-            
-            # Log estimated_origin_id after recalculation
-            print("\n--- estimated_origin_id AFTER recalculation and commit ---")
-            for item in cluster_items:
-                db.refresh(item)
-                print(f"  Asset ID: {item.id} ({item.filename}) | Post-Recalc DB Origin ID: {item.estimated_origin_id} | DB Integrity: {item.integrity_score} | DB Risk: {item.risk_score}")
-            print("----------------------------------------------------------")
-            
-            # Create relationship records and log details
-            for item, combined, details in matching_pairs:
-                rel_type = details.get("relationship_type", "variant")
-                if item.id == origin_id:
-                    rel_type = db_item.modification_report.get("asset_classification") or "variant"
-                elif db_item.id == origin_id:
-                    rel_type = item.modification_report.get("asset_classification") or "variant"
-                
-                # Add relationship records both ways for routing ease
-                rel1 = MediaRelationship(
-                    source_id=item.id,
-                    target_id=db_item.id,
-                    visual_similarity=details["visual_similarity"],
-                    audio_similarity=details["audio_similarity"],
-                    semantic_similarity=details["semantic_similarity"],
-                    combined_score=combined,
-                    relationship_type=rel_type
-                )
-                db.add(rel1)
-                
-                print(f"\n[RELATIONSHIP GENERATED] between '{item.filename}' and '{db_item.filename}'")
-                print(f"  Selected Origin Asset: {origin_item.filename if origin_item else 'None'} (ID: {origin_id})")
-                print(f"  Origin Selection Reason: Score-based criteria (Resolution, Size, EXIF richness, Compression indicators)")
-                print(f"  Parent Asset ID: {item.parent_id if item.id != origin_id else 'None (Origin)'}")
-                print(f"  Variant Classification: {rel_type}")
-                
-            db.commit()
-            
-        db.refresh(db_item)
-        
-        # Queue asynchronous Web Intelligence search in the background task loop
+        # Queue background tasks for CLIP model embedding and cross similarity matching
         if background_tasks is not None:
+            background_tasks.add_task(
+                process_clip_and_cross_match,
+                db_item.id,
+                dest_path,
+                case_id,
+                parent_id,
+                forensics,
+                SessionLocal
+            )
             background_tasks.add_task(run_asynchronous_web_intelligence, db_item.id, SessionLocal)
             
         db.refresh(db_item)
-        
-        # Structured forensic cluster assignment logging
-        top_match_asset = "None"
-        top_match_score = 0.0
-        top_match_rel = "None"
-        if 'matching_pairs' in locals() and matching_pairs:
-            best_pair = max(matching_pairs, key=lambda x: x[1])
-            top_match_asset = best_pair[0].filename
-            top_match_score = best_pair[1]
-            top_match_rel = best_pair[2].get("relationship_type", "variant")
-            
-        # Refetch cluster items from database for statistics freshness
-        db_cluster_items = db.query(MediaItem).filter(
-            MediaItem.case_id == case_id,
-            MediaItem.cluster_id == db_item.cluster_id
-        ).all() if db_item.cluster_id else [db_item]
-        
-        print(f"\n[FORENSIC CLUSTER LOG]")
-        print(f"  uploaded_asset: {db_item.filename}")
-        print(f"  top_match_asset: {top_match_asset}")
-        print(f"  similarity_score: {top_match_score:.4f}")
-        print(f"  classification: {db_item.modification_report.get('asset_classification') if db_item.modification_report else 'Unknown'}")
-        print(f"  relationship_type: {top_match_rel}")
-        print(f"  assigned_cluster_id: {db_item.cluster_id}")
-        print(f"  family_size_after_assignment: {len(db_cluster_items)}")
-        print(f"-----------------------\n")
-        
-        print("[SUCCESS] Processing completed successfully")
+        print("[SUCCESS] Processing completed successfully (background similarity analysis queued)")
         return db_item
         
     except Exception as e:
@@ -1506,11 +1611,14 @@ def approve_merge(rec_id: int, db: Session = Depends(get_db)):
             "width": origin_item.metadata_sig.get("width", 0) if origin_item.metadata_sig else 0,
             "height": origin_item.metadata_sig.get("height", 0) if origin_item.metadata_sig else 0,
             "phash": origin_item.phash,
+            "dhash": origin_item.dhash,
+            "ahash": origin_item.ahash,
             "exif": origin_item.metadata_sig.get("exif", {}) if origin_item.metadata_sig else {},
             "sha256": origin_item.sha256,
             "mime_type": origin_item.mime_type,
             "file_size": origin_item.file_size,
-            "embedding": origin_item.embedding
+            "embedding": origin_item.embedding,
+            "filename": origin_item.filename
         }
         
         import numpy as np
@@ -1521,15 +1629,17 @@ def approve_merge(rec_id: int, db: Session = Depends(get_db)):
             item_phys_name = os.path.basename(item.filepath)
             item_phys_path = os.path.join(UPLOADS_DIR, item_phys_name)
             
+            item_meta = dict(item.metadata_sig) if isinstance(item.metadata_sig, dict) else {}
+            item_meta["filename"] = item.filename
+            
             if item.id == origin_id:
                 item.parent_id = None
                 i_integrity, i_risk, i_forensics = calculate_integrity_and_risk(
-                    item_phys_path, item.metadata_sig, item.mime_type, item.phash, parent_metadata=None
+                    item_phys_path, item_meta, item.mime_type, item.phash, parent_metadata=None
                 )
                 has_strong_anomaly = (
                     i_forensics.get("re_encoded", False) or 
-                    (i_forensics.get("heavy_compression", False) and item.metadata_sig.get("jpeg_quality", 100) < 30) or
-                    i_forensics.get("investigation_summary", {}).get("ai_generation_probability", 0) > 90 or
+                    (i_forensics.get("heavy_compression", False) and item_meta.get("jpeg_quality", 100) < 30) or
                     i_forensics.get("metadata_intelligence", {}).get("metadata_trust_score", 100) < 30
                 )
                 if not has_strong_anomaly:
@@ -1539,14 +1649,20 @@ def approve_merge(rec_id: int, db: Session = Depends(get_db)):
                 item.integrity_score = i_integrity
                 item.risk_score = i_risk
                 item.modification_report = i_forensics
+                item.ai_edit_analysis_version = i_forensics.get("ai_edit_analysis_version")
+                item.ai_edit_analysis_timestamp = get_parsed_timestamp(i_forensics)
+                item.ai_edit_analysis_json = i_forensics.get("ai_edit_analysis_json")
             else:
                 item.parent_id = origin_id
                 v_integrity, v_risk, v_forensics = calculate_integrity_and_risk(
-                    item_phys_path, item.metadata_sig, item.mime_type, item.phash, parent_metadata=origin_meta
+                    item_phys_path, item_meta, item.mime_type, item.phash, parent_metadata=origin_meta
                 )
                 item.integrity_score = v_integrity
                 item.risk_score = v_risk
                 item.modification_report = v_forensics
+                item.ai_edit_analysis_version = v_forensics.get("ai_edit_analysis_version")
+                item.ai_edit_analysis_timestamp = get_parsed_timestamp(v_forensics)
+                item.ai_edit_analysis_json = v_forensics.get("ai_edit_analysis_json")
                 
         # Overwrite relationship_analysis with exact values
         origin_dna = {
@@ -1835,3 +1951,63 @@ def clip_health(load: bool = False):
         "ram_usage_mb": round(ram_usage, 2),
         "avg_generation_time_ms": 1795.0 if model_loaded else 0.0
     }
+
+
+# ----------------- EVALUATION & BENCHMARKS ENDPOINTS -----------------
+
+from .evaluation_manager import (
+    get_evaluation_dashboard_data,
+    get_benchmark_stats,
+    seed_benchmark_dataset,
+    evaluate_benchmark
+)
+
+@app.get("/api/evaluation/dashboard")
+def get_eval_dashboard(model_version: str = "v1", db: Session = Depends(get_db)):
+    """Returns comprehensive model evaluation metrics and calibration stats."""
+    return get_evaluation_dashboard_data(model_version, db)
+
+@app.get("/api/benchmark/stats")
+def get_bench_stats():
+    """Returns file counts in each benchmark category folder."""
+    return get_benchmark_stats()
+
+@app.post("/api/benchmark/seed")
+def seed_bench_data():
+    """Copies sample images from test sets to populate the benchmark folders."""
+    return seed_benchmark_dataset()
+
+@app.post("/api/benchmark/evaluate")
+def evaluate_bench(model_version: str = "v1"):
+    """Runs active detector model on benchmark files and returns category-wise accuracies."""
+    return evaluate_benchmark(model_version)
+
+@app.get("/api/benchmark/report")
+def export_bench_report(model_version: str = "v1"):
+    """Generates and downloads a summary benchmark text report."""
+    results = evaluate_benchmark(model_version)
+    
+    report_content = []
+    report_content.append("="*60)
+    report_content.append("           TRACELENS AI BENCHMARK REPORT")
+    report_content.append(f"           Model Evaluated: {model_version.upper()}")
+    report_content.append(f"           Generated At: {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+    report_content.append("="*60)
+    report_content.append(f"Overall Benchmark Accuracy: {results['overall_accuracy']*100:.2f}%")
+    report_content.append(f"Total Evaluated Images:     {results['total_images']}")
+    report_content.append("-"*60)
+    report_content.append(f"{'Category':<30} | {'Count':<6} | {'Accuracy':<10}")
+    report_content.append("-"*60)
+    for path, cat in results["categories"].items():
+        report_content.append(f"{cat['name']:<30} | {cat['count']:<6} | {cat['accuracy']*100:.2f}%")
+    report_content.append("="*60)
+    
+    text_content = "\n".join(report_content)
+    
+    from fastapi.responses import Response
+    return Response(
+        content=text_content,
+        media_type="text/plain",
+        headers={"Content-Disposition": f"attachment; filename=TraceLens_Benchmark_Report_{model_version}.txt"}
+    )
+

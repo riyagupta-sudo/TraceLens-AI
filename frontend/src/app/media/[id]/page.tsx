@@ -3,9 +3,9 @@
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
-import {
+import { 
   FileText, Shield, AlertTriangle, Fingerprint, Calendar,
-  Share2, Award, HardDrive, Download, Eye, Zap,
+  Share2, Award, HardDrive, Download, Eye, Zap, 
   Activity, Film, Volume2, Globe, Search,
   Cpu, Clock, CheckCircle2, AlertCircle, ExternalLink,
   ArrowRight, Info, EyeOff, LayoutGrid, CheckSquare, Sparkles, GitPullRequest,
@@ -41,6 +41,9 @@ interface MediaItem {
   risk_score: number;
   integrity_score: number;
   modification_report: any;
+  ai_edit_analysis_version?: string;
+  ai_edit_analysis_timestamp?: string;
+  ai_edit_analysis_json?: any;
   keyframes: Keyframe[];
 }
 
@@ -184,7 +187,7 @@ function formatExposureTime(expStr: string | undefined): string {
     const den = parseFloat(parts[1]);
     if (!isNaN(num) && !isNaN(den)) {
       if (num === 1) return `1/${den}s`;
-      return `${(num / den).toFixed(4)}s`;
+      return `${(num/den).toFixed(4)}s`;
     }
   }
   const val = parseFloat(clean);
@@ -210,23 +213,53 @@ function getExifExplanation(exif: any, parsedGPS: any): string {
   if (!hasCamera && !hasGPS && !hasTime) {
     return "All EXIF metadata tags have been completely stripped from the file container. Original capture details are lost.";
   }
-
+  
   const present = [];
   const missing = [];
-
+  
   if (hasCamera) present.push("Camera Sensor (Make/Model)");
   else missing.push("Camera Sensor (Make/Model)");
-
+  
   if (hasGPS) present.push("GPS Coordinates");
   else missing.push("GPS Coordinates");
-
+  
   if (hasTime) present.push("Capture Timestamp");
   else missing.push("Capture Timestamp");
-
+  
   if (hasSoftware) present.push("Editing Software Footprint");
-
+  
   return `Partial metadata remains. Present: ${present.join(", ")}. Missing/Removed: ${missing.join(", ")}.`;
 }
+
+const getConsensusColor = (state: string | undefined) => {
+  if (!state) return "text-gray-400";
+  switch (state) {
+    case "VERIFIED_AUTHENTIC": return "text-emerald-400 glow-text-green";
+    case "LIKELY_AUTHENTIC": return "text-teal-400";
+    case "MIXED_SIGNALS": return "text-amber-400";
+    case "INVESTIGATE_FURTHER": return "text-orange-400";
+    case "LIKELY_AI_GENERATED": return "text-red-400";
+    case "HIGH_CONFIDENCE_AI_GENERATED": return "text-red-500 font-bold animate-pulse";
+    default: return "text-gray-400";
+  }
+};
+
+const getConsensusBadgeStyle = (state: string | undefined) => {
+  if (!state) return "bg-gray-500/10 text-gray-400 border-gray-500/20";
+  switch (state) {
+    case "VERIFIED_AUTHENTIC": return "bg-emerald-500/10 text-emerald-400 border-emerald-500/20";
+    case "LIKELY_AUTHENTIC": return "bg-teal-500/10 text-teal-400 border-teal-500/20";
+    case "MIXED_SIGNALS": return "bg-amber-500/10 text-amber-400 border-amber-500/20";
+    case "INVESTIGATE_FURTHER": return "bg-orange-500/10 text-orange-400 border-orange-500/20";
+    case "LIKELY_AI_GENERATED": return "bg-red-500/10 text-red-400 border-red-500/20";
+    case "HIGH_CONFIDENCE_AI_GENERATED": return "bg-red-600/20 text-red-500 border-red-600/30 animate-pulse";
+    default: return "bg-gray-500/10 text-gray-400 border-gray-500/20";
+  }
+};
+
+const formatConsensusState = (state: string) => {
+  return state.replace(/_/g, " ");
+};
 
 export default function MediaProfilePage() {
   const params = useParams();
@@ -258,13 +291,15 @@ export default function MediaProfilePage() {
 
   // UI state
   const [activeVisualizerStep, setActiveVisualizerStep] = useState(1);
+  const [isEditingOpen, setIsEditingOpen] = useState(true);
+  const [showHeatmap, setShowHeatmap] = useState(true);
 
-  const backendUrl = "http://127.0.0.1:8000";
+  const backendUrl = "http://localhost:8000";
 
   const getCleanedQuery = (filename: string) => {
     const namePart = filename.split('.')[0];
     const cleaned = namePart.replace(/[_|-]/g, ' ')
-      .replace(/\b(original|copy|modified|variant)\b/gi, '');
+                            .replace(/\b(original|copy|modified|variant)\b/gi, '');
     return cleaned.trim().replace(/\s+/g, ' ');
   };
 
@@ -273,7 +308,7 @@ export default function MediaProfilePage() {
 
     const fetchAllDetails = async () => {
       setLoading(true);
-
+      
       // Reset failure states
       setGraphFailed(false);
       setSimilarFailed(false);
@@ -350,14 +385,14 @@ export default function MediaProfilePage() {
         if (statusRes.ok) {
           const statusData = await statusRes.json();
           setOsintTags(statusData.tags || []);
-
+          
           const isFinal = ["Completed", "Verified Matches Found", "No Matches Found", "Provider Unavailable"].includes(statusData.status);
           if (isFinal) {
             const resultsRes = await fetch(`${backendUrl}/api/osint/results/${mediaId}`);
             if (resultsRes.ok) {
               const resultsData = await resultsRes.json();
               setOsintResults(resultsData);
-
+              
               // Map scan status for backward compatibility
               let mappedStatus = statusData.status;
               if (statusData.status === "Completed") {
@@ -400,7 +435,7 @@ export default function MediaProfilePage() {
           if (res.ok && active) {
             const data = await res.json();
             setOsintTags(data.tags || []);
-
+            
             const isFinal = ["Completed", "Verified Matches Found", "No Matches Found", "Provider Unavailable"].includes(data.status);
             if (isFinal) {
               clearInterval(interval);
@@ -409,7 +444,7 @@ export default function MediaProfilePage() {
               if (resultsRes.ok && active) {
                 const resultsData = await resultsRes.json();
                 setOsintResults(resultsData);
-
+                
                 let mappedStatus = data.status;
                 if (data.status === "Completed") {
                   const hasReal = resultsData.some((r: any) => r.source_type === "real_provider" || r.source_type === "apify");
@@ -478,7 +513,7 @@ export default function MediaProfilePage() {
       <div className="flex h-[50vh] flex-col items-center justify-center gap-4 text-center">
         <AlertTriangle className="h-10 w-10 text-[#FF3366]" />
         <span className="font-mono text-sm font-bold text-white uppercase">MEDIA PROFILE NOT FOUND</span>
-        <button
+        <button 
           onClick={() => router.push("/")}
           className="rounded border border-[rgba(255,255,255,0.1)] px-4 py-2 font-mono text-xs text-gray-400 hover:text-white"
         >
@@ -546,7 +581,7 @@ export default function MediaProfilePage() {
         if (!grouped[key]) grouped[key] = [];
         grouped[key].push(n);
       });
-
+      
       const rootNode = graphData.nodes.find((n: any) => n.type === "original") || graphData.nodes[0];
 
       return (
@@ -555,7 +590,7 @@ export default function MediaProfilePage() {
             <span className="text-white font-bold uppercase tracking-wider text-[10px]">Clustered Variants Hierarchy</span>
             <span className="bg-[#00E5FF]/10 text-[#00E5FF] border border-[#00E5FF]/20 px-1.5 py-0.5 rounded text-[8px] font-black uppercase">Clustered Mode</span>
           </div>
-
+          
           <div className="space-y-3">
             <div className="p-2.5 rounded border border-[#7C3AED]/30 bg-[#7C3AED]/5 flex justify-between items-center">
               <div>
@@ -564,7 +599,7 @@ export default function MediaProfilePage() {
               </div>
               <span className="text-[9px] text-[#A78BFA] font-black uppercase">ROOT</span>
             </div>
-
+            
             <div className="space-y-2 pl-2 border-l border-[rgba(255,255,255,0.05)]">
               {Object.entries(grouped).map(([grpName, groupNodes]: any) => (
                 <details key={grpName} className="group border border-[rgba(255,255,255,0.04)] bg-[#111116]/50 rounded p-2">
@@ -580,17 +615,18 @@ export default function MediaProfilePage() {
                     {groupNodes.map((n: any) => {
                       const isCurrent = n.id === item.id;
                       return (
-                        <div
-                          key={n.id}
+                        <div 
+                          key={n.id} 
                           onClick={() => {
                             if (n.id !== item.id) {
                               router.push(`/media/${n.id}`);
                             }
                           }}
-                          className={`p-1.5 rounded text-[9px] flex justify-between items-center cursor-pointer transition-colors ${isCurrent
+                          className={`p-1.5 rounded text-[9px] flex justify-between items-center cursor-pointer transition-colors ${
+                            isCurrent
                               ? "bg-[rgba(0,229,255,0.05)] text-[#00E5FF] font-bold"
                               : "text-gray-400 hover:text-white"
-                            }`}
+                          }`}
                         >
                           <span className="truncate max-w-[200px]">{n.label}</span>
                           <span className="text-gray-500 text-[8px]">INTEGRITY: {n.integrity}</span>
@@ -669,16 +705,16 @@ export default function MediaProfilePage() {
           if (!src || !tgt) return null;
           return (
             <g key={idx}>
-              <line
-                x1={src.x} y1={src.y}
-                x2={tgt.x} y2={tgt.y}
-                stroke="#00E5FF"
-                strokeWidth="1.5"
+              <line 
+                x1={src.x} y1={src.y} 
+                x2={tgt.x} y2={tgt.y} 
+                stroke="#00E5FF" 
+                strokeWidth="1.5" 
                 strokeOpacity="0.6"
                 markerEnd="url(#arrow)"
               />
-              <text
-                x={(src.x + tgt.x) / 2} y={(src.y + tgt.y) / 2 - 5}
+              <text 
+                x={(src.x + tgt.x)/2} y={(src.y + tgt.y)/2 - 5}
                 className="font-mono fill-[#00FF9D] text-[7px] font-bold"
                 textAnchor="middle"
               >
@@ -693,8 +729,8 @@ export default function MediaProfilePage() {
           if (!coord) return null;
           const isCurrent = node.id === item.id;
           return (
-            <g
-              key={node.id}
+            <g 
+              key={node.id} 
               className="cursor-pointer"
               onClick={() => {
                 if (node.id !== item.id) {
@@ -702,16 +738,16 @@ export default function MediaProfilePage() {
                 }
               }}
             >
-              <circle
-                cx={coord.x} cy={coord.y} r={node.type === "original" ? "14" : "10"}
-                fill={node.type === "original" ? "#7C3AED" : "#0D0C15"}
+              <circle 
+                cx={coord.x} cy={coord.y} r={node.type === "original" ? "14" : "10"} 
+                fill={node.type === "original" ? "#7C3AED" : "#0D0C15"} 
                 stroke={isCurrent ? "#00E5FF" : node.type === "original" ? "#7C3AED" : "rgba(255,255,255,0.3)"}
                 strokeWidth={isCurrent ? "2.5" : "1.5"}
                 className={isCurrent ? "animate-pulse" : ""}
               />
-              <text
-                x={coord.x} y={coord.y + (node.type === "original" ? "26" : "22")}
-                className={`font-mono text-[8px] font-semibold ${isCurrent ? "fill-[#00E5FF]" : "fill-gray-400"}`}
+              <text 
+                x={coord.x} y={coord.y + (node.type === "original" ? "26" : "22")} 
+                className={`font-mono text-[8px] font-semibold ${isCurrent ? "fill-[#00E5FF]" : "fill-gray-400"}`} 
                 textAnchor="middle"
               >
                 {node.label.length > 15 ? `${node.label.slice(0, 12)}...` : node.label}
@@ -730,12 +766,23 @@ export default function MediaProfilePage() {
   };
 
   const getVerdictBadge = () => {
+    const aiScore = item.modification_report?.ai_detection?.probability ?? 0;
+    const consensus = item.modification_report?.consensus?.state ?? "";
+
+    if (aiScore >= 80 && consensus === "MIXED_SIGNALS") {
+      return (
+        <span className="flex items-center gap-1.5 px-3 py-1 rounded-full border border-[#F59E0B]/30 bg-[#F59E0B]/10 text-[9px] font-black text-[#F59E0B] uppercase tracking-wider">
+          <AlertTriangle className="h-3.5 w-3.5" />
+          ⚠ Neural Detector and Forensic Signals Disagree
+        </span>
+      );
+    }
+
     const risk = item.risk_score;
     const isScreenshot = item.modification_report?.screenshot_indicators?.status === "Likely Screenshot" || item.modification_report?.screenshot_indicators?.level === "High";
     const stegoSuspicion = item.modification_report?.forensic_investigation?.suspicion_score ?? 0;
-    const aiProb = item.modification_report?.ai_detection?.probability ?? 0;
-
-    if (risk > 65 || stegoSuspicion >= 50 || aiProb >= 50) {
+    
+    if (risk > 65 || stegoSuspicion >= 50) {
       return (
         <span className="flex items-center gap-1.5 px-3 py-1 rounded-full border border-[#FF3366]/30 bg-[#FF3366]/10 text-[9px] font-black text-[#FF3366] uppercase tracking-wider glow-text-red">
           <AlertTriangle className="h-3 w-3" />
@@ -848,10 +895,11 @@ export default function MediaProfilePage() {
         {/* ML Classification */}
         <div className="bg-[#09090D]/60 border border-[rgba(255,255,255,0.04)] rounded-xl p-4 flex flex-col justify-between min-h-[90px] hover:border-[rgba(255,255,255,0.1)] transition-colors">
           <span className="block font-mono text-[8px] text-gray-500 uppercase tracking-widest">ML Classification</span>
-          <span className={`block mt-1.5 font-mono text-[11px] font-bold uppercase tracking-wide truncate ${(item.modification_report?.ml_classification ?? "NOT EVALUATED") === "TAMPERED" ? "text-[#FF3366]" :
-              (item.modification_report?.ml_classification ?? "NOT EVALUATED") === "CLEAN" ? "text-[#00FF9D]" :
-                "text-gray-400"
-            }`}>
+          <span className={`block mt-1.5 font-mono text-[11px] font-bold uppercase tracking-wide truncate ${
+            (item.modification_report?.ml_classification ?? "NOT EVALUATED") === "TAMPERED" ? "text-[#FF3366]" :
+            (item.modification_report?.ml_classification ?? "NOT EVALUATED") === "CLEAN" ? "text-[#00FF9D]" :
+            "text-gray-400"
+          }`}>
             {item.modification_report?.ml_classification ?? "NOT EVALUATED"}
           </span>
         </div>
@@ -883,15 +931,38 @@ export default function MediaProfilePage() {
         </div>
 
         {/* AI Gen Probability */}
-        <div className="bg-[#09090D]/60 border border-[rgba(255,255,255,0.04)] rounded-xl p-4 flex flex-col justify-between min-h-[90px] hover:border-[rgba(255,255,255,0.1)] transition-colors">
-          <div className="flex justify-between items-center">
-            <span className="font-mono text-[8px] text-gray-500 uppercase tracking-widest">AI Artifact Score</span>
+        <div 
+          title="This detector was trained on low-resolution benchmark imagery and may produce false positives on modern smartphone and DSLR photographs. Results should be interpreted alongside forensic consensus and metadata analysis."
+          className="bg-[#09090D]/60 border border-[rgba(255,255,255,0.04)] rounded-xl p-4 flex flex-col justify-between min-h-[90px] hover:border-[rgba(255,255,255,0.1)] transition-colors relative group"
+        >
+          <div className="flex justify-between items-start">
+            <div className="flex flex-col">
+              <span className="font-mono text-[8px] text-gray-500 uppercase tracking-widest">AI Detector V1 Signal (Experimental)</span>
+              <span className="font-mono text-[9px] text-gray-400 mt-1">
+                Consensus: <span className={getConsensusColor(item.modification_report?.consensus?.state)}>
+                  {formatConsensusState(item.modification_report?.consensus?.state ?? "MIXED_SIGNALS")}
+                </span>
+              </span>
+              <span className="font-mono text-[8px] text-gray-500 mt-0.5">
+                Confidence: <span className={
+                  (item.modification_report?.consensus?.confidence ?? "MEDIUM") === "LOW" ? "text-gray-500" :
+                  (item.modification_report?.consensus?.confidence ?? "MEDIUM") === "MEDIUM" ? "text-amber-500 font-bold" :
+                  (item.modification_report?.consensus?.confidence ?? "MEDIUM") === "HIGH" ? "text-emerald-400 font-bold" :
+                  "text-red-400 font-black animate-pulse"
+                }>{item.modification_report?.consensus?.confidence ?? "MEDIUM"}</span>
+              </span>
+            </div>
             <span className="font-mono text-[10px] font-bold text-[#FFCC00]">
               {item.modification_report?.ai_detection?.probability ?? 0}%
             </span>
           </div>
           <div className="w-full bg-[#1A1A24] h-1.5 rounded-full overflow-hidden mt-2">
             <div className="h-full rounded-full bg-[#FFCC00]" style={{ width: `${item.modification_report?.ai_detection?.probability ?? 0}%` }}></div>
+          </div>
+          
+          {/* Custom premium hover tooltip */}
+          <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 w-64 bg-[#12121A] border border-[rgba(255,255,255,0.1)] text-gray-300 text-[10px] p-2.5 rounded-md shadow-xl opacity-0 pointer-events-none group-hover:opacity-100 transition-opacity duration-200 z-50 leading-relaxed font-sans text-center">
+            This detector was trained on low-resolution benchmark imagery and may produce false positives on modern smartphone and DSLR photographs. Results should be interpreted alongside forensic consensus and metadata analysis.
           </div>
         </div>
 
@@ -911,12 +982,13 @@ export default function MediaProfilePage() {
         {/* Reverse Search Status */}
         <div className="bg-[#09090D]/60 border border-[rgba(255,255,255,0.04)] rounded-xl p-4 flex flex-col justify-between min-h-[90px] hover:border-[rgba(255,255,255,0.1)] transition-colors">
           <span className="block font-mono text-[8px] text-gray-500 uppercase tracking-widest">Reverse Search</span>
-          <span className={`block mt-1.5 font-mono text-[9px] font-extrabold uppercase tracking-wider ${osintScanStatus === "Verified Matches Found" ? "text-[#00FF9D] glow-text-green" :
-              osintScanStatus === "No Matches Found" ? "text-gray-400" :
-                osintScanStatus === "Provider Unavailable" ? "text-[#FFCC00] glow-text-yellow" :
-                  osintScanStatus === "Running" || osintScanStatus === "Pending" ? "text-[#00E5FF] animate-pulse" :
-                    "text-gray-500"
-            }`}>
+          <span className={`block mt-1.5 font-mono text-[9px] font-extrabold uppercase tracking-wider ${
+            osintScanStatus === "Verified Matches Found" ? "text-[#00FF9D] glow-text-green" :
+            osintScanStatus === "No Matches Found" ? "text-gray-400" :
+            osintScanStatus === "Provider Unavailable" ? "text-[#FFCC00] glow-text-yellow" :
+            osintScanStatus === "Running" || osintScanStatus === "Pending" ? "text-[#00E5FF] animate-pulse" :
+            "text-gray-500"
+          }`}>
             {osintScanStatus === "Not Started" || osintScanStatus === "Pending" ? "Not Searched" : osintScanStatus}
           </span>
         </div>
@@ -934,46 +1006,51 @@ export default function MediaProfilePage() {
       <div className="flex flex-wrap border-b border-[rgba(255,255,255,0.06)] gap-6">
         <button
           onClick={() => setActiveTab("metadata")}
-          className={`pb-4 font-mono text-xs font-bold tracking-widest uppercase transition-all border-b-2 ${activeTab === "metadata"
+          className={`pb-4 font-mono text-xs font-bold tracking-widest uppercase transition-all border-b-2 ${
+            activeTab === "metadata"
               ? "border-[#00E5FF] text-[#00E5FF] shadow-[0_4px_12px_-4px_rgba(0,229,255,0.4)]"
               : "border-transparent text-gray-500 hover:text-gray-300"
-            }`}
+          }`}
         >
           Metadata & Manipulation
         </button>
         <button
           onClick={() => setActiveTab("clues")}
-          className={`pb-4 font-mono text-xs font-bold tracking-widest uppercase transition-all border-b-2 ${activeTab === "clues"
+          className={`pb-4 font-mono text-xs font-bold tracking-widest uppercase transition-all border-b-2 ${
+            activeTab === "clues"
               ? "border-[#00FF9D] text-[#00FF9D] shadow-[0_4px_12px_-4px_rgba(0,255,157,0.4)]"
               : "border-transparent text-gray-500 hover:text-gray-300"
-            }`}
+          }`}
         >
           Blind Clues
         </button>
         <button
           onClick={() => setActiveTab("aistego")}
-          className={`pb-4 font-mono text-xs font-bold tracking-widest uppercase transition-all border-b-2 ${activeTab === "aistego"
+          className={`pb-4 font-mono text-xs font-bold tracking-widest uppercase transition-all border-b-2 ${
+            activeTab === "aistego"
               ? "border-[#FF3366] text-[#FF3366] shadow-[0_4px_12px_-4px_rgba(255,51,102,0.4)]"
               : "border-transparent text-gray-500 hover:text-gray-300"
-            }`}
+          }`}
         >
           AI & Stego Detection
         </button>
         <button
           onClick={() => setActiveTab("osint")}
-          className={`pb-4 font-mono text-xs font-bold tracking-widest uppercase transition-all border-b-2 ${activeTab === "osint"
+          className={`pb-4 font-mono text-xs font-bold tracking-widest uppercase transition-all border-b-2 ${
+            activeTab === "osint"
               ? "border-[#7C3AED] text-[#7C3AED] shadow-[0_4px_12px_-4px_rgba(124,58,237,0.4)]"
               : "border-transparent text-gray-500 hover:text-gray-300"
-            }`}
+          }`}
         >
           Web OSINT Hunt
         </button>
         <button
           onClick={() => setActiveTab("lineage")}
-          className={`pb-4 font-mono text-xs font-bold tracking-widest uppercase transition-all border-b-2 ${activeTab === "lineage"
+          className={`pb-4 font-mono text-xs font-bold tracking-widest uppercase transition-all border-b-2 ${
+            activeTab === "lineage"
               ? "border-[#F59E0B] text-[#F59E0B] shadow-[0_4px_12px_-4px_rgba(245,158,11,0.4)]"
               : "border-transparent text-gray-500 hover:text-gray-300"
-            }`}
+          }`}
         >
           Case Clustering & Lineage
         </button>
@@ -998,7 +1075,7 @@ export default function MediaProfilePage() {
                   {item.sha256}
                 </span>
               </div>
-
+              
               <div className="grid grid-cols-3 gap-2">
                 <div className="bg-[#121212] p-2 rounded border border-[rgba(255,255,255,0.03)] text-center">
                   <span className="block text-[7px] text-gray-500 uppercase tracking-widest">pHash</span>
@@ -1051,7 +1128,7 @@ export default function MediaProfilePage() {
               const hasGPS = !!(parsedGPS.latitude || parsedGPS.longitude);
               const hasTime = !!exif.DateTimeOriginal;
               const hasSoftware = !!exif.Software;
-
+              
               const forensicRows = [
                 { label: "Camera Make", val: exif.Make },
                 { label: "Camera Model", val: exif.Model },
@@ -1147,12 +1224,13 @@ export default function MediaProfilePage() {
                 Metadata Trust & ELA
               </h2>
             </div>
-
+            
             <div className="space-y-3 font-mono text-xs text-gray-400">
               <div className="p-3 bg-[#111116] rounded border border-[rgba(255,255,255,0.03)] flex justify-between items-center">
                 <span className="text-gray-500 font-bold uppercase tracking-wider text-[10px]">Metadata Trust Score</span>
-                <span className={`text-sm font-black ${(item.modification_report?.metadata_intelligence?.metadata_trust_score ?? 100) >= 70 ? "text-[#00FF9D]" : "text-[#FFCC00]"
-                  }`}>
+                <span className={`text-sm font-black ${
+                  (item.modification_report?.metadata_intelligence?.metadata_trust_score ?? 100) >= 70 ? "text-[#00FF9D]" : "text-[#FFCC00]"
+                }`}>
                   {item.modification_report?.metadata_intelligence?.metadata_trust_score ?? 100}%
                 </span>
               </div>
@@ -1172,10 +1250,10 @@ export default function MediaProfilePage() {
                         <span className="text-[#FF3366] font-bold">-{p.deduction}%</span>
                       </div>
                     ))}
-                    {(!item.modification_report.metadata_intelligence.metadata_evidence_summary.trust_score_breakdown.penalties ||
+                    {(!item.modification_report.metadata_intelligence.metadata_evidence_summary.trust_score_breakdown.penalties || 
                       item.modification_report.metadata_intelligence.metadata_evidence_summary.trust_score_breakdown.penalties.length === 0) && (
-                        <span className="text-[#00FF9D] text-[10px]">No penalties applied.</span>
-                      )}
+                      <span className="text-[#00FF9D] text-[10px]">No penalties applied.</span>
+                    )}
                   </div>
                   <div className="text-[9px] text-gray-500 italic pt-1 border-t border-[rgba(255,255,255,0.03)] leading-tight">
                     {item.modification_report.metadata_intelligence.metadata_evidence_summary.trust_score_breakdown.explanation}
@@ -1187,12 +1265,13 @@ export default function MediaProfilePage() {
                 <div className="p-3 bg-[#111116] rounded border border-[rgba(255,255,255,0.03)] space-y-2">
                   <div className="flex justify-between text-[10px]">
                     <span className="text-gray-500 font-bold uppercase tracking-wider text-[9px]">Provenance Confidence</span>
-                    <span className={`font-bold ${item.modification_report.metadata_intelligence.metadata_evidence_summary.provenance_confidence === "HIGH"
-                        ? "text-[#00FF9D]"
+                    <span className={`font-bold ${
+                      item.modification_report.metadata_intelligence.metadata_evidence_summary.provenance_confidence === "HIGH" 
+                        ? "text-[#00FF9D]" 
                         : item.modification_report.metadata_intelligence.metadata_evidence_summary.provenance_confidence === "MEDIUM"
-                          ? "text-[#FFCC00]"
-                          : "text-[#FF3366]"
-                      }`}>
+                        ? "text-[#FFCC00]"
+                        : "text-[#FF3366]"
+                    }`}>
                       {item.modification_report.metadata_intelligence.metadata_evidence_summary.provenance_confidence}
                     </span>
                   </div>
@@ -1208,7 +1287,7 @@ export default function MediaProfilePage() {
                   </div>
                 </div>
               )}
-
+              
               <div className="space-y-1.5 text-[10px] pt-1">
                 <div className="flex justify-between">
                   <span>EXIF Structure:</span>
@@ -1229,7 +1308,7 @@ export default function MediaProfilePage() {
               </div>
             </div>
           </div>
-
+          
           {/* Anomaly Status Flags */}
           <div className="cyber-card p-6 lg:col-span-3 space-y-4">
             <div className="border-b border-[rgba(255,255,255,0.06)] pb-3 flex items-center gap-2">
@@ -1238,15 +1317,15 @@ export default function MediaProfilePage() {
                 Forensic Modification Indicators
               </h2>
             </div>
-
+            
             <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-3">
               {[
                 { name: "Metadata Stripped", active: item.modification_report?.metadata_stripped, color: "text-[#FF3366] border-[#FF3366]/30 bg-[#FF3366]/5" },
-                {
-                  name: item.modification_report?.compression_status === "LOW" ? "Compression Detected" : "Heavy Compression",
-                  active: item.modification_report?.heavy_compression || item.modification_report?.compression_status === "LOW",
+                { 
+                  name: item.modification_report?.compression_status === "LOW" ? "Compression Detected" : "Heavy Compression", 
+                  active: item.modification_report?.heavy_compression || item.modification_report?.compression_status === "LOW", 
                   statusText: item.modification_report?.compression_status === "LOW" ? "LOW" : item.modification_report?.heavy_compression ? "Detected" : "Clean",
-                  color: item.modification_report?.compression_status === "LOW" ? "text-[#FFCC00] border-[#FFCC00]/25 bg-[#FFCC00]/5" : "text-[#FFCC00] border-[#FFCC00]/30 bg-[#FFCC00]/5"
+                  color: item.modification_report?.compression_status === "LOW" ? "text-[#FFCC00] border-[#FFCC00]/25 bg-[#FFCC00]/5" : "text-[#FFCC00] border-[#FFCC00]/30 bg-[#FFCC00]/5" 
                 },
                 { name: "Low Resolution", active: item.modification_report?.low_resolution, color: "text-[#F59E0B] border-[#F59E0B]/30 bg-[#F59E0B]/5" },
                 { name: "Manipulated Canvas", active: item.modification_report?.manipulation_indicator, color: "text-[#FF3366] border-[#FF3366]/30 bg-[#FF3366]/5" },
@@ -1255,12 +1334,13 @@ export default function MediaProfilePage() {
                 { name: "Resize Detected", active: item.modification_report?.resizing_detected, color: "text-[#00E5FF] border-[#00E5FF]/30 bg-[#00E5FF]/5" },
                 { name: "Watermark Overlay", active: item.modification_report?.watermark_detected, color: "text-[#FF3366] border-[#FF3366]/30 bg-[#FF3366]/5" }
               ].map((flag, idx) => (
-                <div
+                <div 
                   key={idx}
-                  className={`p-3 rounded border font-mono text-center flex flex-col justify-center gap-1 min-h-[65px] transition-colors ${flag.active
-                      ? flag.color
+                  className={`p-3 rounded border font-mono text-center flex flex-col justify-center gap-1 min-h-[65px] transition-colors ${
+                    flag.active 
+                      ? flag.color 
                       : "border-[rgba(255,255,255,0.03)] bg-[#09090D]/20 text-gray-600"
-                    }`}
+                  }`}
                 >
                   <span className="text-[9px] font-black uppercase leading-tight">{flag.name}</span>
                   <span className="text-[7px] uppercase font-bold tracking-wider">
@@ -1270,7 +1350,7 @@ export default function MediaProfilePage() {
               ))}
             </div>
           </div>
-
+          
           {/* Keyframes (For Videos) */}
           {isVideo && item.keyframes && item.keyframes.length > 0 && (
             <div className="cyber-card p-6 lg:col-span-3 space-y-4">
@@ -1283,8 +1363,8 @@ export default function MediaProfilePage() {
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
                 {item.keyframes.map((kf) => (
                   <div key={kf.id} className="bg-[#12121A] border border-[rgba(255,255,255,0.04)] rounded p-2 space-y-2">
-                    <img
-                      src={`${backendUrl}/media/uploads/${kf.filepath.split('/').pop()}`}
+                    <img 
+                      src={`${backendUrl}/media/uploads/${kf.filepath.split('/').pop()}`} 
                       alt={`Keyframe ${kf.timestamp}`}
                       className="w-full h-24 object-cover rounded border border-[rgba(255,255,255,0.04)]"
                     />
@@ -1340,19 +1420,27 @@ export default function MediaProfilePage() {
             <div className="space-y-3 text-[11px] text-gray-400">
               <div>
                 <span className="block text-[8px] text-gray-500 uppercase tracking-widest">Detected Objects (CLIP / Semantics)</span>
-                <div className="flex flex-wrap gap-1.5 mt-1.5">
-                  {(item.modification_report?.investigation_intelligence?.objects_detected || ["General visual subject"]).map((obj: string, idx: number) => (
-                    <span key={idx} className="px-2 py-0.5 rounded bg-[#1A1A24] border border-[rgba(255,255,255,0.08)] text-[9px] text-white">
-                      {obj}
-                    </span>
-                  ))}
-                </div>
+                {(!item.embedding || item.embedding.length === 0) ? (
+                  <span className="block animate-pulse text-amber-500 font-semibold text-[10px] mt-1">Semantic Analysis Pending</span>
+                ) : (
+                  <div className="flex flex-wrap gap-1.5 mt-1.5">
+                    {(item.modification_report?.investigation_intelligence?.objects_detected || ["General visual subject"]).map((obj: string, idx: number) => (
+                      <span key={idx} className="px-2 py-0.5 rounded bg-[#1A1A24] border border-[rgba(255,255,255,0.08)] text-[9px] text-white">
+                        {obj}
+                      </span>
+                    ))}
+                  </div>
+                )}
               </div>
               <div>
                 <span className="block text-[8px] text-gray-500 uppercase tracking-widest">Estimated Scene Context</span>
-                <p className="text-white font-medium mt-1">
-                  {item.modification_report?.investigation_intelligence?.scene_description ?? "Analysis Unavailable"}
-                </p>
+                {(!item.embedding || item.embedding.length === 0) ? (
+                  <span className="block animate-pulse text-amber-500 font-semibold text-[10px] mt-1">Semantic Analysis Pending</span>
+                ) : (
+                  <p className="text-white font-medium mt-1">
+                    {item.modification_report?.investigation_intelligence?.scene_description ?? "Analysis Unavailable"}
+                  </p>
+                )}
               </div>
               <div>
                 <span className="block text-[8px] text-gray-500 uppercase tracking-widest">Geographical Clues</span>
@@ -1384,7 +1472,67 @@ export default function MediaProfilePage() {
 
       {/* AI & Stego Detection Tab */}
       {activeTab === "aistego" && (
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 animate-fadeIn font-mono text-xs">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 animate-fadeIn font-mono text-xs">
+          {/* Automatic Audit Note Alert (Full Width) */}
+          {item.modification_report?.ai_audit_note?.triggered && (
+            <div className="col-span-1 md:col-span-2 bg-[#E2AD35]/10 border border-[#E2AD35]/25 rounded-xl p-5 space-y-4 shadow-xl">
+              <div className="flex items-center gap-2 border-b border-[#E2AD35]/20 pb-2">
+                <AlertTriangle className="h-5 w-5 text-[#E2AD35] animate-pulse" />
+                <span className="font-bold text-[#E2AD35] uppercase tracking-widest text-[10px]">
+                  AI Detector V1 Audit Alert
+                </span>
+              </div>
+              <p className="text-gray-200 leading-relaxed text-[10px] font-sans font-medium">
+                {item.modification_report?.ai_audit_note?.message}
+              </p>
+              
+              {/* Signal Breakdown */}
+              <div className="pt-1.5">
+                <span className="block text-[8px] text-gray-500 uppercase tracking-widest font-black mb-2">
+                  Unified Forensic Signal Breakdown:
+                </span>
+                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+                  <div className="bg-[#09090D]/80 p-2.5 rounded border border-[rgba(255,255,255,0.03)] text-center">
+                    <span className="block text-[7px] text-gray-500 uppercase font-black">AI Detector</span>
+                    <span className="block mt-1 text-[11px] font-black text-amber-500">
+                      {item.modification_report?.ai_audit_note?.signal_breakdown?.ai_detector}
+                    </span>
+                  </div>
+                  <div className="bg-[#09090D]/80 p-2.5 rounded border border-[rgba(255,255,255,0.03)] text-center">
+                    <span className="block text-[7px] text-gray-500 uppercase font-black">RF Probability</span>
+                    <span className="block mt-1 text-[11px] font-black text-white">
+                      {item.modification_report?.ai_audit_note?.signal_breakdown?.rf_probability}
+                    </span>
+                  </div>
+                  <div className="bg-[#09090D]/80 p-2.5 rounded border border-[rgba(255,255,255,0.03)] text-center">
+                    <span className="block text-[7px] text-gray-500 uppercase font-black">Metadata Trust</span>
+                    <span className="block mt-1 text-[11px] font-black text-white">
+                      {item.modification_report?.ai_audit_note?.signal_breakdown?.metadata_trust}
+                    </span>
+                  </div>
+                  <div className="bg-[#09090D]/80 p-2.5 rounded border border-[rgba(255,255,255,0.03)] text-center">
+                    <span className="block text-[7px] text-gray-500 uppercase font-black">Screenshot Prob.</span>
+                    <span className="block mt-1 text-[11px] font-black text-white">
+                      {item.modification_report?.ai_audit_note?.signal_breakdown?.screenshot_probability}
+                    </span>
+                  </div>
+                  <div className="bg-[#09090D]/80 p-2.5 rounded border border-[rgba(255,255,255,0.03)] text-center">
+                    <span className="block text-[7px] text-gray-500 uppercase font-black">Stego Suspicion</span>
+                    <span className="block mt-1 text-[11px] font-black text-white">
+                      {item.modification_report?.ai_audit_note?.signal_breakdown?.stego_suspicion}
+                    </span>
+                  </div>
+                  <div className="bg-[#09090D]/80 p-2.5 rounded border border-[rgba(255,255,255,0.03)] text-center">
+                    <span className="block text-[7px] text-gray-500 uppercase font-black">Consensus State</span>
+                    <span className="block mt-1 text-[9px] font-black text-[#00E5FF] uppercase truncate">
+                      {item.modification_report?.ai_audit_note?.signal_breakdown?.consensus_state?.replace(/_/g, " ")}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* Steganography & Byte Diagnostics */}
           <div className="cyber-card p-5 space-y-4 border-t-2 border-t-[#FF3366]">
             <div className="flex justify-between items-center border-b border-[rgba(255,255,255,0.05)] pb-2">
@@ -1392,14 +1540,15 @@ export default function MediaProfilePage() {
                 <HardDrive className="h-4 w-4" />
                 Steganography & Trailing Payloads
               </h3>
-              <span className={`px-2 py-0.5 rounded text-[8px] font-black border uppercase ${item.modification_report?.forensic_investigation?.stego_detected
+              <span className={`px-2 py-0.5 rounded text-[8px] font-black border uppercase ${
+                item.modification_report?.forensic_investigation?.stego_detected
                   ? "bg-[#FF3366]/10 text-[#FF3366] border-[#FF3366]/20"
                   : "bg-[#00FF9D]/10 text-[#00FF9D] border-[#00FF9D]/20"
-                }`}>
+              }`}>
                 {item.modification_report?.forensic_investigation?.stego_detected ? "SUSPICION CONFIRMED" : "CLEAN STRUCTURE"}
               </span>
             </div>
-
+            
             <div className="grid grid-cols-3 gap-2 text-[9px]">
               <div className="bg-[#12121A] p-2.5 rounded border border-[rgba(255,255,255,0.03)] text-center">
                 <span className="block text-gray-500 uppercase">Avg Byte Entropy</span>
@@ -1444,109 +1593,368 @@ export default function MediaProfilePage() {
           </div>
 
           {/* AI Generation Forensics */}
-          <div className="cyber-card p-5 space-y-4 border-t-2 border-t-[#FFCC00]">
+          <div className="cyber-card p-5 space-y-4 border-t-2 border-t-[#FFCC00] flex flex-col justify-between">
+            <div className="space-y-4">
+              <div className="flex justify-between items-center border-b border-[rgba(255,255,255,0.05)] pb-2">
+                <h3 className="font-mono text-xs font-bold text-[#FFCC00] uppercase tracking-widest flex items-center gap-1.5">
+                  <Cpu className="h-4.5 w-4.5" />
+                  AI Detector V1 Signal (Experimental)
+                </h3>
+              </div>
+              
+              <div className="grid grid-cols-3 gap-2 text-[9px]">
+                <div className="bg-[#12121A] p-2.5 rounded border border-[rgba(255,255,255,0.03)] text-center">
+                  <span className="block text-gray-500 uppercase">Research Indicator</span>
+                  <span className="block mt-1 text-sm font-black text-white">
+                    {item.modification_report?.ai_detection?.adjusted_ai_artifact_score ?? item.modification_report?.ai_detection?.probability ?? 0}%
+                  </span>
+                </div>
+                <div className="bg-[#12121A] p-2.5 rounded border border-[rgba(255,255,255,0.03)] text-center">
+                  <span className="block text-gray-500 uppercase">Raw Model Signal</span>
+                  <span className="block mt-1 text-sm font-black text-white">
+                    {item.modification_report?.ai_detection?.raw_model_probability ?? 0}%
+                  </span>
+                </div>
+                <div className="bg-[#12121A] p-2.5 rounded border border-[rgba(255,255,255,0.03)] text-center">
+                  <span className="block text-gray-500 uppercase">Analysis Confidence</span>
+                  <span className={`block mt-1 text-sm font-black ${
+                    (item.modification_report?.ai_detection?.ai_artifact_confidence ?? "LOW") === "LOW" ? "text-gray-500" :
+                    (item.modification_report?.ai_detection?.ai_artifact_confidence ?? "LOW") === "MEDIUM" ? "text-amber-500" :
+                    (item.modification_report?.ai_detection?.ai_artifact_confidence ?? "LOW") === "HIGH" ? "text-red-500" :
+                    "text-red-400 animate-pulse"
+                  }`}>
+                    {item.modification_report?.ai_detection?.ai_artifact_confidence ?? "LOW"}
+                  </span>
+                </div>
+              </div>
+
+              <div className="space-y-2 text-[10px] text-gray-400">
+                <div>
+                  <span className="block text-[8px] text-gray-500 uppercase tracking-widest font-bold">Supporting Generative Indicators</span>
+                  <ul className="list-disc list-inside mt-1 space-y-1 text-gray-300">
+                    {(item.modification_report?.ai_detection?.supporting_evidence || []).map((ev: string, idx: number) => (
+                      <li key={idx} className="leading-relaxed">{ev}</li>
+                    )) || <li>No AI indicators detected.</li>}
+                  </ul>
+                </div>
+                {item.modification_report?.ai_detection?.contradicting_evidence?.length > 0 && (
+                  <div>
+                    <span className="block text-[8px] text-gray-500 uppercase tracking-widest font-bold">Contradicting Evidence</span>
+                    <ul className="list-disc list-inside mt-1 space-y-1 text-gray-400">
+                      {item.modification_report.ai_detection.contradicting_evidence.map((ev: string, idx: number) => (
+                        <li key={idx} className="leading-relaxed">{ev}</li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Detector Provenance & Limitations */}
+            <div className="border-t border-[rgba(255,255,255,0.05)] pt-3.5 mt-4 space-y-2">
+              <span className="block text-[8px] text-[#FFCC00] uppercase tracking-widest font-bold">
+                Detector Provenance & Limitations
+              </span>
+              <div className="bg-[#09090D]/80 p-3 rounded border border-[rgba(255,255,255,0.02)] space-y-2 text-[9px] text-gray-300">
+                <div className="flex justify-between">
+                  <span className="text-gray-500">Detector Name:</span>
+                  <span className="font-bold text-white">AI Detector V1</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-500">Status:</span>
+                  <span className="font-bold text-amber-500">Experimental</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-500">Training Domain:</span>
+                  <span className="text-white">Low-resolution benchmark imagery</span>
+                </div>
+                <div className="border-t border-[rgba(255,255,255,0.03)] pt-2">
+                  <span className="block text-[8px] text-gray-500 uppercase tracking-widest font-bold mb-1">
+                    Known Limitations:
+                  </span>
+                  <ul className="list-disc list-inside space-y-0.5 text-gray-400">
+                    <li>Modern smartphone photos may generate false positives</li>
+                    <li>High-resolution DSLR photos may generate false positives</li>
+                    <li>Out-of-distribution imagery can inflate AI scores</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Forensic Consensus Panel */}
+          <div className="cyber-card p-5 md:col-span-2 space-y-4 border-t-2 border-t-[#00E5FF]">
             <div className="flex justify-between items-center border-b border-[rgba(255,255,255,0.05)] pb-2">
-              <h3 className="font-mono text-xs font-bold text-[#FFCC00] uppercase tracking-widest flex items-center gap-1.5">
-                <Cpu className="h-4.5 w-4.5" />
-                AI Generation Detection
+              <h3 className="font-mono text-xs font-bold text-[#00E5FF] uppercase tracking-widest flex items-center gap-1.5">
+                <ShieldCheck className="h-4 w-4" />
+                Forensic Consensus Status
               </h3>
-              <span className={`px-2 py-0.5 rounded text-[8px] font-black border uppercase ${(item.modification_report?.ai_detection?.probability ?? 0) >= 50
-                  ? "bg-[#FFCC00]/10 text-[#FFCC00] border-[#FFCC00]/20"
-                  : "bg-[#00FF9D]/10 text-[#00FF9D] border-[#00FF9D]/20"
-                }`}>
-                {(item.modification_report?.ai_detection?.probability ?? 0) >= 50 ? "AI SUSPECT" : "AUTHENTIC"}
+              <span className={`px-2 py-0.5 rounded text-[8px] font-black border uppercase ${
+                getConsensusBadgeStyle(item.modification_report?.consensus?.state)
+              }`}>
+                {formatConsensusState(item.modification_report?.consensus?.state ?? "INVESTIGATE_FURTHER")}
               </span>
             </div>
 
-            <div className="grid grid-cols-2 gap-2 text-[9px]">
+            <div className="grid grid-cols-2 md:grid-cols-6 gap-2 text-[9px]">
               <div className="bg-[#12121A] p-2.5 rounded border border-[rgba(255,255,255,0.03)] text-center">
-                <span className="block text-gray-500 uppercase">AI Probability</span>
-                <span className="block mt-1 text-sm font-black text-white">
-                  {item.modification_report?.ai_detection?.probability ?? 0}%
+                <span className="block text-gray-500 uppercase text-[8px]">Neural Detector</span>
+                <span className="block mt-1 text-xs font-black text-white">
+                  {item.modification_report?.consensus?.signal_breakdown?.ai_score ?? item.modification_report?.ai_detection?.probability ?? 0}%
                 </span>
               </div>
               <div className="bg-[#12121A] p-2.5 rounded border border-[rgba(255,255,255,0.03)] text-center">
-                <span className="block text-gray-500 uppercase">Analysis Confidence</span>
-                <span className="block mt-1 text-sm font-black text-white">
-                  {item.modification_report?.ai_detection?.confidence ?? 50}%
+                <span className="block text-gray-500 uppercase text-[8px]">Metadata Trust</span>
+                <span className="block mt-1 text-xs font-black text-white">
+                  {item.modification_report?.consensus?.signal_breakdown?.metadata_trust ?? (item.metadata_sig?.exif ? 90 : 15)}%
                 </span>
+              </div>
+              <div className="bg-[#12121A] p-2.5 rounded border border-[rgba(255,255,255,0.03)] text-center">
+                <span className="block text-gray-500 uppercase text-[8px]">RF Tampering</span>
+                <span className="block mt-1 text-xs font-black text-white">
+                  {item.modification_report?.consensus?.signal_breakdown?.rf_prob ?? Math.round((item.modification_report?.ml_tampering_probability ?? 0) * 100)}%
+                </span>
+              </div>
+              <div className="bg-[#12121A] p-2.5 rounded border border-[rgba(255,255,255,0.03)] text-center">
+                <span className="block text-gray-500 uppercase text-[8px]">Stego Suspicion</span>
+                <span className="block mt-1 text-xs font-black text-white">
+                  {item.modification_report?.consensus?.signal_breakdown?.stego_susp ?? item.modification_report?.forensic_investigation?.suspicion_score ?? 0}%
+                </span>
+              </div>
+              <div className="bg-[#12121A] p-2.5 rounded border border-[rgba(255,255,255,0.03)] text-center">
+                <span className="block text-gray-500 uppercase text-[8px]">Screenshot Prob</span>
+                <span className="block mt-1 text-xs font-black text-white">
+                  {item.modification_report?.consensus?.signal_breakdown?.screenshot_prob ?? item.modification_report?.screenshot_indicators?.confidence ?? 0}%
+                </span>
+              </div>
+              
+              {/* CASIA Signal (Experimental) */}
+              <div 
+                title="CASIA is used as a supplementary forensic indicator and is not treated as a standalone manipulation verdict."
+                className="bg-[#12121A] p-2.5 rounded border border-[rgba(255,255,255,0.03)] text-center relative group cursor-help"
+              >
+                <span className="block text-amber-500 uppercase text-[8px] font-bold">CASIA Signal (Exp)</span>
+                <span className="block mt-1 text-xs font-black text-amber-400">
+                  {item.modification_report?.consensus?.signal_breakdown?.casia_prob ?? item.modification_report?.casia_detection?.probability ?? 0}%
+                </span>
+                
+                {/* Premium hover tooltip for CASIA */}
+                <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 w-48 bg-[#12121A] border border-[rgba(255,255,255,0.1)] text-gray-300 text-[8px] p-2 rounded-md shadow-xl opacity-0 pointer-events-none group-hover:opacity-100 transition-opacity duration-200 z-50 leading-relaxed font-sans text-center">
+                  CASIA is used as a supplementary forensic indicator and is not treated as a standalone manipulation verdict.
+                </div>
               </div>
             </div>
 
-            <div className="space-y-2 text-[10px] text-gray-400">
+            <div className="space-y-2 text-[10px] text-gray-400 bg-[#0A0A0F]/80 p-3.5 rounded border border-[rgba(255,255,255,0.02)]">
               <div>
-                <span className="block text-[8px] text-gray-500 uppercase tracking-widest font-bold">Supporting Generative Indicators</span>
-                <ul className="list-disc list-inside mt-1 space-y-1 text-gray-300">
-                  {(item.modification_report?.ai_detection?.supporting_evidence || []).map((ev: string, idx: number) => (
-                    <li key={idx} className="leading-relaxed">{ev}</li>
-                  )) || <li>No AI indicators detected.</li>}
-                </ul>
+                <span className="block text-[8px] text-gray-500 uppercase tracking-widest font-bold">Consensus Explanation</span>
+                <p className="mt-1 leading-relaxed text-gray-300 font-mono text-[10px]">
+                  {item.modification_report?.consensus?.explanation || "Evidence is inconclusive and requires additional analyst review."}
+                </p>
               </div>
-              {item.modification_report?.ai_detection?.contradicting_evidence?.length > 0 && (
-                <div>
-                  <span className="block text-[8px] text-gray-500 uppercase tracking-widest font-bold">Contradicting Evidence</span>
-                  <ul className="list-disc list-inside mt-1 space-y-1 text-gray-400">
-                    {item.modification_report.ai_detection.contradicting_evidence.map((ev: string, idx: number) => (
-                      <li key={idx} className="leading-relaxed">{ev}</li>
-                    ))}
-                  </ul>
+              {item.modification_report?.consensus?.casia_advisory && (
+                <div className="border-t border-[rgba(255,255,255,0.03)] pt-2 mt-2">
+                  <span className="block text-[8px] text-amber-500 uppercase tracking-widest font-bold flex items-center gap-1">
+                    <AlertTriangle className="h-3.5 w-3.5" />
+                    Supplementary Signal Warning
+                  </span>
+                  <p className="mt-1 leading-relaxed text-amber-400/90 italic font-mono text-[10px]">
+                    {item.modification_report?.consensus?.casia_advisory}
+                  </p>
                 </div>
               )}
             </div>
           </div>
 
-          {/* CASIA Tampering Forensics */}
-          <div className="cyber-card p-5 space-y-4 border-t-2 border-t-[#00E5FF]">
-            <div className="flex justify-between items-center border-b border-[rgba(255,255,255,0.05)] pb-2">
-              <h3 className="font-mono text-xs font-bold text-[#00E5FF] uppercase tracking-widest flex items-center gap-1.5">
-                <Shield className="h-4.5 w-4.5" />
-                CASIA Tampering Detection
+          {/* Localized AI Editing Analysis Section */}
+          <div className="cyber-card p-5 md:col-span-2 space-y-4 border-t-2 border-t-[#FFCC00]">
+            <div 
+              className="flex justify-between items-center border-b border-[rgba(255,255,255,0.05)] pb-2 cursor-pointer select-none"
+              onClick={() => setIsEditingOpen(!isEditingOpen)}
+            >
+              <h3 className="font-mono text-xs font-bold text-[#FFCC00] uppercase tracking-widest flex items-center gap-1.5">
+                <Sparkles className="h-4.5 w-4.5 text-[#FFCC00]" />
+                Localized AI Editing Analysis
               </h3>
-              <span className={`px-2 py-0.5 rounded text-[8px] font-black border uppercase ${(item.modification_report?.casia_detection?.probability ?? 0) >= 50
-                  ? "bg-[#FF3366]/10 text-[#FF3366] border-[#FF3366]/20"
-                  : "bg-[#00FF9D]/10 text-[#00FF9D] border-[#00FF9D]/20"
-                }`}>
-                {item.modification_report?.casia_detection?.class ?? "AUTHENTIC"}
-              </span>
-            </div>
-
-            <div className="grid grid-cols-2 gap-2 text-[9px]">
-              <div className="bg-[#12121A] p-2.5 rounded border border-[rgba(255,255,255,0.03)] text-center">
-                <span className="block text-gray-500 uppercase">Tampering Probability</span>
-                <span className="block mt-1 text-sm font-black text-white">
-                  {item.modification_report?.casia_detection?.probability ?? 0}%
-                </span>
-              </div>
-              <div className="bg-[#12121A] p-2.5 rounded border border-[rgba(255,255,255,0.03)] text-center">
-                <span className="block text-gray-500 uppercase">Analysis Confidence</span>
-                <span className="block mt-1 text-sm font-black text-white">
-                  {item.modification_report?.forensic_findings?.find((f: any) => f.finding === "CASIA Tampering")?.confidence ?? 80}%
+              <div className="flex items-center gap-3">
+                {item.ai_edit_analysis_json && (
+                  <span className={`px-2 py-0.5 rounded text-[8px] font-black border uppercase ${
+                    item.ai_edit_analysis_json.editing_probability >= 70
+                      ? "bg-[#FF3366]/10 text-[#FF3366] border-[#FF3366]/20"
+                      : item.ai_edit_analysis_json.editing_probability >= 35
+                      ? "bg-[#FFCC00]/10 text-[#FFCC00] border-[#FFCC00]/20"
+                      : "bg-[#00FF9D]/10 text-[#00FF9D] border-[#00FF9D]/20"
+                  }`}>
+                    {item.ai_edit_analysis_json.confidence} Confidence ({item.ai_edit_analysis_json.editing_probability}%)
+                  </span>
+                )}
+                <span className="text-[10px] text-gray-500 font-bold uppercase tracking-wider">
+                  {isEditingOpen ? "Collapse [-]" : "Expand [+]"}
                 </span>
               </div>
             </div>
 
-            <div className="space-y-2 text-[10px] text-gray-400">
-              <div>
-                <span className="block text-[8px] text-gray-500 uppercase tracking-widest font-bold">Forensic Evidence & Verdict</span>
-                <ul className="list-disc list-inside mt-1 space-y-1 text-gray-300">
-                  {(item.modification_report?.forensic_findings?.find((f: any) => f.finding === "CASIA Tampering")?.evidence || [
-                    (item.modification_report?.casia_detection?.probability ?? 0) >= 50
-                      ? `EfficientNet-B0 CASIA classifier identified tampering patterns with ${item.modification_report?.casia_detection?.probability ?? 0}% probability.`
-                      : `EfficientNet-B0 CASIA classifier verified authentic structure with ${100 - (item.modification_report?.casia_detection?.probability ?? 0)}% confidence.`
-                  ]).map((ev: string, idx: number) => (
-                    <li key={idx} className="leading-relaxed">{ev}</li>
-                  ))}
-                </ul>
+            {isEditingOpen && (
+              <div className="space-y-6 pt-2">
+                {!item.ai_edit_analysis_json ? (
+                  <div className="text-gray-500 font-mono text-[10px] italic py-2">
+                    Localized AI editing analysis is not available for this media item.
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
+                    {/* Left side: Metadata & Probabilities */}
+                    <div className="lg:col-span-2 space-y-4">
+                      {/* Overall Probability */}
+                      <div className="bg-[#12121A] p-4 rounded border border-[rgba(255,255,255,0.03)] space-y-3">
+                        <div className="flex justify-between items-center">
+                          <span className="text-gray-400 font-bold tracking-wider text-[10px] uppercase">AI Edited Probability</span>
+                          <span className={`text-base font-black ${
+                            item.ai_edit_analysis_json.editing_probability >= 70
+                              ? "text-[#FF3366]"
+                              : item.ai_edit_analysis_json.editing_probability >= 35
+                              ? "text-[#FFCC00]"
+                              : "text-[#00FF9D]"
+                          }`}>
+                            {item.ai_edit_analysis_json.editing_probability}%
+                          </span>
+                        </div>
+                        <div className="w-full bg-[#1A1A24] h-2 rounded-full overflow-hidden">
+                          <div 
+                            className={`h-full rounded-full transition-all duration-500 ${
+                              item.ai_edit_analysis_json.editing_probability >= 70
+                                ? "bg-[#FF3366]"
+                                : item.ai_edit_analysis_json.editing_probability >= 35
+                                ? "bg-[#FFCC00]"
+                                : "bg-[#00FF9D]"
+                            }`} 
+                            style={{ width: `${item.ai_edit_analysis_json.editing_probability}%` }}
+                          />
+                        </div>
+                        <div className="text-[9px] text-gray-500 font-sans leading-relaxed pt-1">
+                          Calculated from localized anomalies including texture smoothness transitions, ELA mismatches, noise inconsistencies, and JPEG block artifacts.
+                        </div>
+                      </div>
+
+                      {/* Contributing Forensic Signals (Image-Wide) */}
+                      <div className="bg-[#12121A] p-4 rounded border border-[rgba(255,255,255,0.03)] space-y-3">
+                        <span className="block text-[8px] text-gray-500 uppercase tracking-widest font-black border-b border-[rgba(255,255,255,0.05)] pb-1.5">
+                          Contributing Forensic Signals
+                        </span>
+                        
+                        <div className="space-y-2 text-[10px] font-mono text-gray-300">
+                          <div className="flex justify-between border-b border-[rgba(255,255,255,0.02)] pb-1">
+                            <span className="text-gray-500 font-bold">ELA Inconsistency:</span>
+                            <span className="text-white font-black">{item.ai_edit_analysis_json.signals?.ela_inconsistency?.toFixed(4) ?? "N/A"}</span>
+                          </div>
+                          <div className="flex justify-between border-b border-[rgba(255,255,255,0.02)] pb-1">
+                            <span className="text-gray-500 font-bold">Noise Residual Variance:</span>
+                            <span className="text-white font-black">{item.ai_edit_analysis_json.signals?.noise_residual_var?.toFixed(4) ?? "N/A"}</span>
+                          </div>
+                          <div className="flex justify-between border-b border-[rgba(255,255,255,0.02)] pb-1">
+                            <span className="text-gray-500 font-bold">JPEG Block Inconsistency:</span>
+                            <span className="text-white font-black">{item.ai_edit_analysis_json.signals?.jpeg_block_inconsistency?.toFixed(4) ?? "N/A"}</span>
+                          </div>
+                          <div className="flex justify-between border-b border-[rgba(255,255,255,0.02)] pb-1">
+                            <span className="text-gray-500 font-bold">Average Laplacian Variance:</span>
+                            <span className="text-white font-black">{item.ai_edit_analysis_json.signals?.laplacian_variance_avg?.toFixed(2) ?? "N/A"}</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="text-gray-500 font-bold">Average Local Entropy:</span>
+                            <span className="text-white font-black">{item.ai_edit_analysis_json.signals?.local_entropy_avg?.toFixed(2) ?? "N/A"}</span>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Suspicious Regions Log list */}
+                      <div className="space-y-2">
+                        <span className="block text-[8px] text-gray-500 uppercase tracking-widest font-black">
+                          Suspicious Regions Log ({item.ai_edit_analysis_json.suspicious_regions?.length || 0})
+                        </span>
+                        
+                        <div className="space-y-2 max-h-48 overflow-y-auto pr-1">
+                          {item.ai_edit_analysis_json.suspicious_regions && item.ai_edit_analysis_json.suspicious_regions.length > 0 ? (
+                            item.ai_edit_analysis_json.suspicious_regions.map((reg: any, idx: number) => (
+                              <div key={idx} className="bg-[#181822] p-2.5 rounded border border-[rgba(255,255,255,0.04)] space-y-1.5 font-mono text-[9px] text-gray-400">
+                                <div className="flex justify-between items-center border-b border-[rgba(255,255,255,0.03)] pb-1 font-bold">
+                                  <span className="text-[#FFCC00]">Region {idx + 1}</span>
+                                  <span className="text-gray-500">Box: {reg.x_pct}% x {reg.y_pct}%</span>
+                                </div>
+                                <div className="flex justify-between leading-normal">
+                                  <span>Forensic Signals:</span>
+                                  <span className="text-[#FF3366] font-bold text-[9px] text-right">{reg.reason}</span>
+                                </div>
+                                <div className="flex justify-between leading-normal">
+                                  <span>Confidence:</span>
+                                  <span className="text-white font-bold">{reg.confidence} ({reg.score}%)</span>
+                                </div>
+                              </div>
+                            ))
+                          ) : (
+                            <div className="bg-[#09090D]/40 p-3 rounded text-center border border-[rgba(255,255,255,0.02)] text-gray-500 italic text-[10px]">
+                              No suspicious editing patches detected.
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Right side: Heatmap Visualization Overlay */}
+                    <div className="lg:col-span-3 space-y-3 flex flex-col items-center">
+                      <div className="w-full flex justify-between items-center border-b border-[rgba(255,255,255,0.05)] pb-1.5">
+                        <span className="text-[8px] text-gray-500 uppercase tracking-widest font-black">
+                          Heatmap Localization Preview
+                        </span>
+                        
+                        <button
+                          onClick={() => setShowHeatmap(!showHeatmap)}
+                          className={`rounded border px-2.5 py-1 font-mono text-[8px] font-bold uppercase transition-all tracking-wider ${
+                            showHeatmap 
+                              ? "bg-[#FF3366]/15 border-[#FF3366]/40 text-[#FF3366] hover:bg-[#FF3366]/25" 
+                              : "bg-transparent border-[rgba(255,255,255,0.1)] text-gray-400 hover:text-white"
+                          }`}
+                        >
+                          {showHeatmap ? "Hide Heatmap Overlay" : "Show Heatmap Overlay"}
+                        </button>
+                      </div>
+
+                      <div className="relative border border-[rgba(255,255,255,0.08)] bg-[#050508] rounded overflow-hidden shadow-2xl w-full max-w-[450px]">
+                        <img 
+                          src={`${backendUrl}${item.filepath}`} 
+                          alt="AI Editing Forensic Map" 
+                          className="w-full h-auto object-contain rounded block"
+                        />
+                        
+                        {/* Heatmap Overlay Divs */}
+                        {showHeatmap && item.ai_edit_analysis_json.suspicious_regions && 
+                          item.ai_edit_analysis_json.suspicious_regions.map((reg: any, idx: number) => (
+                            <div
+                              key={idx}
+                              className="absolute border border-[#FF3366] bg-[#FF3366]/25 transition-all hover:bg-[#FF3366]/45 cursor-help group"
+                              style={{
+                                left: `${reg.x_pct}%`,
+                                top: `${reg.y_pct}%`,
+                                width: `${reg.width_pct}%`,
+                                height: `${reg.height_pct}%`,
+                              }}
+                            >
+                              {/* Hover Tooltip inside overlay */}
+                              <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-1.5 hidden group-hover:block bg-[#12121A] border border-[rgba(255,255,255,0.2)] text-white text-[8px] p-2 rounded shadow-2xl z-50 pointer-events-none w-48 text-center font-mono leading-relaxed">
+                                <span className="block font-bold text-[#FF3366] uppercase text-[7px] mb-0.5">SUSPICIOUS AI EDIT REGION {idx+1}</span>
+                                <span className="block text-gray-400 text-[7px] mb-1">{reg.confidence} ({reg.score}%)</span>
+                                <span className="text-[8px]">{reg.reason}</span>
+                              </div>
+                            </div>
+                          ))
+                        }
+                      </div>
+                      <span className="block text-[8px] text-gray-500 font-sans text-center">
+                        Coordinates mapped using a normalized percentage projection layer.
+                      </span>
+                    </div>
+                  </div>
+                )}
               </div>
-              {item.modification_report?.forensic_findings?.find((f: any) => f.finding === "CASIA Tampering")?.alternative_explanation && (
-                <div>
-                  <span className="block text-[8px] text-gray-500 uppercase tracking-widest font-bold">Alternative Explanation</span>
-                  <p className="mt-1 text-gray-400 leading-relaxed font-mono">
-                    {item.modification_report?.forensic_findings?.find((f: any) => f.finding === "CASIA Tampering")?.alternative_explanation}
-                  </p>
-                </div>
-              )}
-            </div>
+            )}
           </div>
         </div>
       )}
@@ -1585,10 +1993,11 @@ export default function MediaProfilePage() {
                 </div>
                 <div className="pt-2 border-t border-[rgba(255,255,255,0.03)]">
                   <span className="block font-mono text-[8px] text-gray-500 uppercase tracking-widest mb-1">Origin Status</span>
-                  <span className={`inline-block px-2 py-0.5 rounded text-[8px] font-black uppercase tracking-widest border ${item.modification_report?.relationship_analysis?.origin_undetermined
+                  <span className={`inline-block px-2 py-0.5 rounded text-[8px] font-black uppercase tracking-widest border ${
+                    item.modification_report?.relationship_analysis?.origin_undetermined
                       ? "bg-[#FFCC00]/10 text-[#FFCC00] border-[#FFCC00]/20"
                       : "bg-[#00FF9D]/10 text-[#00FF9D] border-[#00FF9D]/20"
-                    }`}>
+                  }`}>
                     {item.modification_report?.relationship_analysis?.origin_undetermined ? "Undetermined / Probabilistic Fallback" : "Determined Baseline"}
                   </span>
                 </div>
@@ -1636,22 +2045,23 @@ export default function MediaProfilePage() {
                       <Award className="h-5 w-5 text-[#00FF9D]" />
                       <span className="font-mono text-xs font-bold text-white uppercase tracking-wider">Investigation Confidence</span>
                     </div>
-                    <span className={`inline-block px-1.5 py-0.5 rounded text-[8px] font-black border uppercase ${item.modification_report?.overall_investigation_confidence?.sufficiency === "Strong"
+                    <span className={`inline-block px-1.5 py-0.5 rounded text-[8px] font-black border uppercase ${
+                      item.modification_report?.overall_investigation_confidence?.sufficiency === "Strong"
                         ? "bg-[#00FF9D]/10 text-[#00FF9D] border-[rgba(0,255,157,0.3)]"
                         : item.modification_report?.overall_investigation_confidence?.sufficiency === "Moderate"
-                          ? "bg-[#F59E0B]/10 text-[#F59E0B] border-[rgba(245,158,11,0.3)]"
-                          : "bg-[#FF3366]/10 text-[#FF3366] border-[rgba(255,51,102,0.3)]"
-                      }`}>
+                        ? "bg-[#F59E0B]/10 text-[#F59E0B] border-[rgba(245,158,11,0.3)]"
+                        : "bg-[#FF3366]/10 text-[#FF3366] border-[rgba(255,51,102,0.3)]"
+                    }`}>
                       Sufficiency: {item.modification_report?.overall_investigation_confidence?.sufficiency ?? "Not Evaluated"}
                     </span>
                   </div>
                   <div className="flex items-baseline gap-2 mt-2">
                     <span className="text-3xl font-extrabold text-white tracking-tight">
-                      {item.modification_report?.overall_investigation_confidence?.score !== undefined
-                        ? `${item.modification_report.overall_investigation_confidence.score}%`
+                      {item.modification_report?.overall_investigation_confidence?.score !== undefined 
+                        ? `${item.modification_report.overall_investigation_confidence.score}%` 
                         : item.modification_report?.executive_summary?.confidence_score !== undefined
-                          ? `${item.modification_report.executive_summary.confidence_score}%`
-                          : "Not Evaluated"}
+                        ? `${item.modification_report.executive_summary.confidence_score}%`
+                        : "Not Evaluated"}
                     </span>
                     <span className={`px-2 py-0.5 rounded text-[8px] font-black uppercase border ${getConfidenceBadgeColor(
                       item.modification_report?.overall_investigation_confidence?.level ?? "Not Evaluated"
@@ -1688,7 +2098,7 @@ export default function MediaProfilePage() {
                     {item.sha256}
                   </span>
                 </div>
-
+                
                 <div className="grid grid-cols-3 gap-2">
                   <div className="bg-[#121212] p-2 rounded border border-[rgba(255,255,255,0.03)]">
                     <span className="block text-[7px] text-gray-500 uppercase tracking-widest">pHash</span>
@@ -1753,7 +2163,7 @@ export default function MediaProfilePage() {
               {/* Explicit Checklist Flags */}
               <div className="border-t border-[rgba(255,255,255,0.05)] pt-4 space-y-2 font-mono text-[10px]">
                 <span className="block text-[8px] uppercase tracking-widest text-gray-500 mb-1">Checks & Flags</span>
-
+                
                 {[
                   { label: "Metadata Removed", key: "metadata_stripped" },
                   { label: "Crop Detected", key: "cropping_detected" },
@@ -1764,12 +2174,13 @@ export default function MediaProfilePage() {
                 ].map((flag) => {
                   const val = item.modification_report?.[flag.key] ?? false;
                   return (
-                    <div
+                    <div 
                       key={flag.key}
-                      className={`flex justify-between items-center px-2 py-1 rounded border transition-colors ${val
+                      className={`flex justify-between items-center px-2 py-1 rounded border transition-colors ${
+                        val 
                           ? "bg-[rgba(255,51,102,0.05)] text-[#FF3366] border-[rgba(255,51,102,0.15)]"
                           : "bg-[rgba(0,255,157,0.02)] text-gray-400 border-[rgba(255,255,255,0.04)]"
-                        }`}
+                      }`}
                     >
                       <span className="uppercase">{flag.label}</span>
                       <span className="font-bold">{val ? "DETECTED" : "CLEAN / UNCHANGED"}</span>
@@ -1804,15 +2215,16 @@ export default function MediaProfilePage() {
                   </h2>
                 </div>
                 {graphData.timeline_confidence !== undefined && (
-                  <span className={`px-2 py-0.5 rounded text-[8px] font-black uppercase tracking-wider border ${graphData.timeline_inconclusive
+                  <span className={`px-2 py-0.5 rounded text-[8px] font-black uppercase tracking-wider border ${
+                    graphData.timeline_inconclusive
                       ? "bg-[#FF3366]/10 text-[#FF3366] border-[#FF3366]/20"
                       : "bg-[#00FF9D]/10 text-[#00FF9D] border-[#00FF9D]/20"
-                    }`}>
+                  }`}>
                     Timeline Confidence: {graphData.timeline_confidence}% ({graphData.timeline_inconclusive ? "INCONCLUSIVE" : "VALIDATED"})
                   </span>
                 )}
               </div>
-
+              
               {graphData.timeline_inconclusive ? (
                 <div className="rounded border border-[rgba(255,51,102,0.15)] bg-[rgba(255,51,102,0.02)] p-6 font-mono text-center space-y-2">
                   <AlertCircle className="h-8 w-8 text-[#FF3366] mx-auto animate-pulse" />
@@ -1826,25 +2238,27 @@ export default function MediaProfilePage() {
                   {graphData.nodes.map((node, index) => {
                     const isOrigin = node.type === "original";
                     const isCurrent = node.id === item.id;
-
+                    
                     return (
                       <div key={node.id} className="flex flex-col md:flex-row items-center gap-4 flex-shrink-0">
-                        <div
+                        <div 
                           onClick={() => {
                             if (node.id !== item.id) {
                               router.push(`/media/${node.id}`);
                             }
                           }}
-                          className={`p-3 rounded border text-center font-mono cursor-pointer transition-all w-40 min-h-[100px] flex flex-col justify-between ${isCurrent
+                          className={`p-3 rounded border text-center font-mono cursor-pointer transition-all w-40 min-h-[100px] flex flex-col justify-between ${
+                            isCurrent
                               ? "border-[#00E5FF] bg-[rgba(0,229,255,0.05)] shadow-[0_0_8px_rgba(0,229,255,0.2)]"
                               : isOrigin
-                                ? "border-[#7C3AED] bg-[rgba(124,58,237,0.05)]"
-                                : "border-[rgba(255,255,255,0.06)] bg-[#111115] hover:bg-[#181822]"
-                            }`}
+                              ? "border-[#7C3AED] bg-[rgba(124,58,237,0.05)]"
+                              : "border-[rgba(255,255,255,0.06)] bg-[#111115] hover:bg-[#181822]"
+                          }`}
                         >
                           <div className="space-y-1">
-                            <span className={`block text-[8px] uppercase tracking-wider font-bold ${isOrigin ? "text-[#A78BFA]" : "text-gray-500"
-                              }`}>
+                            <span className={`block text-[8px] uppercase tracking-wider font-bold ${
+                              isOrigin ? "text-[#A78BFA]" : "text-gray-500"
+                            }`}>
                               {isOrigin ? "Most Probable Origin" : `Step ${index}`}
                             </span>
                             <span className="block text-[10px] text-white truncate font-semibold px-1" title={node.label}>
@@ -1862,7 +2276,7 @@ export default function MediaProfilePage() {
                             </div>
                           </div>
                         </div>
-
+                        
                         {index < graphData.nodes.length - 1 && (
                           <div className="flex items-center justify-center text-[#00E5FF]">
                             <ArrowRight className="h-5 w-5 transform rotate-90 md:rotate-0" />
@@ -1916,8 +2330,8 @@ export default function MediaProfilePage() {
                   }
 
                   return (
-                    <div
-                      key={key}
+                    <div 
+                      key={key} 
                       className="border border-[rgba(255,255,255,0.04)] bg-[#07070A]/50 p-4 rounded-lg space-y-3 font-mono flex flex-col justify-between"
                     >
                       <div className="space-y-2 font-mono text-xs">
@@ -1931,12 +2345,13 @@ export default function MediaProfilePage() {
                               {levelText} ({confidenceText}%)
                             </span>
                             {insight?.evidence_sufficiency && (
-                              <span className={`px-2 py-0.5 rounded text-[8px] font-black tracking-widest uppercase border ${insight.evidence_sufficiency === "Strong"
+                              <span className={`px-2 py-0.5 rounded text-[8px] font-black tracking-widest uppercase border ${
+                                insight.evidence_sufficiency === "Strong"
                                   ? "bg-[#00FF9D]/10 text-[#00FF9D] border-[rgba(0,255,157,0.3)]"
                                   : insight.evidence_sufficiency === "Moderate"
-                                    ? "bg-[#F59E0B]/10 text-[#F59E0B] border-[rgba(245,158,11,0.3)]"
-                                    : "bg-[#FF3366]/10 text-[#FF3366] border-[rgba(255,51,102,0.3)]"
-                                }`}>
+                                  ? "bg-[#F59E0B]/10 text-[#F59E0B] border-[rgba(245,158,11,0.3)]"
+                                  : "bg-[#FF3366]/10 text-[#FF3366] border-[rgba(255,51,102,0.3)]"
+                              }`}>
                                 SUFFICIENCY: {insight.evidence_sufficiency}
                               </span>
                             )}
@@ -2029,13 +2444,13 @@ export default function MediaProfilePage() {
                       );
                     })}
                     {!item.modification_report?.metadata_stripped &&
-                      !item.modification_report?.cropping_detected &&
-                      !item.modification_report?.resizing_detected &&
-                      !item.modification_report?.re_encoded &&
-                      !item.modification_report?.heavy_compression &&
-                      !item.modification_report?.watermark_detected && (
-                        <span className="text-[#00FF9D] text-[8px] font-bold">No modification flags</span>
-                      )}
+                     !item.modification_report?.cropping_detected &&
+                     !item.modification_report?.resizing_detected &&
+                     !item.modification_report?.re_encoded &&
+                     !item.modification_report?.heavy_compression &&
+                     !item.modification_report?.watermark_detected && (
+                      <span className="text-[#00FF9D] text-[8px] font-bold">No modification flags</span>
+                    )}
                   </div>
                 </div>
               </div>
@@ -2062,7 +2477,9 @@ export default function MediaProfilePage() {
                   </div>
                   <div className="flex justify-between">
                     <span>Clip Embed:</span>
-                    <span className="text-white font-bold">{item.embedding ? "512-dim" : "N/A"}</span>
+                    <span className={(!item.embedding || item.embedding.length === 0) ? "text-amber-500 font-bold animate-pulse" : "text-white font-bold"}>
+                      {(!item.embedding || item.embedding.length === 0) ? "Pending" : "512-dim"}
+                    </span>
                   </div>
                 </div>
               </div>
@@ -2087,20 +2504,21 @@ export default function MediaProfilePage() {
                   <div>
                     <span className="block text-[8px] text-gray-500">INVESTIGATION CONFIDENCE</span>
                     <span className="text-sm font-black text-white">
-                      {item.modification_report?.overall_investigation_confidence?.score !== undefined
-                        ? `${item.modification_report.overall_investigation_confidence.score}%`
+                      {item.modification_report?.overall_investigation_confidence?.score !== undefined 
+                        ? `${item.modification_report.overall_investigation_confidence.score}%` 
                         : "Not Evaluated"}
                     </span>
                     <span className="block text-[8px] text-gray-500 text-[7px]">LEVEL: {item.modification_report?.overall_investigation_confidence?.level ?? "Not Evaluated"}</span>
                   </div>
                   <div className="border-t border-[rgba(255,255,255,0.04)] pt-2 mt-2">
                     <span className="block text-[8px] text-gray-500">EVIDENCE SUFFICIENCY</span>
-                    <span className={`inline-block px-1.5 py-0.5 rounded text-[8px] font-black border uppercase mt-1 ${item.modification_report?.overall_investigation_confidence?.sufficiency === "Strong"
+                    <span className={`inline-block px-1.5 py-0.5 rounded text-[8px] font-black border uppercase mt-1 ${
+                      item.modification_report?.overall_investigation_confidence?.sufficiency === "Strong"
                         ? "bg-[#00FF9D]/10 text-[#00FF9D] border-[rgba(0,255,157,0.3)]"
                         : item.modification_report?.overall_investigation_confidence?.sufficiency === "Moderate"
-                          ? "bg-[#F59E0B]/10 text-[#F59E0B] border-[rgba(245,158,11,0.3)]"
-                          : "bg-[#FF3366]/10 text-[#FF3366] border-[rgba(255,51,102,0.3)]"
-                      }`}>
+                        ? "bg-[#F59E0B]/10 text-[#F59E0B] border-[rgba(245,158,11,0.3)]"
+                        : "bg-[#FF3366]/10 text-[#FF3366] border-[rgba(255,51,102,0.3)]"
+                    }`}>
                       {item.modification_report?.overall_investigation_confidence?.sufficiency ?? "Not Evaluated"}
                     </span>
                   </div>
@@ -2133,7 +2551,7 @@ export default function MediaProfilePage() {
                   Detailed Diagnostic Findings
                 </h2>
               </div>
-
+              
               <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
                 {/* Executive Summary & Confidence Factors */}
                 <div className="lg:col-span-5 space-y-6">
@@ -2154,7 +2572,7 @@ export default function MediaProfilePage() {
                         </ul>
                       </div>
                     )}
-
+                    
                     {/* Overall Confidence & Factors */}
                     <div className="border-t border-[rgba(255,255,255,0.06)] pt-4">
                       <div className="flex justify-between items-center mb-3">
@@ -2163,9 +2581,9 @@ export default function MediaProfilePage() {
                           {item.modification_report.executive_summary?.confidence_score}%
                         </span>
                       </div>
-
+                      
                       <div className="space-y-2.5">
-                        {item.modification_report.executive_summary?.confidence_factors &&
+                        {item.modification_report.executive_summary?.confidence_factors && 
                           Object.entries(item.modification_report.executive_summary.confidence_factors).map(([factor, score]: any) => (
                             <div key={factor} className="space-y-1">
                               <div className="flex justify-between text-[9px]">
@@ -2181,12 +2599,12 @@ export default function MediaProfilePage() {
                       </div>
                     </div>
                   </div>
-
+                  
                   {/* Relationship Analysis details */}
                   {item.modification_report.relationship_analysis && (
                     <div className="bg-[#12121A]/50 border border-[rgba(255,255,255,0.04)] rounded p-4 font-mono space-y-3">
                       <span className="block text-[8px] text-[#00FF9D] uppercase tracking-widest">Visual Clustering Details</span>
-
+                      
                       <div className="grid grid-cols-2 gap-4 text-[10px]">
                         <div>
                           <span className="block text-[8px] text-gray-500">Related Assets</span>
@@ -2218,10 +2636,11 @@ export default function MediaProfilePage() {
                             </div>
                             <div className="col-span-2">
                               <span className="block text-[8px] text-gray-500">Origin Selection Status</span>
-                              <span className={`px-1.5 py-0.5 rounded text-[8px] font-black uppercase tracking-widest border ${item.modification_report.relationship_analysis.origin_undetermined
+                              <span className={`px-1.5 py-0.5 rounded text-[8px] font-black uppercase tracking-widest border ${
+                                item.modification_report.relationship_analysis.origin_undetermined
                                   ? "bg-[#FFCC00]/10 text-[#FFCC00] border-[#FFCC00]/20"
                                   : "bg-[#00FF9D]/10 text-[#00FF9D] border-[#00FF9D]/20"
-                                }`}>
+                              }`}>
                                 {item.modification_report.relationship_analysis.origin_undetermined ? "Undetermined / Probabilistic" : "Determined Baseline"}
                               </span>
                             </div>
@@ -2231,7 +2650,7 @@ export default function MediaProfilePage() {
                     </div>
                   )}
                 </div>
-
+                
                 {/* Technical Profile & Forensic Findings list */}
                 <div className="lg:col-span-7 space-y-6">
                   {/* Technical Profile Table */}
@@ -2258,7 +2677,7 @@ export default function MediaProfilePage() {
                         <div>
                           <span className="block text-[8px] text-gray-500">Est. JPEG Quality</span>
                           <span className="text-white font-bold">
-                            {item.modification_report.technical_profile.compression_indicators?.jpeg_quality !== null
+                            {item.modification_report.technical_profile.compression_indicators?.jpeg_quality !== null 
                               ? `${item.modification_report.technical_profile.compression_indicators?.jpeg_quality}%`
                               : "N/A"}
                           </span>
@@ -2272,11 +2691,11 @@ export default function MediaProfilePage() {
                       </div>
                     )}
                   </div>
-
+                  
                   {/* Detailed Forensic Findings */}
                   <div className="bg-[#12121A]/50 border border-[rgba(255,255,255,0.04)] rounded p-4 font-mono space-y-4">
                     <span className="block text-[8px] text-gray-500 uppercase tracking-widest">Detailed Forensic Findings</span>
-
+                    
                     <div className="space-y-4">
                       {item.modification_report.forensic_findings?.map((finding: any, idx: number) => {
                         let statusColor = "bg-[#FFCC00]/10 text-[#FFCC00] border-[#FFCC00]/20";
@@ -2285,7 +2704,7 @@ export default function MediaProfilePage() {
                         } else if (finding.status === "Not Detected") {
                           statusColor = "bg-[#00FF9D]/10 text-[#00FF9D] border-[#00FF9D]/20";
                         }
-
+                        
                         return (
                           <div key={idx} className="border border-[rgba(255,255,255,0.03)] bg-[#07070A]/50 p-3 rounded space-y-2">
                             <div className="flex justify-between items-center">
@@ -2297,7 +2716,7 @@ export default function MediaProfilePage() {
                                 </span>
                               </div>
                             </div>
-
+                            
                             {finding.evidence?.length > 0 && (
                               <div className="space-y-1">
                                 <span className="block text-[7px] text-gray-500 uppercase">Supporting Evidence</span>
@@ -2337,13 +2756,15 @@ export default function MediaProfilePage() {
                     <button
                       key={step.id}
                       onClick={() => setActiveVisualizerStep(step.id)}
-                      className={`w-full text-left p-3 rounded border font-mono transition-all flex items-center gap-3 ${activeVisualizerStep === step.id
+                      className={`w-full text-left p-3 rounded border font-mono transition-all flex items-center gap-3 ${
+                        activeVisualizerStep === step.id
                           ? "border-[#00E5FF] bg-[#00E5FF]/5 shadow-[0_0_8px_rgba(0,229,255,0.2)]"
                           : "border-[rgba(255,255,255,0.04)] bg-[#111] hover:bg-[#151515]"
-                        }`}
+                      }`}
                     >
-                      <div className={`h-6 w-6 rounded flex items-center justify-center text-xs font-bold ${activeVisualizerStep === step.id ? "bg-[#00E5FF] text-black" : "bg-[#1F1F1F] text-gray-400"
-                        }`}>
+                      <div className={`h-6 w-6 rounded flex items-center justify-center text-xs font-bold ${
+                        activeVisualizerStep === step.id ? "bg-[#00E5FF] text-black" : "bg-[#1F1F1F] text-gray-400"
+                      }`}>
                         {step.id}
                       </div>
                       <div>
@@ -2359,11 +2780,11 @@ export default function MediaProfilePage() {
                   <span className="block font-mono text-[9px] uppercase tracking-widest text-[#00FF9D] mb-4">
                     Step {activeVisualizerStep}: {stepLabels[activeVisualizerStep - 1].name}
                   </span>
-
+                  
                   <div className="relative border border-[rgba(255,255,255,0.06)] bg-[#07070A] rounded p-2 max-w-[280px]">
-                    <img
-                      src={(phashSteps as any)[`step${activeVisualizerStep}`]}
-                      alt={`pHash Stage ${activeVisualizerStep}`}
+                    <img 
+                      src={(phashSteps as any)[`step${activeVisualizerStep}`]} 
+                      alt={`pHash Stage ${activeVisualizerStep}`} 
                       className="max-h-[250px] object-contain w-full rounded"
                     />
                   </div>
@@ -2395,8 +2816,8 @@ export default function MediaProfilePage() {
                 {item.keyframes.map((kf) => (
                   <div key={kf.id} className="border border-[rgba(255,255,255,0.04)] bg-[#111] rounded p-2 space-y-2">
                     <div className="relative rounded overflow-hidden aspect-video bg-black">
-                      <img
-                        src={`${backendUrl}${kf.filepath}`}
+                      <img 
+                        src={`${backendUrl}${kf.filepath}`} 
                         alt={`Frame ${kf.timestamp}`}
                         className="object-cover w-full h-full"
                       />
@@ -2426,12 +2847,12 @@ export default function MediaProfilePage() {
               <div className="grid grid-cols-12 gap-1.5 h-20 items-end bg-[#111] p-4 rounded border border-[rgba(255,255,255,0.03)]">
                 {item.audio_fingerprint.mean_chroma.map((val: number, idx: number) => (
                   <div key={idx} className="h-full flex flex-col justify-end gap-1.5 text-center">
-                    <div
+                    <div 
                       className="bg-gradient-to-t from-[#7C3AED] to-[#00FF9D] w-full rounded-t-sm transition-all"
                       style={{ height: `${Math.max(5, val * 100)}%` }}
                     ></div>
                     <span className="font-mono text-[7px] text-gray-600">
-                      {["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"][idx]}
+                      {["C","C#","D","D#","E","F","F#","G","G#","A","A#","B"][idx]}
                     </span>
                   </div>
                 ))}
@@ -2469,8 +2890,8 @@ export default function MediaProfilePage() {
                     </tr>
                   ) : (
                     similarItems.map((match) => (
-                      <tr
-                        key={match.id}
+                      <tr 
+                        key={match.id} 
                         className="border-b border-[rgba(255,255,255,0.03)] hover:bg-[rgba(255,255,255,0.01)] transition-colors"
                       >
                         <td className="py-3 font-semibold text-white max-w-[200px] truncate">
@@ -2494,7 +2915,7 @@ export default function MediaProfilePage() {
                           </span>
                         </td>
                         <td className="py-3 text-right">
-                          <button
+                          <button 
                             onClick={() => router.push(`/media/${match.id}`)}
                             className="inline-flex items-center gap-1 text-[#00E5FF] hover:underline"
                           >
@@ -2573,7 +2994,7 @@ export default function MediaProfilePage() {
                     className="w-full bg-[#08080C] border border-[rgba(255,255,255,0.08)] rounded px-3 py-2 text-white focus:outline-none focus:border-[#7C3AED] font-mono text-xs"
                   />
                 </div>
-
+                
                 {osintTags.length > 0 && (
                   <div>
                     <span className="block text-[8px] uppercase tracking-widest text-gray-500 mb-1">Generated Image Tags</span>
@@ -2725,38 +3146,40 @@ export default function MediaProfilePage() {
                       Timeline Log View
                     </h3>
                   </div>
-
+ 
                   <div className="relative pl-6 border-l border-[rgba(255,255,255,0.06)] space-y-6 max-h-[500px] overflow-y-auto pr-2">
                     {osintResults.map((res, idx) => {
                       const isReal = res.source_type === "real_provider" || res.source_type === "apify";
                       return (
                         <div key={idx} className="relative space-y-1.5 animate-fadeIn">
                           {/* Dot */}
-                          <div className={`absolute -left-[30px] top-1.5 h-2 w-2 rounded-full border-2 ${isReal ? "bg-[#00FF9D] border-[#00FF9D]" : "bg-[#FF3366] border-[#FF3366]"
-                            }`} />
-
+                          <div className={`absolute -left-[30px] top-1.5 h-2 w-2 rounded-full border-2 ${
+                            isReal ? "bg-[#00FF9D] border-[#00FF9D]" : "bg-[#FF3366] border-[#FF3366]"
+                          }`} />
+                          
                           <div className="flex items-center gap-2 flex-wrap">
                             <span className="block font-mono text-[8px] text-gray-500 font-bold">
                               {res.publication_date || "N/A Date"}
                             </span>
-                            <span className={`px-1.5 py-0.5 rounded text-[7px] font-black uppercase tracking-wider ${isReal
+                            <span className={`px-1.5 py-0.5 rounded text-[7px] font-black uppercase tracking-wider ${
+                              isReal
                                 ? "bg-[#00FF9D]/10 text-[#00FF9D] border border-[#00FF9D]/20"
                                 : "bg-[#FF3366]/10 text-[#FF3366] border border-[#FF3366]/20"
-                              }`}>
+                            }`}>
                               {isReal ? "REAL PROVIDER" : "SIMULATED RESULT"}
                             </span>
                             <span className="text-[7.5px] text-gray-500 font-bold font-mono">
                               ({res.source_type === "real_provider" ? res.source : res.source_type === "apify" ? "Apify Search" : "Mock Registry"})
                             </span>
                           </div>
-
+                          
                           <h4 className="font-mono text-xs font-bold text-white hover:text-[#00E5FF] transition-colors leading-tight">
                             <a href={res.url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1">
                               {res.title}
                               <ExternalLink className="h-2.5 w-2.5 inline" />
                             </a>
                           </h4>
-
+                          
                           <p className="font-mono text-[9px] text-gray-400 line-clamp-2 leading-relaxed">
                             {res.snippet}
                           </p>
@@ -2765,7 +3188,7 @@ export default function MediaProfilePage() {
                     })}
                   </div>
                 </div>
-
+ 
                 {/* Data Table Panel */}
                 <div className="cyber-card p-6 space-y-4 lg:col-span-2">
                   <div className="border-b border-[rgba(255,255,255,0.06)] pb-3">
@@ -2773,7 +3196,7 @@ export default function MediaProfilePage() {
                       OSINT Source Table
                     </h3>
                   </div>
-
+ 
                   <div className="overflow-x-auto">
                     <table className="w-full text-left font-mono text-xs text-gray-400">
                       <thead>
@@ -2788,36 +3211,38 @@ export default function MediaProfilePage() {
                       <tbody>
                         {osintResults.map((res, idx) => {
                           const isReal = res.source_type === "real_provider" || res.source_type === "apify";
-                          const providerName =
+                          const providerName = 
                             res.source_type === "real_provider" ? res.source :
-                              res.source_type === "apify" ? "Apify Search" : "Mock Registry";
+                            res.source_type === "apify" ? "Apify Search" : "Mock Registry";
                           return (
                             <tr key={idx} className="border-b border-[rgba(255,255,255,0.03)] hover:bg-[rgba(255,255,255,0.01)] transition-colors">
                               <td className="py-3.5 pr-2 align-top">
                                 <span className="block text-[9px] font-bold text-white uppercase">{providerName}</span>
                                 <span className="block text-[8px] text-gray-500 font-mono mt-0.5">{res.source}</span>
                               </td>
-
+                              
                               <td className="py-3.5 pr-4 space-y-1 align-top max-w-[280px]">
                                 <span className="block font-semibold text-white leading-snug">{res.title}</span>
                                 <span className="block text-[9px] text-gray-500 leading-relaxed line-clamp-3">{res.snippet}</span>
                                 <span className="block text-[8px] text-gray-600 font-bold">Published: {res.publication_date}</span>
                               </td>
-
+                              
                               <td className="py-3.5 pr-2 align-top">
-                                <span className={`inline-block px-2 py-0.5 rounded text-[8px] font-black uppercase tracking-widest ${isReal ? "bg-[#00FF9D]/10 text-[#00FF9D] border border-[#00FF9D]/20" :
-                                    "bg-[#FF3366]/10 text-[#FF3366] border border-[#FF3366]/20"
-                                  }`}>
+                                <span className={`inline-block px-2 py-0.5 rounded text-[8px] font-black uppercase tracking-widest ${
+                                  isReal ? "bg-[#00FF9D]/10 text-[#00FF9D] border border-[#00FF9D]/20" :
+                                  "bg-[#FF3366]/10 text-[#FF3366] border border-[#FF3366]/20"
+                                }`}>
                                   {isReal ? "REAL PROVIDER" : "SIMULATED RESULT"}
                                 </span>
                               </td>
-
+                              
                               <td className="py-3.5 text-center align-top whitespace-nowrap">
                                 <div className="space-y-1">
-                                  <span className={`block font-black text-sm ${res.confidence >= 80 ? "text-[#00FF9D] glow-text-green" :
-                                      res.confidence >= 60 ? "text-[#00E5FF] glow-text-cyan" :
-                                        "text-yellow-500"
-                                    }`}>
+                                  <span className={`block font-black text-sm ${
+                                    res.confidence >= 80 ? "text-[#00FF9D] glow-text-green" :
+                                    res.confidence >= 60 ? "text-[#00E5FF] glow-text-cyan" :
+                                    "text-yellow-500"
+                                  }`}>
                                     {res.confidence}% Match
                                   </span>
                                   {res.reason && (
@@ -2827,7 +3252,7 @@ export default function MediaProfilePage() {
                                   )}
                                 </div>
                               </td>
-
+                              
                               <td className="py-3.5 text-right align-top">
                                 <a
                                   href={res.url}
@@ -2872,10 +3297,10 @@ export default function MediaProfilePage() {
                         ) : (
                           <span className="text-gray-600">None</span>
                         )}
-                        {(!item.modification_report?.osint_summary?.provider_status ||
+                        {(!item.modification_report?.osint_summary?.provider_status || 
                           Object.values(item.modification_report.osint_summary.provider_status).every((status: any) => status.includes("Degraded") || status.includes("Offline"))) && (
-                            <span className="text-gray-600">None</span>
-                          )}
+                          <span className="text-gray-600">None</span>
+                        )}
                       </div>
                     </div>
 

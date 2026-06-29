@@ -7,16 +7,40 @@ from PIL import Image
 # Add backend to path
 sys.path.append(os.path.abspath(os.path.dirname(__file__)))
 
-from fastapi.testclient import TestClient
-from app.main import app
-from app.database import get_db, Base, custom_dumps
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from app.models import MediaItem, Case
+
+# Define NumpyEncoder and custom_dumps here to avoid early dependency on app.database
+import numpy as np
+class NumpyEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, np.bool_):
+            return bool(obj)
+        if isinstance(obj, np.integer):
+            return int(obj)
+        if isinstance(obj, np.floating):
+            return float(obj)
+        if isinstance(obj, np.ndarray):
+            return obj.tolist()
+        return super().default(obj)
+
+def custom_dumps(obj):
+    return json.dumps(obj, cls=NumpyEncoder)
 
 TEMP_DB_URL = "sqlite:///./temp_clean_room.db"
 temp_engine = create_engine(TEMP_DB_URL, connect_args={"check_same_thread": False}, json_serializer=custom_dumps)
 TempSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=temp_engine)
+
+# Monkeypatch database SessionLocal before app is imported
+import app.database as app_db
+app_db.SessionLocal = TempSessionLocal
+
+from fastapi.testclient import TestClient
+from app.main import app
+import app.main as app_main
+app_main.SessionLocal = TempSessionLocal
+from app.database import get_db, Base
+from app.models import MediaItem, Case
 
 def override_get_db():
     db = TempSessionLocal()
